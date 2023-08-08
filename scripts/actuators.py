@@ -12,6 +12,7 @@
 
 def thrust(cmd):
 
-    f = 10*cmd*cmd
+    #f = 10*cmd*cmd
+    f = 12*cmd
 
     return f

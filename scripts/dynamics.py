@@ -12,12 +12,12 @@ import time
 import actuators as ACT
 import sensors as SENS
 import silsim_comm as COM
-
+import threading
 
 g = 9.81
 m = 2
-drag_v = 0.5
-drag_w = 0.1
+drag_v = 0.5*10
+drag_w = 0.1*10
 J = 0.08
 
 
@@ -99,7 +99,8 @@ def quat_apply_rot(q_in,u_in):
     q = q_in
     q_conj = quat_conj(q_in)
 
-    v = quaternion_multiply(q,quaternion_multiply(u,q_conj))
+    #v = quaternion_multiply(q,quaternion_multiply(u,q_conj))
+    v = quaternion_multiply(quaternion_multiply(q,u),q_conj)
 
     
 
@@ -118,7 +119,50 @@ def normalize(u):
     return u/np.linalg.norm(u)
 
 
+def read_keyboard_input(prompt="Enter input: "):
+    user_input = input(prompt)
+    return user_input
+
+def keyboard_input_thread():
+    while True:
+        user_input = read_keyboard_input("Please enter your input (or 'exit' to quit): ")
+        
+        global channels
+        #roll_pwm = roll # Channel 1 (Roll) PWM value
+        #pitch_pwm = pitch# Channel 2 (Pitch) PWM value
+        #throttle_pwm = throttle  # Channel 3 (Throttle) PWM value
+        #yaw_pwm = yaw  # Channel 4 (Yaw) PWM value
+        
+        if user_input.lower() == "exit":
+            break
+        
+        channels = [1500]*18
+        if "w" in user_input.lower():
+            channels[2] = 2000
+        elif "s" in user_input.lower():
+            channels[2] = 1000
+        elif "a" in user_input.lower():
+            channels[3] = 2000
+        elif "d" in user_input.lower():
+            channels[3] = 1000
+        elif "i" in user_input.lower():
+            channels[1] = 2000
+        elif "k" in user_input.lower():
+            channels[1] = 1000
+        elif "j" in user_input.lower():
+            channels[0] = 2000
+        elif "l" in user_input.lower():
+            channels[0] = 1000
+        
+        
+        print("You entered:", user_input)
+
+
+
+
+
 def main_loop():
+    global channels
     # Set the desired loop frequency in Hertz (times per second)
     loop_frequency = 500
 
@@ -134,7 +178,7 @@ def main_loop():
 
 
     PX4 = COM.px4_connection("tcpin", "localhost", "4560")
-    PX4.connect()
+    c = PX4.connect()
 
 
 
@@ -145,7 +189,13 @@ def main_loop():
     last_time_gps = -1
     last_time_rc = -1
 
-
+    motor_commands = [0,0,0,0]
+    
+    
+    channels = [1500]*18
+    keyboard_thread = threading.Thread(target=keyboard_input_thread)
+    keyboard_thread.start()
+    
 
     # Start the loop
     iteration = 0
@@ -153,8 +203,48 @@ def main_loop():
         loop_start_time = time.time()
 
 
-        tau = 2.1*g
-        T = [0,0,0]
+
+        # Receive MAVLink messages (blocking operation)
+        msg = c.recv_match(blocking=False)
+
+        if msg is not None:
+            #print("\33[91m")
+            #print("msg.get_type(): ", msg.get_type())
+            # Check if it's the expected message type (SET_ACTUATOR_CONTROL_TARGET)
+            #if msg.get_type() == "SET_ACTUATOR_CONTROL_TARGET":
+            if msg.get_type() == "HIL_ACTUATOR_CONTROLS":
+            
+                # Extract motor control commands from the message
+                motor_commands = msg.controls
+
+                # Process the motor commands and apply them to your simulator's motors
+                # Example: Apply motor_commands[0] to motor 1, motor_commands[1] to motor 2, and so on.
+                #print("Received message:", msg)
+                #print("Received motor commands:", motor_commands)
+        
+            #print("\33[0m")
+
+
+        f1 = ACT.thrust(motor_commands[0])
+        f2 = ACT.thrust(motor_commands[1])
+        f3 = ACT.thrust(motor_commands[2])
+        f4 = ACT.thrust(motor_commands[3])
+
+
+        #tau = 2.1*g
+        tau = f1+f2+f3+f4
+        if(p[2]<=0 and v[2]<0 and tau<m*g):
+            tau = m*g*1.001
+          
+        T = [0,0,0]  
+        #T[0] = 0.1*(-f1+f2+f3-f4)
+        #T[1] = 0.1*(-f1+f2-f3+f4)*0
+        #T[2] = 0.01*(-f1-f2+f3+f4)*0
+        T[0] = 0.15*(-f1+f2+f3-f4)
+        T[1] = 0.15*(-f1+f2-f3+f4)
+        T[2] = 0.06*(-f1-f2+f3+f4)
+        
+        T = np.array(T)
 
         f_drag = -drag_v*v
         T_drag = -drag_w*w
@@ -185,7 +275,6 @@ def main_loop():
 
         # Quaternion renormalization
         q = normalize(q)
-
 
 
         acc = SENS.get_acc(total_force,m)
@@ -219,7 +308,8 @@ def main_loop():
 
         t = time.time()
         if (t-last_time_rc > 0.02): # 50Hz
-            PX4.send_rc_commands(1500,1500,1500,1500)
+            #PX4.send_rc_commands(1500,1500,1500,1500)
+            PX4.send_rc_commands(channels)
             last_time_rc = t
 
         
@@ -229,12 +319,14 @@ def main_loop():
 
         # Increment iteration count
         iteration += 1
-        if iteration % 100 == 0:
+        if iteration % (100*100000000) == 0:
             print("Iteration:", iteration)
             print("  pos: ", p)
             print("  vel: ", v)
             print(" quat: ", q)
             print("omega: ", w)
+            print("tau: ", tau)
+            print("motor_commands: %f  %f  %f  %f" % (motor_commands[0], motor_commands[1], motor_commands[2], motor_commands[3]))
             print("")
 
 

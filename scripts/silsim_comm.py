@@ -56,6 +56,8 @@ class px4_connection:
         t_abs__s    = time.time()
         t_abs__us   = round(t_abs__s * 1e6)
         self.t_boot__us  = round(t_abs__us - 30e6)
+        
+        return self.vehicle
 
 
 
@@ -268,6 +270,9 @@ class px4_connection:
 
         t_abs__s    = time.time()
         t_abs__us   = round(t_abs__s * 1e6)
+
+        since_boot__us = t_abs__us - self.t_boot__us
+        since_boot__ms = round(since_boot__us / 1000)
         
         # Convert RC commands to PWM values or other appropriate units based on your vehicle requirements.
         # Ensure that the values are within the valid range for your specific vehicle.
@@ -280,17 +285,19 @@ class px4_connection:
         # throttle_pwm = map_to_pwm_range(throttle)  # Convert throttle command to PWM value
         # yaw_pwm = map_to_pwm_range(yaw)            # Convert yaw command to PWM value
         #
-        roll_pwm = roll # Channel 1 (Roll) PWM value
-        pitch_pwm = pitch# Channel 2 (Pitch) PWM value
-        throttle_pwm = throttle  # Channel 3 (Throttle) PWM value
-        yaw_pwm = yaw  # Channel 4 (Yaw) PWM value
+        #roll_pwm = roll # Channel 1 (Roll) PWM value
+        #pitch_pwm = pitch# Channel 2 (Pitch) PWM value
+        #throttle_pwm = throttle  # Channel 3 (Throttle) PWM value
+        #yaw_pwm = yaw  # Channel 4 (Yaw) PWM value
 
         # Send the RC commands to the vehicle using MAVLink or your communication interface.
         # The exact method or message type will depend on your specific vehicle and communication protocol.
 
 
 
-
+        
+        
+        
 
 
 
@@ -300,21 +307,31 @@ class px4_connection:
             # Use the appropriate message type supported by your autopilot or vehicle.
             # The channel numbers might vary based on your setup, so adjust them accordingly.
             # self.vehicle.mav.rc_channels_override_send(
-            self.vehicle.mav.hil_rc_inputs_raw_encode(
-                t_abs__us,
-                1550,
-                1400,
-                1600,
-                1100,
-                1444,
-                1566,
-                1900,
-                1990,
-                400,
-                500,
-                1900,
-                1900,
-                120,
+#            print("\33[91msend_rc_commands\33[0m")
+            # self.vehicle.mav.hil_rc_inputs_raw_encode(
+            
+            self.vehicle.mav.rc_channels_send(
+                since_boot__ms,
+                18,
+                channels[0],
+                channels[1],
+                channels[2],
+                channels[3],
+                channels[4],
+                channels[5],
+                channels[6],
+                channels[7],
+                channels[8],
+                channels[9],
+                channels[10],
+                channels[11],
+                channels[12],
+                channels[13],
+                channels[14],
+                channels[15],
+                channels[16],
+                channels[17],
+                80,
             )
 
 

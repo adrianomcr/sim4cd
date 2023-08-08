@@ -14,33 +14,39 @@
 
 import numpy as np
 import random
+from math import exp
 
 
 
 def get_acc(f,m):
 
-    acc = -f/m + np.random.normal(loc=0.0, scale=0.5, size=3)
+    acc0 = f/m + np.random.normal(loc=0.0, scale=0.5, size=3)
+
+    acc = np.array([acc0[0],-acc0[1],-acc0[2]])
 
     return acc # m/s^2
 
 
 def get_gyro(w):
 
-    gyro = w + np.random.normal(loc=0.1, scale=0.2, size=3)
+    gyro0 = w + np.random.normal(loc=0.0, scale=0.2, size=3)
+    gyro = np.array([gyro0[0],-gyro0[1],-gyro0[2]])
 
     return gyro # rad/s
 
 
 def get_mag(q,tau):
 
-    mag = np.array([0.6,0,0.05]) + np.random.normal(loc=0.0, scale=0.01, size=3)
+    mag0 = np.array([0.5,0,-0.1]) + np.random.normal(loc=0.0, scale=0.01, size=3)
+    mag = np.array([mag0[0],-mag0[1],-mag0[2]])
 
     return mag # Gauss
 
 
 def get_baro(z):
 
-    bar = 1000 - 100*(z/1000) + np.random.normal(loc=0.0, scale=0.01, size=1)
+    #bar = 1013.25 - 100*(z/1000) + np.random.normal(loc=0.0, scale=0.001, size=1)
+    bar = 1013.25 * exp(-z / 8400) + np.random.normal(loc=0.0, scale=0.001, size=1)
     # ~ sea level plus altitude
 
 
@@ -70,9 +76,9 @@ def get_gps(p):
     # gps['i_cog__cdeg'] = 0 + random.randrange(3)-1
 
 
-    gps['i_lat__degE7']               = round((   47.397742   +crandom()*5e-7     )*1e7)
-    gps['i_lon__degE7']               = round((   8.545594    +crandom()*5e-7     )*1e7)
-    gps['i_alt__mm']                  = round((   488         +crandom()*0.05     )*1000)
+    gps['i_lat__degE7']               = round((   40.448985+p[0]*meters2ged   +crandom()*5e-7     )*1e7)
+    gps['i_lon__degE7']               = round((   -79.898025-p[1]*meters2ged     +crandom()*5e-7     )*1e7)
+    gps['i_alt__mm']                  = round((   488*0+ p[2]         +crandom()*0.05     )*1000)
     gps['i_eph__cm']                  = round((   0.3         + random()*0.001    )*100)
     gps['i_epv__cm']                  = round((   0.4         + random()*0.001    )*100)
     gps['i_vel__cm/s']                = round((   0           + random()*0.001    )*100)
