@@ -38,6 +38,7 @@ def get_gyro(w):
 def get_mag(q,tau):
 
     mag0 = np.array([0.5,0,-0.1]) + np.random.normal(loc=0.0, scale=0.01, size=3)
+    #apply the rotation here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     mag = np.array([mag0[0],-mag0[1],-mag0[2]])
 
     return mag # Gauss
