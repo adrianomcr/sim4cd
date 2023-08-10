@@ -240,6 +240,10 @@ def main_loop():
         #T[0] = 0.1*(-f1+f2+f3-f4)
         #T[1] = 0.1*(-f1+f2-f3+f4)*0
         #T[2] = 0.01*(-f1-f2+f3+f4)*0
+
+
+
+
         T[0] = 0.15*(-f1+f2+f3-f4)
         T[1] = 0.15*(-f1+f2-f3+f4)
         T[2] = 0.06*(-f1-f2+f3+f4)
@@ -263,7 +267,7 @@ def main_loop():
         p_dot = v
         v_dot = acc_w
         q_dot = quaternion_derivative(q,w)
-        w_dot = (1/J)*(J*np.cross(w,w) + T + T_drag)
+        w_dot = (1/J)*(-J*np.cross(w,w) + T + T_drag)
 
         # Model integration
         dt = loop_interval
