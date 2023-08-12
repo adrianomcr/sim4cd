@@ -263,7 +263,7 @@ class px4_connection:
 
 
 
-    def send_rc_commands(self, roll, pitch, throttle, yaw):
+    def send_rc_commands(self, channels):
         # self.n += 1
 
         # print("\33[92mSending RC\33[0m")
