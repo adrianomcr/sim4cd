@@ -8,26 +8,45 @@
 
 import numpy as np
 import time
+import threading
 
 import actuators as ACT
 import sensors as SENS
 import silsim_comm as COM
 import math_utils as MU
-import joystick as JOY
-import threading
+# import joystick as JOY
+import ros_viz as VIZ
+
 
 g = 9.81
-m = 2
-drag_v = 0.5*1*0
-drag_w = 0.1*1*0
-J = 0.08
+m = 2.0
+drag_v = 0.1
+drag_w = 0.01
+J = 0.006*10
 
 
+# I.m00 = 0.005;  // X
+# I.m11 = 0.005;  // Y
+# I.m22 = 0.009;  // Z
+# vehicle.setMomentOfInertia(I);
+# vehicle.setMass(0.8);
+# vehicle.setDragMove(0.01);
+# SimpleSensors sensors = new SimpleSensors();
+# sensors.setGPSInterval(50);
+# sensors.setGPSDelay(200);
+# sensors.setNoise_Acc(0.05f);
+# sensors.setNoise_Gyo(0.01f);
+# sensors.setNoise_Mag(0.005f);
+# sensors.setNoise_Prs(0.1f);
 
-
-
-
-
+import signal
+def custom_handler(signal, frame):
+    print("\33[92mCtrl+C pressed. Running cleanup function.\33[0m]")
+    global ros_aux
+    del ros_aux
+    exit()
+    # # Your custom function code here
+    # sys.exit(0)
 
 
 def main_loop():
@@ -50,23 +69,33 @@ def main_loop():
     PX4 = COM.px4_connection("tcpin", "localhost", "4560")
     c = PX4.connect()
 
-
+    # Register the custom_handler function to be called when Ctrl+C is pressed
+    signal.signal(signal.SIGINT, custom_handler)
+    global ros_aux
+    ros_aux = VIZ.drone_show()
 
     last_time_sys_time = -1
     last_time_heart_beat = -1
-    last_time_gps = -1
     last_time_sensors = -1
     last_time_gps = -1
+    last_time_gt = -1
     last_time_rc = -1
 
     motor_commands = [0,0,0,0]
     
+
+
+
+
     
     channels = [1500]*18
-    keyboard_thread = threading.Thread(target=JOY.keyboard_input_thread)
-    keyboard_thread.start()
+    # keyboard_thread = threading.Thread(target=JOY.keyboard_input_thread)
+    # keyboard_thread.start()
     
+    wtest = np.array([0,0,0])
 
+    counter_flag = True
+    t0 = time.time()
     # Start the loop
     iteration = 0
     while True:
@@ -76,6 +105,7 @@ def main_loop():
 
         # Receive MAVLink messages (blocking operation)
         msg = c.recv_match(blocking=False)
+        # print(msg)
 
         if msg is not None:
             #print("\33[91m")
@@ -84,13 +114,26 @@ def main_loop():
             #if msg.get_type() == "SET_ACTUATOR_CONTROL_TARGET":
             if msg.get_type() == "HIL_ACTUATOR_CONTROLS":
             
-                # Extract motor control commands from the message
-                motor_commands = msg.controls
+                if(counter_flag):
+                    if(msg.controls[0]>0):
+                        counter_flag = False
+                        counter = 0
+                        t0 = time.time()
+                        wtest = np.array([0,0,1])
 
-                # Process the motor commands and apply them to your simulator's motors
-                # Example: Apply motor_commands[0] to motor 1, motor_commands[1] to motor 2, and so on.
-                #print("Received message:", msg)
-                #print("Received motor commands:", motor_commands)
+                if(not counter_flag):
+                    # print ("\33[91m", msg, "\33[0m")
+                    counter = counter + 1
+                    # print ("\33[92m", counter/(time.time()-t0), "\33[0m")
+
+
+                    # Extract motor control commands from the message
+                    motor_commands = msg.controls #values in [0.0, 1.0]
+
+                    # Process the motor commands and apply them to your simulator's motors
+                    # Example: Apply motor_commands[0] to motor 1, motor_commands[1] to motor 2, and so on.
+                    #print("Received message:", msg)
+                    # print("\33[91mReceived motor commands:", motor_commands, "\33[0m")
         
             #print("\33[0m")
 
@@ -99,10 +142,16 @@ def main_loop():
         f2 = ACT.thrust(motor_commands[1])
         f3 = ACT.thrust(motor_commands[2])
         f4 = ACT.thrust(motor_commands[3])
+        # print("\33[91mReceived motor commands:", [f1,f2,f3,f4], "\33[0m")
         #    3       1
         #        ^
         #        |
         #    2       4
+
+        #    2       0
+        #        ^
+        #        |
+        #    1       3
 
 
 
@@ -117,13 +166,10 @@ def main_loop():
         if(p[2]<=0 and v[2]<0 and tau<m*g):
             tau = m*g*1.001
           
-        T = [0,0,0]  
+        T = [0,0,0]
         #T[0] = 0.1*(-f1+f2+f3-f4)
         #T[1] = 0.1*(-f1+f2-f3+f4)*0
         #T[2] = 0.01*(-f1-f2+f3+f4)*0
-
-
-
 
         T[0] = 0.15*(-f1+f2+f3-f4)
         T[1] = 0.15*(-f1+f2-f3+f4)
@@ -140,9 +186,12 @@ def main_loop():
         # q_dot = quat_derivative(q, R_bw*w);
         # w_dot << J.inverse()*(-v1.cross(v2) + T - Td - Tg); //temp // include model
 
-        tau_vec_b = np.array([0,0,tau])
+        tau_vec_b = np.array([0,0,tau]) # Actuation force in body frame [N]
         total_force = MU.quat_apply_rot(q,tau_vec_b) + f_drag
         acc_w = np.array([0,0,-g]) + total_force/m
+
+        # if(not counter_flag):
+        #     w = wtest
 
         # Dynamic model
         p_dot = v
@@ -162,7 +211,7 @@ def main_loop():
         q = MU.normalize(q)
 
 
-        acc = SENS.get_acc(q, total_force,m)
+        acc = SENS.get_acc(q, total_force, m)
         gyro = SENS.get_gyro(w)
         mag = SENS.get_mag(q,tau)
         bar = SENS.get_baro(p[2])
@@ -186,27 +235,38 @@ def main_loop():
 
 
         t = time.time()
-        if (t-last_time_gps > 0.2): # 5Hz
-            gps = SENS.get_gps(p)
+        if (t-last_time_gps > 0.02): # 50Hz
+            gps = SENS.get_gps(p,v)
             PX4.send_gps(gps)
             last_time_gps = t
 
         t = time.time()
-        if (t-last_time_rc > 0.02): # 50Hz
-            #PX4.send_rc_commands(1500,1500,1500,1500)
-            PX4.send_rc_commands(channels)
-            last_time_rc = t
+        if (t-last_time_gt > 0.02): # 50Hz
+            gt = SENS.get_ground_truth(p,v,q,w)
+            PX4.send_ground_truth(gt)
+            last_time_gt = t
+
+
+
+        # t = time.time()
+        # if (t-last_time_rc > 0.02): # 50Hz
+        #     #PX4.send_rc_commands(1500,1500,1500,1500)
+        #     PX4.send_rc_commands(channels)
+        #     last_time_rc = t
 
         
         
 
-
+        
+        if iteration % (50) == 0:
+            ros_aux.update_ros_info(p,q,v,w)
 
         # Increment iteration count
         iteration += 1
         if iteration % (100) == 0:
             print("Iteration:", iteration)
             print("  pos: ", p)
+            print("to_fo: ", total_force/m)
             print("  vel: ", v)
             print(" quat: ", q)
             print("omega: ", w)
@@ -215,9 +275,13 @@ def main_loop():
             print("")
 
 
+
         # Sleep to control loop frequency
         elapsed_time = time.time() - loop_start_time
         sleep_time = max(0, loop_interval - elapsed_time)
+        # if(sleep_time==0):
+        #     print("\33[93m[Warning] simulation loop took too long to compute\33[0m")
+        # print(loop_interval - elapsed_time)
         time.sleep(sleep_time)
 
 if __name__ == "__main__":
@@ -242,8 +306,8 @@ if __name__ == "__main__":
 
 
 
-# Example usage:
-q = np.array([1.0, 0.0, 0.0, 0.0])  # Example quaternion [1, 0, 0, 0] (identity quaternion)
-w = np.array([0.1, 0.2, 0.3])      # Example angular velocity [0.1, 0.2, 0.3]
-q_dot = MU.quaternion_derivative(q, w)
-print("Quaternion derivative:", q_dot)
+# # Example usage:
+# q = np.array([1.0, 0.0, 0.0, 0.0])  # Example quaternion [1, 0, 0, 0] (identity quaternion)
+# w = np.array([0.1, 0.2, 0.3])      # Example angular velocity [0.1, 0.2, 0.3]
+# q_dot = MU.quaternion_derivative(q, w)
+# print("Quaternion derivative:", q_dot)

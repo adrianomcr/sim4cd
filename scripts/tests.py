@@ -8,55 +8,58 @@
 
 import numpy as np
 import time
+from math import pi,sqrt,sin,cos,tan
+
+import math_utils as MU
 
 
-def d_quat_from_omega(q_in,w_in):
-    #Description:
-    #Compute the qaternion derivative given a angulr sepeed w
-    #ngular speed w is on th world/body???????? frame
-
-    q = [q_in[0][0],q_in[1][0],q_in[2][0],q_in[3][0]]
 
 
-    wx = w_in[0][0]
-    wy = w_in[1][0]
-    wz = w_in[2][0]
-    return [0.5*( 0*q[0] - wx*q[1] - wy*q[2] - wz*q[3]),
-            0.5*(wx*q[0] +  0*q[1] + wz*q[2] - wy*q[3]),
-            0.5*(wy*q[0] - wz*q[1] +  0*q[2] + wx*q[3]),
-            0.5*(wz*q[0] + wy*q[1] - wx*q[2] +  0*q[3]) ]
+q1 = np.array([0,1,0,0])
+q1 = MU.normalize(q1)
 
 
-def quaternion_derivative(q, w):
-    """
-    Calculate the derivative of a quaternion given a quaternion and an angular velocity.
-
-    Parameters:
-        q (numpy.ndarray): Input quaternion [qw, qx, qy, qz].
-        w (numpy.ndarray): Angular velocity in the world frame [wx, wy, wz].
-
-    Returns:
-        numpy.ndarray: The derivative of the quaternion [qw_dot, qx_dot, qy_dot, qz_dot].
-    """
-    q_matrix = np.array([
-        [0, -w[0], -w[1], -w[2]],
-        [w[0], 0, w[2], -w[1]],
-        [w[1], -w[2], 0, w[0]],
-        [w[2], w[1], -w[0], 0]
-    ])
-
-    q_dot = 0.5 * np.dot(q_matrix, q)
-    return q_dot
-
-# Example usage:
-q = np.array([0.707, 0.0, 0.0, 0.707])  # Example quaternion [1, 0, 0, 0] (identity quaternion)
-# q = np.array([1.0, 0.0, 0.0, 0.0])  # Example quaternion [1, 0, 0, 0] (identity quaternion)
-w = np.array([0.0, 0.1, 0.0])      # Example angular velocity [0.1, 0.2, 0.3]
-q_dot = quaternion_derivative(q, w)
-print("Quaternion derivative:", q_dot)
+wb = np.array([0,0,1])
+q_dot = MU.quaternion_derivative(q1, wb)
 
 
-q_in = [[q[0]],[q[1]],[q[2]],[q[3]]]
-w_in = [[w[0]],[w[1]],[w[2]]]
-aaa = d_quat_from_omega(q_in,w_in)
-print("Quaternion derivative:", aaa)
+v = MU.normalize(wb)
+dt = 0.01
+theta = MU.norm(wb)*dt
+qdelta = [cos(theta/2),v[0]*sin(theta/2),v[1]*sin(theta/2),v[2]*sin(theta/2)]
+q2 = MU.quat_mult(q1,qdelta)
+
+print("q1:", q1)
+print("q2:", q2)
+print("wb:", wb)
+
+print("\nR1:\n", MU.quat2rotm(q1))
+print("R2:\n", MU.quat2rotm(q2),"\n")
+
+print("Quaternion derivative analytic:", q_dot)
+print("Quaternion derivative numeric :", (q2-q1)/dt)
+print("Max error:                    ", max(abs((q2-q1)/dt-q_dot)))
+
+
+
+
+
+q1 = np.array([1,2,3,4])
+q1 = MU.normalize(q1)
+q2 = MU.quat_conj(q1)
+print("q1   : ", q1)
+print("q2   : ", q2)
+print("q1*q2: ", MU.quat_mult(q1,q2))
+
+# # Example usage:
+# q = np.array([0.707, 0.0, 0.0, 0.707])  # Example quaternion [1, 0, 0, 0] (identity quaternion)
+# # q = np.array([1.0, 0.0, 0.0, 0.0])  # Example quaternion [1, 0, 0, 0] (identity quaternion)
+# w = np.array([0.0, 0.1, 0.0])      # Example angular velocity [0.1, 0.2, 0.3]
+# q_dot = MU.quaternion_derivative(q, w)
+# print("Quaternion derivative:", q_dot)
+
+
+# q_in = q = np.array([q[0],q[1],q[2],q[3]])
+# w_in = q = np.array([w[0],w[1],w[2]])
+# aaa = MU.d_quat_from_omega(q_in,w_in)
+#print("Quaternion derivative:", aaa)

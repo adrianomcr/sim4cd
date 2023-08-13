@@ -9,7 +9,7 @@ import time
 import atexit
 from random import random
 from pymavlink import mavutil
-
+from math import log
 
 
 
@@ -138,7 +138,7 @@ class px4_connection:
         vn                  = gps['i_vn__cm/s']       # GPS velocity in north direction in earth-fixed NED frame [cm/s] (type:int16_t)
         ve                  = gps['i_ve__cm/s']       # GPS velocity in east direction in earth-fixed NED frame [cm/s] (type:int16_t)
         vd                  = gps['i_vd__cm/s']       # GPS velocity in down direction in earth-fixed NED frame [cm/s] (type:int16_t)
-        cog                 = gps['i_cog__cdeg']      # Course over ground (NOT heading, but direction of movement), 0.0..359.99 degrees. If unknown, set to: 65535 [cdeg] (type:uint16_t)
+        cog                 = 65535      # Course over ground (NOT heading, but direction of movement), 0.0..359.99 degrees. If unknown, set to: 65535 [cdeg] (type:uint16_t)
         satellites_visible  = 10                        # Number of satellites visible. If unknown, set to 255 (type:uint8_t)
         the_id              = 0                         # GPS ID (zero indexed). Used for multiple GPS inputs (type:uint8_t)
         yaw                 = 0                         # Yaw of vehicle relative to Earth's North, zero means not available, use 36000 for north [cdeg] (type:uint16_t)
@@ -200,8 +200,49 @@ class px4_connection:
         return
 
 
-    def send_quaternion(self):
-        return
+    def send_ground_truth(self,gt):
+
+        t_abs__s    = time.time()
+        t_abs__us   = round(t_abs__s * 1e6)
+        
+        time_usec           = t_abs__us                         # Timestamp (UNIX Epoch time or time since system boot). The receiving end can infer timestamp format (since 1.1.1970 or since system boot) by checking for the magnitude of the number. [us] (type:uint64_t)
+        attitude_quaternion = gt['attitude_quaternion'] # Vehicle attitude expressed as normalized quaternion in w, x, y, z order (with 1 0 0 0 being the null-rotation) (type:float)
+        rollspeed           = gt['rollspeed']       # Body frame roll / phi angular speed [rad/s] (type:float)
+        pitchspeed          = gt['pitchspeed']      # Body frame pitch / theta angular speed [rad/s] (type:float)
+        yawspeed            = gt['yawspeed']        # Body frame yaw / psi angular speed [rad/s] (type:float)
+        lat                 = round(gt['i_lat__degE7'])             # Latitude [degE7] (type:int32_t)
+        lon                 = round(gt['i_lon__degE7'])             # Longitude [degE7] (type:int32_t)
+        alt                 = round(gt['i_alt__mm'])                # Altitude [mm] (type:int32_t)
+        vx                  = round(gt['vx'])               # Ground X Speed (Latitude) [cm/s] (type:int16_t)
+        vy                  = round(gt['vy'])               # Ground Y Speed (Longitude) [cm/s] (type:int16_t)
+        vz                  = round(gt['vz'])               # Ground Z Speed (Altitude) [cm/s] (type:int16_t)
+        ind_airspeed        = round(gt['ind_airspeed'])     # Indicated airspeed [cm/s] (type:uint16_t)
+        true_airspeed       = round(gt['true_airspeed'])    # True airspeed [cm/s] (type:uint16_t)
+        xacc                = round(gt['xacc'])               # X acceleration [mG] (type:int16_t)
+        yacc                = round(gt['yacc'])               # Y acceleration [mG] (type:int16_t)
+        zacc                = round(gt['zacc'])               # Z acceleration [mG] (type:int16_t)
+
+
+        if self.vehicle != None:
+            self.vehicle.mav.hil_state_quaternion_send(
+                time_usec           = time_usec             ,
+                attitude_quaternion = attitude_quaternion   ,
+                rollspeed           = rollspeed             ,
+                pitchspeed          = pitchspeed            ,
+                yawspeed            = yawspeed              ,
+                lat                 = lat                   ,
+                lon                 = lon                   ,
+                alt                 = alt                   ,
+                vx                  = vx                    ,
+                vy                  = vy                    ,
+                vz                  = vz                    ,
+                ind_airspeed        = ind_airspeed          ,
+                true_airspeed       = true_airspeed         ,
+                xacc                = xacc                  ,
+                yacc                = yacc                  ,
+                zacc                = zacc                  ,
+            )
+
 
     def send_sensors(self,acc,gyro,mag,bar):
         # self.n += 1
@@ -221,7 +262,7 @@ class px4_connection:
         zmag                = mag[2]        # Z Magnetic field [gauss] (type:float)
         abs_pressure        = bar           # Absolute pressure [hPa] (type:float)
         diff_pressure       = 0             # Differential pressure (airspeed) [hPa] (type:float)
-        pressure_alt        = (1000-bar)*10             # Altitude calculated from pressure (type:float)
+        pressure_alt        = -8400*log(bar/1013.25)-372             # Altitude calculated from pressure (type:float)
         temperature         = 40            # Temperature [degC] (type:float)
         #fields_updated      = 5071 #7167          # Bitmap for fields that have updated since last message, bit 0 = xacc, bit 12: temperature, bit 31: full reset of attitude/position/velocities/etc was performed in sim. (type:uint32_t)
         fields_updated      = 7167          # Bitmap for fields that have updated since last message, bit 0 = xacc, bit 12: temperature, bit 31: full reset of attitude/position/velocities/etc was performed in sim. (type:uint32_t)
