@@ -15,4 +15,4 @@ def thrust(cmd):
     #f = 10*cmd*cmd
     f = 12*cmd
 
-    return f
+    return f # [N]
