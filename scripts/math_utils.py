@@ -7,46 +7,6 @@ import numpy as np
 import time
 from math import pi,sqrt,sin,cos,tan
 
-
-
-
-def quat_mult(q1,q2):
-	#Description:
-	#Quaternion multiplication q1 x q2
-	
-	a1 = q1[0]
-	b1 = q1[1]
-	c1 = q1[2]
-	d1 = q1[3]
-	a2 = q2[0]
-	b2 = q2[1]
-	c2 = q2[2]
-	d2 = q2[3]
-
-	q = np.array([a1*a2 - b1*b2 - c1*c2 - d1*d2, 
-                  a1*b2 + b1*a2 + c1*d2 - d1*c2,
-                  a1*c2 - b1*d2 + c1*a2 + d1*b2,
-                  a1*d2 + b1*c2 - c1*b2 + d1*a2])
-
-	return q
-
-# def d_quat_from_omega(q_in,w_in):
-#     #Description:
-#     #Compute the qaternion derivative given a angulr sepeed w
-#     #ngular speed w is on th world/body???????? frame BODY!!!!!!!!!!!!!!!!!!!
-
-#     q = [q_in[0],q_in[1],q_in[2],q_in[3]]
-
-
-#     wx = w_in[0]
-#     wy = w_in[1]
-#     wz = w_in[2]
-#     return np.array([0.5*( 0*q[0] - wx*q[1] - wy*q[2] - wz*q[3]),
-#             0.5*(wx*q[0] +  0*q[1] + wz*q[2] - wy*q[3]),
-#             0.5*(wy*q[0] - wz*q[1] +  0*q[2] + wx*q[3]),
-#             0.5*(wz*q[0] + wy*q[1] - wx*q[2] +  0*q[3]) ])
-
-
 def quaternion_derivative(q, w):
     """
     Calculate the derivative of a quaternion given a quaternion and an angular velocity.
@@ -70,7 +30,15 @@ def quaternion_derivative(q, w):
 
 
 def quat_conj(q_in):
+    """
+    Return the conjugate of a quaternion
 
+    Parameters:
+        q_in (numpy.ndarray): Input quaternion [qw, qx, qy, qz].
+
+    Returns:
+        q_conj (numpy.ndarray): The conjugate of q, [qw, -qx, -qy, -qz]
+    """
     #Description:
     #Return the conjugate of a quaternion
 
@@ -80,8 +48,7 @@ def quat_conj(q_in):
     return q_conj
 
 
-
-def quaternion_multiply(q1, q2):
+def quat_mult(q1, q2):
     """
     Perform quaternion multiplication (Hamilton product).
 
@@ -104,68 +71,69 @@ def quaternion_multiply(q1, q2):
 
 
 def quat_apply_rot(q_in,u_in):
-    #Description:
-    #Apply the rotation given by q to the vector u
+    """
+    Perform quaternion multiplication (Hamilton product).
+
+    Parameters:
+        q_in (numpy.ndarray): Quaternion [qw, qx, qy, qz].
+        u_in (numpy.ndarray): Vector to which the rotation q_in will be applied to
+
+    Returns:
+        v (numpy.ndarray): Result of the application of q_in to u_in
+    """
 
     u = np.array([0, u_in[0], u_in[1], u_in[2]])
     q = q_in
     q_conj = quat_conj(q_in)
 
-    #v = quaternion_multiply(q,quaternion_multiply(u,q_conj))
-    v = quaternion_multiply(quaternion_multiply(q,u),q_conj)
+    v = quat_mult(quat_mult(q,u),q_conj)
+    v = v[1:4]
 
-    return v[1:4]
+    return v
 
 
 def normalize(u, abs_value=1.0):
+    """
+    Normalize a vector
 
-    #Description:
-    #The normalized version of the vector u
+    Parameters:
+        u (numpy.ndarray): Vector to be normalized to the norm abs_value
+        abs_value (float): Norm of the normalized vector
 
-    return abs_value*u/np.linalg.norm(u)
+    Returns:
+        (numpy.ndarray): Normalized (to the norm abs_value) version of u
+    """
+
+    return abs_value*u/norm(u)
 
 
 def norm(u):
+    """
+    Return the norm of the vector u whose norm will be computed
 
-    #Description:
-    #Return the norm of the vector u
+    Parameters:
+        u (numpy.ndarray): Vector
+
+    Returns:
+        (float): Euclidean norm of the vector u
+    """
 
     return np.linalg.norm(u)
 
 
-
-
 def quat2rotm(q):
-	#Description:
-	#Converts quaternion to rotation matrix
-	#Quaternion: qw, qx, qy, qz
+    """
+    Converts quaternion to rotation matrix
 
-	qw = q[0]
-	qx = q[1]
-	qy = q[2]
-	qz = q[3]
+    Parameters:
+        q (numpy.ndarray): Input quaternion in the form [qw, qx, qy, qz]
 
-	Rot = np.array([[1-2*(qy*qy+qz*qz), 2*(qx*qy-qz*qw), 2*(qx*qz+qy*qw)],
-                    [2*(qx*qy+qz*qw), 1-2*(qx*qx+qz*qz), 2*(qy*qz-qx*qw)],
-		            [2*(qx*qz-qy*qw), 2*(qy*qz+qx*qw), 1-2*(qx*qx+qy*qy)]]) #this was checked on matlab
-			
-	return Rot
+    Returns:
+        R (numpy.ndarray): Rotation matrix equivalent to the quaternion q
+    """
 
+    R = np.array([[1-2*(q[2]*q[2]+q[3]*q[3]), 2*(q[1]*q[2]-q[3]*q[0]), 2*(q[1]*q[3]+q[2]*q[0])],
+                  [2*(q[1]*q[2]+q[3]*q[0]), 1-2*(q[1]*q[1]+q[3]*q[3]), 2*(q[2]*q[3]-q[1]*q[0])],
+                  [2*(q[1]*q[3]-q[2]*q[0]), 2*(q[2]*q[3]+q[1]*q[0]), 1-2*(q[1]*q[1]+q[2]*q[2])]]) #this was checked on matlab
 
-
-
-
-
-
-
-
-
-
-
-
-
-# Example usage:
-q = np.array([1.0, 0.0, 0.0, 0.0])  # Example quaternion [1, 0, 0, 0] (identity quaternion)
-w = np.array([0.1, 0.2, 0.3])      # Example angular velocity [0.1, 0.2, 0.3]
-q_dot = quaternion_derivative(q, w)
-print("Quaternion derivative:", q_dot)
+    return R
