@@ -1,59 +1,38 @@
 <?xml version="1.0"?>
 <launch>
 
-    <!--Run rviz-->
-    <!-- <node pkg = "rviz" name = "rviz" type = "rviz" args="-d $(find robotsim)/rviz/drone.rviz">
-    </node> -->
-    
-
+    <!--Run rviz to visualize the drone-->
+    <node pkg = "rviz" name = "rviz" type = "rviz" args="-d $(find px4sim)/rviz/basic.rviz">
+    </node>
 
     <!--Run the node that will simulate the drone-->
     <node pkg = "px4sim" name = "px4sim" type = "px4sim.py" args="" output="screen">
     </node>
-
-
 
     <!--Run the node that will generate an example path-->
     <node pkg = "examples" name = "path_generator" type = "example_path.py" args="" output="screen">
         <rosparam command="load" file="$(find px4sim)/config/pub_path.yaml" />
     </node>
 
-
-    <!-- Run the node that controls the robot with vector fields -->
+    <!-- Run the node that controls the robot in the acro mode  with vector fields -->
     <node pkg="quad_robot" name="quad_node" type="quad_node.py" args="" output="screen">
         <rosparam command="load" file="$(find px4sim)/config/quad_params.yaml" />
     </node>
 
-
-    <!-- Mavros args & launch-->
-    <arg name="sitl_fcu_url" default="udp://:14540@localhost:14557"/>
-    <arg name="gcs_url" default="" />
-    <arg name="tgt_system" default="1" />
-    <arg name="tgt_component" default="1" />
-    <arg name="log_output" default="screen" />
-    <arg name="fcu_protocol" default="v2.0" />
-    <arg name="respawn_mavros" default="true" />
-    <arg name="mavros_px4_config" default="$(find px4sim)/config/px4_config.yaml"/>
-
+    <!-- Run mavros to control the drone o the acro mode -->
     <include file="$(find mavros)/launch/node.launch">
         <!-- MAVROS configs -->
         <arg name="pluginlists_yaml" value="$(find mavros)/launch/px4_pluginlists.yaml"/>
-        <arg name="config_yaml" value="$(arg mavros_px4_config)"/>
+        <arg name="config_yaml" value="$(find px4sim)/config/px4_config.yaml"/>
         <!-- pass FCU-->
-        <arg name="fcu_url" value="$(arg sitl_fcu_url)"/>
-        <arg name="gcs_url" value="$(arg gcs_url)"/>
-        <arg name="tgt_system" value="$(arg tgt_system)"/>
-        <arg name="tgt_component" value="$(arg tgt_component)"/>
-        <arg name="log_output" value="$(arg log_output)"/>
-        <arg name="fcu_protocol" value="$(arg fcu_protocol)"/>
-        <arg name="respawn_mavros" default="$(arg respawn_mavros)"/>
+        <arg name="fcu_url" value="udp://:14540@localhost:14557"/>
+        <arg name="gcs_url" value=""/>
+        <arg name="tgt_system" value="1"/>
+        <arg name="tgt_component" value="1"/>
+        <arg name="log_output" value="screen"/>
+        <arg name="fcu_protocol" value="v2.0"/>
+        <arg name="respawn_mavros" default="true"/>
     </include>
-
-
-    <!-- Include MAVROS launch file -->
-    <!-- <include file="$(find mavros)/launch/px4.launch">
-        <arg name="fcu_url" value="udp://127.0.0.1:14557@14540"/>
-    </include> -->
 
 </launch>
 
