@@ -317,7 +317,7 @@ class px4_connection:
         actuator_commands = None
 
         # Receive MAVLink messages (blocking non operation)
-        msg = self.recv_match(blocking=False)
+        msg = self.vehicle.recv_match(blocking=False)
 
         # Is a message is received
         if msg is not None:
