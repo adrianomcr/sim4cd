@@ -43,20 +43,19 @@ class quad_dynamics(object):
 
 
 
-    def model_step(self, motor_commands):
+    def model_step(self, cmd):
         """
         Perform the dynamic integration step
 
         Parameters:
-            motor_commands (numpy.ndarray): PWM values (from 0 to 1) for each actuator
+            cmd (numpy.ndarray): PWM values (from 0 to 1) for each actuator
         """
 
-
         # Compute force performed by each actuator
-        f0 = ACT.thrust(motor_commands[0])
-        f1 = ACT.thrust(motor_commands[1])
-        f2 = ACT.thrust(motor_commands[2])
-        f3 = ACT.thrust(motor_commands[3])
+        f0 = ACT.thrust(cmd[0])
+        f1 = ACT.thrust(cmd[1])
+        f2 = ACT.thrust(cmd[2])
+        f3 = ACT.thrust(cmd[3])
 
         # Actuators configuration
         #    2       0

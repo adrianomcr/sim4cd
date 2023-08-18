@@ -1,63 +1,61 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
-# Drone dynamics, drag force, effects like gyroscopic effect, etc ...
+# Simulation of drone dynamics integrated with PX4
 
 
-
-
-import numpy as np
 import time
 import threading
+import signal
 
-import actuators as ACT
 import sensors as SENS
 import silsim_comm as COM
-import math_utils as MU
-# import joystick as JOY
 import ros_viz as VIZ
 import dynamics as DYN
+# import joystick as JOY
 
 
-
-
-import signal
 def custom_handler(signal, frame):
+    """
+    ROS cleanup  function
+    """
+
     print("\33[92mCtrl+C pressed. Running cleanup function.\33[0m]")
     global ros_aux
     del ros_aux
+
     exit()
-    # # Your custom function code here
-    # sys.exit(0)
 
 
-def main_loop():
+def sim_main():
+    """
+    Simulation main function
+    """
+
     global channels
-    # Set the desired loop frequency in Hertz (times per second)
-    loop_frequency = 500
 
-    # Calculate the time interval for one loop iteration in seconds
-    loop_interval = 1 / loop_frequency
+    # Set the desired loop frequency [Hz]
+    sim_frequency = 500
 
-
-    # # Initialize states
-    # p = np.array([0,0,0])
-    # v = np.array([0,0,0])
-    # q = np.array([1,0,0,0])
-    # # q = np.array([0.707,0,0,0.707])
-    # w = np.array([0,0,0])
-
-
-    PX4 = COM.px4_connection("tcpin", "localhost", "4560")
-    c = PX4.connect()
-
-    quad = DYN.quad_dynamics(loop_interval)
+    # Calculate the time interval for one simulated step [s]
+    sim_interval = 1 / sim_frequency
 
     # Register the custom_handler function to be called when Ctrl+C is pressed
     signal.signal(signal.SIGINT, custom_handler)
+    
+    # Create an object responsible by providing ROS  wih the simulated information
     global ros_aux
     ros_aux = VIZ.drone_show()
 
+    # Create a object that is able to connect to px4_sitl
+    PX4 = COM.px4_connection("tcpin", "localhost", "4560")
+    # Connect to px4_sitl
+    PX4.connect()
+
+    # Create an object to simulate the vehicle dynamics
+    quad = DYN.quad_dynamics(sim_interval)
+
+    # Flags to control the frequency of communication with px4
     last_time_sys_time = -1
     last_time_heart_beat = -1
     last_time_sensors = -1
@@ -65,18 +63,13 @@ def main_loop():
     last_time_gt = -1
     last_time_rc = -1
 
-    motor_commands = [0,0,0,0]
-    
-
-
-
-
-    
-    channels = [1500]*18
+    # # Create a thread that keeps listening to a joystick
+    # channels = [1500]*18
     # keyboard_thread = threading.Thread(target=JOY.keyboard_input_thread)
     # keyboard_thread.start()
     
-    wtest = np.array([0,0,0])
+    # variable that store the actuator PWMs
+    actuator_commands = [0,0,0,0]
 
     counter_flag = True
     t0 = time.time()
@@ -85,47 +78,15 @@ def main_loop():
     while True:
         loop_start_time = time.time()
 
+        # Check for new actuator controls from PX4
+        new, value = PX4.get_actuator_controls()
+        if(new):
+            actuator_commands = value
 
+        # Perform the dynamic model integration step
+        quad.model_step(actuator_commands)
 
-        # Receive MAVLink messages (blocking operation)
-        msg = c.recv_match(blocking=False)
-        # print(msg)
-
-        if msg is not None:
-            #print("\33[91m")
-            #print("msg.get_type(): ", msg.get_type())
-            # Check if it's the expected message type (SET_ACTUATOR_CONTROL_TARGET)
-            #if msg.get_type() == "SET_ACTUATOR_CONTROL_TARGET":
-            if msg.get_type() == "HIL_ACTUATOR_CONTROLS":
-            
-                if(counter_flag):
-                    if(msg.controls[0]>0):
-                        counter_flag = False
-                        counter = 0
-                        t0 = time.time()
-                        wtest = np.array([0,0,1])
-
-                if(not counter_flag):
-                    # print ("\33[91m", msg, "\33[0m")
-                    counter = counter + 1
-                    # print ("\33[92m", counter/(time.time()-t0), "\33[0m")
-
-
-                    # Extract motor control commands from the message
-                    motor_commands = msg.controls #values in [0.0, 1.0]
-
-                    # Process the motor commands and apply them to your simulator's motors
-                    # Example: Apply motor_commands[0] to motor 1, motor_commands[1] to motor 2, and so on.
-                    #print("Received message:", msg)
-                    # print("\33[91mReceived motor commands:", motor_commands, "\33[0m")
-        
-            #print("\33[0m")
-
-
-        # Model integration step
-        quad.model_step(motor_commands)
-
-
+        # Get some state variables
         p = quad.get_pos()
         q = quad.get_quat()
         v = quad.get_vel_w()
@@ -134,108 +95,78 @@ def main_loop():
         total_force = quad.get_total_force()
         m = quad.m
 
-
+        # Compute sensors
         acc = SENS.get_acc(q, total_force, m)
         gyro = SENS.get_gyro(w)
         mag = SENS.get_mag(q,tau)
         bar = SENS.get_baro(p[2])
-        # acc = SENS.get_acc(quad.get_quat(), quad.get_total_force(), quad.m)
-        # gyro = SENS.get_gyro(quad.get_omega())
-        # mag = SENS.get_mag(quad.get_quat(),quad.get_tau())
-        # bar = SENS.get_baro((quad.get_p)[2])
 
-
-
+        # Send system time to PX4
         t = time.time()
         if (t-last_time_sys_time > 4):
             PX4.send_system_time()
             last_time_sys_time = t
 
+        # Send system heart beat to PX4
         t = time.time()
         if (t-last_time_heart_beat > 1):
             PX4.send_heart_beat()
             last_time_heart_beat = t
 
+        # Send system sensors data to PX4
         t = time.time()
         if (t-last_time_sensors > 0):
             PX4.send_sensors(acc,gyro,mag,bar)
             last_time_sensors = t
 
-
+        # Send system GPS data to PX4
         t = time.time()
         if (t-last_time_gps > 0.02): # 50Hz
             gps = SENS.get_gps(p,v)
             PX4.send_gps(gps)
             last_time_gps = t
 
+        # Send system Ground Truth data to PX4 (for lgging and comparison purpuses)
         t = time.time()
         if (t-last_time_gt > 0.02): # 50Hz
             gt = SENS.get_ground_truth(p,v,q,w)
             PX4.send_ground_truth(gt)
             last_time_gt = t
 
-
-
+        # Send RC data to PX4
         # t = time.time()
         # if (t-last_time_rc > 0.02): # 50Hz
         #     #PX4.send_rc_commands(1500,1500,1500,1500)
         #     PX4.send_rc_commands(channels)
         #     last_time_rc = t
-
         
-        
-
-        
+        # update ROS vizualixation    
         if iteration % (50) == 0:
             ros_aux.update_ros_info(p,q,v,w)
 
         # Increment iteration count
         iteration += 1
         if iteration % (100) == 0:
-            print("Iteration:", iteration)
-            print("  pos: ", p)
-            print("to_fo: ", total_force/m)
-            print("  vel: ", v)
-            print(" quat: ", q)
-            print("omega: ", w)
-            print("tau: ", tau)
-            print("motor_commands: %f  %f  %f  %f" % (motor_commands[0], motor_commands[1], motor_commands[2], motor_commands[3]))
-            print("")
-
-
+            print("\33[40Iteration:", iteration)
+            print("\33[97  pos: ", p)
+            print("\33[40  vel: ", v)
+            print("\33[97 quat: ", q)
+            print("\33[40omega: ", w)
+            print("\33[97tau: ", tau)
+            print("\33[40actuator_commands: %f  %f  %f  %f" % (actuator_commands[0], actuator_commands[1], actuator_commands[2], actuator_commands[3]))
+            print("\33[0")
 
         # Sleep to control loop frequency
         elapsed_time = time.time() - loop_start_time
-        sleep_time = max(0, loop_interval - elapsed_time)
+        sleep_time = max(0, sim_interval - elapsed_time)
+        # Throw a warning if the simulatiion is computationally heavy
         # if(sleep_time==0):
         #     print("\33[93m[Warning] simulation loop took too long to compute\33[0m")
-        # print(loop_interval - elapsed_time)
+        # print(sim_interval - elapsed_time)
         time.sleep(sleep_time)
 
+
 if __name__ == "__main__":
-    main_loop()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# # Example usage:
-# q = np.array([1.0, 0.0, 0.0, 0.0])  # Example quaternion [1, 0, 0, 0] (identity quaternion)
-# w = np.array([0.1, 0.2, 0.3])      # Example angular velocity [0.1, 0.2, 0.3]
-# q_dot = MU.quaternion_derivative(q, w)
-# print("Quaternion derivative:", q_dot)
+    # Spin the simulator
+    sim_main()

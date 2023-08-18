@@ -107,7 +107,7 @@ class px4_connection:
         Send GPS information to PX4
 
         Parameters:
-        gps (dict): Dictionary with the GPS information
+            gps (dict): Dictionary with the GPS information
         """
 
         # Get current time
@@ -159,7 +159,7 @@ class px4_connection:
         Send Ground Truth information to PX4
 
         Parameters:
-        gt (dict): Dictionary with the Ground Truth information
+            gt (dict): Dictionary with the Ground Truth information
         """
 
         # Get current time
@@ -211,10 +211,10 @@ class px4_connection:
         Send sensor measurement information to PX4
 
         Parameters:
-        acc (numpy.ndarray): Acceleration measured by the accelerometer
-        gyro (numpy.ndarray): Angular velocity measured by the gyro
-        mag (numpy.ndarray): Magnetic field measured by the magnetometer
-        bar (numpy.ndarray): Barometric pressure measured by the barometer
+            acc (numpy.ndarray): Acceleration measured by the accelerometer
+            gyro (numpy.ndarray): Angular velocity measured by the gyro
+            mag (numpy.ndarray): Magnetic field measured by the magnetometer
+            bar (numpy.ndarray): Barometric pressure measured by the barometer
         """
 
         # Get current time
@@ -265,7 +265,7 @@ class px4_connection:
         Send RC command information to PX4
 
         Parameters:
-        channels (numpy.ndarray): Array with dimension 18 with the values of the channels (between 1000 and 2000)
+            channels (numpy.ndarray): Array with dimension 18 with the values of the channels (between 1000 and 2000)
         """
 
         # Get current time
@@ -302,3 +302,32 @@ class px4_connection:
                 rssi         = 80             ,
             )
 
+
+    def get_actuator_controls(self):
+        """
+        Get actuator controls from PX4
+
+        Returns:
+            update (bool): Flag indicating that a new message was received
+            actuator_controls (numpy.ndarray): Array with the values of the new actuator controls (returns None if there is no new value)
+        """
+
+        #Initialize variables
+        update = False
+        actuator_commands = None
+
+        # Receive MAVLink messages (blocking non operation)
+        msg = self.recv_match(blocking=False)
+
+        # Is a message is received
+        if msg is not None:
+            # Check if the message is an actuator control
+            if msg.get_type() == "HIL_ACTUATOR_CONTROLS":
+
+                    # Extract motor control commands from the message
+                    actuator_commands = msg.controls #values in [0.0, 1.0]
+
+                    # Indicate that the motors were updated
+                    update = True
+            
+        return update, actuator_commands
