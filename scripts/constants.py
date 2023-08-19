@@ -5,7 +5,6 @@
 
 # TODO: Replace by proper config file
 
-
 from math import pi, sqrt, sin
 
 # Global environmental values
@@ -28,11 +27,11 @@ C_bar = (T0*R0)/(g*M)
 lat0 = 40.448985 # initial latitude (degrees)
 lon0 = -79.898025 # initial longitude (degrees)
 h0 = 372.0 # initial altitude (meters above average sea level)
-earth_mag_field = [0.16928, 0.02559, -0.39550] # Earth magnetic field (North, West, UP) in Gauss
+earth_mag_field = [0.16928, 0.02559, -0.39550] # Local Earth magnetic field (North, West, UP) in Gauss
 # Check Earth magnetic field at: http://www.geomag.bgs.ac.uk/data_service/models_compass/wmm_calc.html
 
 # Values for the conversion between local position and geographic coordinates
 earth_radius = 6378100
 small_radius = earth_radius*sqrt(1 - sin(lat0*pi/180)**2)
-meters2ged_lat =  180 / ( earth_radius *  3.14159265359)
-meters2ged_lon =  180 / ( small_radius *  3.14159265359)
+meters2ged_lat =  180 / ( earth_radius * pi)
+meters2ged_lon =  180 / ( small_radius * pi)

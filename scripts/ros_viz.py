@@ -20,6 +20,7 @@ class drone_show(object):
     def __init__(self):
 
         # Publishers
+        self.pub_gt = None
         self.pub_pose = None
         self.pub_odom = None
         self.pub_rviz_robot = None
@@ -40,12 +41,13 @@ class drone_show(object):
 
         # publishers
         self.pub_pose = rospy.Publisher("/drone/pose", Pose, queue_size=1)
+        self.pub_gt = rospy.Publisher("/drone/gt", Odometry, queue_size=1)
         self.pub_odom = rospy.Publisher("/drone/odom", Odometry, queue_size=1)
         self.pub_rviz_robot = rospy.Publisher("/drone/robot", MarkerArray, queue_size=1)
         # self.pub_rviz_hist = rospy.Publisher("/drone/history", MarkerArray, queue_size=1)
 
 
-    def update_ros_info(self,p,q,vw,omega):
+    def update_ros_info(self,p,q,vw,omega,p0,q0):
         """
         Publish information as ROS topics
 
@@ -54,20 +56,41 @@ class drone_show(object):
             q (numpy.ndarray): Orientation quaternion [qw, qx, qy, qz]
             vw (numpy.ndarray): World velocity vector [vx, vy, vz]
             omega (numpy.ndarray): Body angular velocity [wx, wy, wz]
+            p0 (numpy.ndarray): Initial position vector [x, y, z]
+            q0 (numpy.ndarray): Initial orientation quaternion [qw, qx, qy, qz]
         """
 
         # Compute the body velocity
         vb = MU.quat_apply_rot(MU.quat_conj(q),vw)
 
-        #Publish odometry topic
-        self.send_odom(p,q,vb,omega)
+        # Compute odometry 
+        p_odom, q_odom = self.compute_odometry(p,q,p0,q0)
+
+
+        #Publish groung truth (odometry) topic
+        self.send_odom(self.pub_odom, p_odom,q_odom,vb,omega)
+        #Publish groung truth (odometry) topic
+        self.send_odom(self.pub_gt, p,q,vb,omega)
         #Publish pose topic
         self.send_pose(p,q)
         #Publish marker array topic that represents the drone (visualization n RViz)
         self.send_marker(p,q)
 
 
-    def send_odom(self,p,q,vb,omega):
+
+    def compute_odometry(self,p,q,p0,q0):
+
+        q_odom = MU.quat_mult(MU.quat_conj(q0),q)
+
+        p_w_d0 = - MU.quat_apply_rot(MU.quat_conj(q), p0)
+
+        p_odom = MU.quat_apply_rot(MU.quat_conj(q0),p) + p_w_d0
+
+        return p_odom, q_odom 
+
+
+
+    def send_odom(self,pub,p,q,vb,omega):
         """
         Publish ROS odometry topic
 
@@ -100,7 +123,7 @@ class drone_show(object):
         odom_msg.twist.twist.angular.y = omega[1]
         odom_msg.twist.twist.angular.z = omega[2]
 
-        self.pub_odom.publish(odom_msg)
+        pub.publish(odom_msg)
 
 
     def send_pose(self,p,q):

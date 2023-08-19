@@ -19,7 +19,10 @@ class quad_dynamics(object):
     Drone dynamics class
     """
 
-    def __init__(self, dt_):
+    def __init__(self, dt_, p0_,v0_,q0_,w0_):
+        """
+        Constructor
+        """
 
         # Model constants
         self.g = 9.81
@@ -29,10 +32,10 @@ class quad_dynamics(object):
         self.J = 0.006*10
 
         # Initialize states
-        self.p = np.array([0,0,0])
-        self.v = np.array([0,0,0])
-        self.q = np.array([1,0,0,0])
-        self.w = np.array([0,0,0])
+        self.p = p0_
+        self.v = v0_
+        self.q = q0_
+        self.w = w0_
 
         # Important variables
         self.tau = 0
@@ -59,9 +62,9 @@ class quad_dynamics(object):
 
         # Actuators configuration
         #    2       0
-        #        ^
+        #      \ ^ /
         #        |
-        #    1       3
+        #    1 /   \ 3
 
         # Compute total thrust
         self.tau = f0+f1+f2+f3
