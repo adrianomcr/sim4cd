@@ -77,7 +77,6 @@ class drone_show(object):
         self.send_marker(p,q)
 
 
-
     def compute_odometry(self,p,q,p0,q0):
         """
         Compute the odometry that has the starting pose as the origin
@@ -100,7 +99,6 @@ class drone_show(object):
         p_odom = MU.quat_apply_rot(MU.quat_conj(q0),p) + p_w_d0
 
         return p_odom, q_odom 
-
 
 
     def send_odom(self,pub,p,q,vb,omega):
