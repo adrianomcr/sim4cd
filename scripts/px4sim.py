@@ -7,6 +7,7 @@
 import time
 import threading
 import signal
+import numpy as np
 
 import sensors as SENS
 import silsim_comm as COM
@@ -52,8 +53,14 @@ def sim_main():
     # Connect to px4_sitl
     PX4.connect()
 
+
+    p0 = np.array([0,0,0])
+    v0 = np.array([0,0,0])
+    q0 = np.array([1,0,0,0])
+    # q0 = np.array([0.707,0,0,-0.707])
+    w0 = np.array([0,0,0])
     # Create an object to simulate the vehicle dynamics
-    quad = DYN.quad_dynamics(sim_interval)
+    quad = DYN.quad_dynamics(sim_interval, p0,v0,q0,w0)
 
     # Flags to control the frequency of communication with px4
     last_time_sys_time = -1
@@ -142,7 +149,7 @@ def sim_main():
         
         # update ROS vizualixation    
         if iteration % (50) == 0:
-            ros_aux.update_ros_info(p,q,v,w)
+            ros_aux.update_ros_info(p,q,v,w,p0,q0)
 
         # Increment iteration count
         iteration += 1
