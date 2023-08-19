@@ -79,6 +79,19 @@ class drone_show(object):
 
 
     def compute_odometry(self,p,q,p0,q0):
+        """
+        Compute the odometry that has the starting pose as the origin
+
+        Parameters:
+            p (numpy.ndarray): Current position vector [x, y, z] in the world frame
+            q (numpy.ndarray): Current orientation quaternion [qw, qx, qy, qz] in the world frame
+            p0 (numpy.ndarray): Initial position vector [x, y, z] in the world frame
+            q0 (numpy.ndarray): Initial orientation quaternion [qw, qx, qy, qz] in the world frame
+
+        Returns:
+            p_odom (numpy.ndarray): Current position ([x, y, z]) odometry with respect to the initial pose
+            q_odom (numpy.ndarray): Current orientation ([qw, qx, qy, qz]) odometry with respect to the initial pose
+        """
 
         q_odom = MU.quat_mult(MU.quat_conj(q0),q)
 
@@ -95,6 +108,7 @@ class drone_show(object):
         Publish ROS odometry topic
 
         Parameters:
+            pub (rospy.topics.Publisher): Publisher to a geometry_msgs/Odometry  topic
             p (numpy.ndarray): Position vector [x, y, z]
             q (numpy.ndarray): Orientation quaternion [qw, qx, qy, qz]
             vb (numpy.ndarray): Body velocity vector [vx, vy, vz]
