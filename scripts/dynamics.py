@@ -8,6 +8,7 @@ import numpy as np
 import time
 
 import actuators as ACT
+import vehicle as VEH
 import sensors as SENS
 import silsim_comm as COM
 import math_utils as MU
@@ -46,11 +47,13 @@ class quad_dynamics(object):
         # Simulation time step
         self.dt = dt_
 
-        act0 = ACT.prop_actuator(1) # spins clock wise
-        act1 = ACT.prop_actuator(1)
-        act2 = ACT.prop_actuator(-1) # spins counter clock wise
-        act3 = ACT.prop_actuator(-1)
-        self.act_list = [act0, act1, act2, act3]
+        # act0 = ACT.prop_actuator(1) # spins clock wise
+        # act1 = ACT.prop_actuator(1)
+        # act2 = ACT.prop_actuator(-1) # spins counter clock wise
+        # act3 = ACT.prop_actuator(-1)
+        # self.act_list = [act0, act1, act2, act3]
+
+        self.vehicle_geo = VEH.vehicle_geometry()
 
         self.last_time = time.time()
 
@@ -62,62 +65,31 @@ class quad_dynamics(object):
             cmd (numpy.ndarray): PWM values (from 0 to 1) for each actuator
         """
 
-        # # Compute force performed by each actuator
-        # f0 = ACT.thrust(cmd[0])
-        # f1 = ACT.thrust(cmd[1])
-        # f2 = ACT.thrust(cmd[2])
-        # f3 = ACT.thrust(cmd[3])
+        # forces = [0]*len(self.act_list)
+        # torques = [0]*len(self.act_list)
+        # for i, act in enumerate(self.act_list):
+        #     forces[i], torques[i] = self.act_list[i].actuator_sim_step(cmd[i])
 
-        # # Actuators configuration
-        # #    2       0
-        # #      \ ^ /
-        # #        |
-        # #    1 /   \ 3
 
-        # # Compute total thrust
-        # self.tau = f0+f1+f2+f3
+        # self.tau = forces[0]+forces[1]+forces[2]+forces[3]
         # if(self.p[2]<=0 and self.v[2]<0 and self.tau<self.m*self.g):
         #     self.tau = self.m*self.g*1.001
-          
-        # # Compute total torque
+        tau_vec_b = np.array([0,0,self.tau]) # Actuation force in body frame [N]
+
         # T = [0,0,0]
-        # T[0] = 0.15*(-f0+f1+f2-f3)
-        # T[1] = 0.15*(-f0+f1-f2+f3)
-        # T[2] = 0.06*(-f0-f1+f2+f3)
+        # T[0] = self.arm_side_len*(-forces[0]+forces[1]+forces[2]-forces[3])
+        # T[1] = self.arm_side_len*(-forces[0]+forces[1]-forces[2]+forces[3])
+        # T[2] = torques[0]+torques[1]+torques[2]+torques[3]
         # T = np.array(T)
 
-        forces = [0]*len(self.act_list)
-        torques = [0]*len(self.act_list)
-        for i, act in enumerate(self.act_list):
-            forces[i], torques[i] = self.act_list[i].actuator_sim_step(cmd[i])    
 
-        # forces = [self.act_list[0].actuator_sim_step(cmd[0]), self.act_list[1].actuator_sim_step(cmd[1]), self.act_list[2].actuator_sim_step(cmd[2]), self.act_list[3].actuator_sim_step(cmd[3]) ]
-        # f0, t0 = act0.actuator_sim_step(cmd[0])
-        # f1, t1 = act0.actuator_sim_step(cmd[1])
-        # f2, t2 = act0.actuator_sim_step(cmd[2])
-        # f3, t3 = act0.actuator_sim_step(cmd[3])
-
-        # self.tau = f0+f1+f2+f3
-        # T[0] = self.arm_side_len*(-f0+f1+f2-f3)
-        # T[1] = self.arm_side_len*(-f0+f1-f2+f3)
-        # T[2] = t0+t1+t2+t3
-        # T = np.array(T)
-
-        # if time.time() - self.last_time > 0.1:
-        #     self.last_time = time.time()
-        #     print("\33[0m\33[97m  forces: ", forces, "\33[0m")
-        #     print("\33[0m\33[40m  torques: ", torques, "\33[0m")
-        #     print("\33[0m")
-
-        self.tau = forces[0]+forces[1]+forces[2]+forces[3]
+        force, torque = self.vehicle_geo.vehicle_sim_step(cmd)
+        self.tau = MU.norm(force)
+        tau_vec_b = force
+        T = np.array(torque)
         if(self.p[2]<=0 and self.v[2]<0 and self.tau<self.m*self.g):
             self.tau = self.m*self.g*1.001
-
-        T = [0,0,0]
-        T[0] = self.arm_side_len*(-forces[0]+forces[1]+forces[2]-forces[3])
-        T[1] = self.arm_side_len*(-forces[0]+forces[1]-forces[2]+forces[3])
-        T[2] = torques[0]+torques[1]+torques[2]+torques[3]
-        T = np.array(T)
+            tau_vec_b = [0,0,self.tau]
 
         # Compute linear drag
         f_drag = -self.drag_v*self.v
@@ -128,7 +100,6 @@ class quad_dynamics(object):
         Tg = np.array([0,0,0]) # TODO: blades gyroscopic effect
 
         # Compute non inertial forces acting on the drone
-        tau_vec_b = np.array([0,0,self.tau]) # Actuation force in body frame [N]
         self.total_force = MU.quat_apply_rot(self.q,tau_vec_b) + f_drag
         # Compute kinematic acceleraion
         acc_w = np.array([0,0,-self.g]) + self.total_force/self.m
