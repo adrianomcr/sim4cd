@@ -32,10 +32,10 @@ class quad_dynamics(object):
         self.J = 0.006*10
 
         # Initialize states
-        self.p = p0_
-        self.v = v0_
-        self.q = q0_
-        self.w = w0_
+        self.p = p0_ # position in the world frame
+        self.v = v0_ # velocity in the world frame
+        self.q = q0_ # orientation (as a quaternion) in the world frame
+        self.w = w0_ # angular velocity in the body frame
 
         # Important variables
         self.tau = 0

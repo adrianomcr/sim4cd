@@ -20,18 +20,18 @@ C_bar = (T0*R0)/(g*M)
 # lat0 = 0.0 # initial latitude (degrees)
 # lon0 = 0.0 # initial longitude (degrees)
 # h0 = 0.0 # initial altitude (meters above average sea level)
-# earth_mag_field = [0.22923, 0.02772, 0.11998] # Earth magnetic field (North, West, UP) in Gauss
+# earth_mag_field = [-0.02772, 0.22923, 0.11998] # Earth magnetic field (East, North, UP) in Gauss
 # # Check Earth magnetic field at: http://www.geomag.bgs.ac.uk/data_service/models_compass/wmm_calc.html
 
 # Local environmental values defined for NEA parking
 lat0 = 40.448985 # initial latitude (degrees)
 lon0 = -79.898025 # initial longitude (degrees)
 h0 = 372.0 # initial altitude (meters above average sea level)
-earth_mag_field = [0.16928, 0.02559, -0.39550] # Local Earth magnetic field (North, West, UP) in Gauss
+earth_mag_field = [-0.02559, 0.16928, -0.39550] # Local Earth magnetic field (East, North, UP) in Gauss
 # Check Earth magnetic field at: http://www.geomag.bgs.ac.uk/data_service/models_compass/wmm_calc.html
 
 # Values for the conversion between local position and geographic coordinates
 earth_radius = 6378100
 small_radius = earth_radius*sqrt(1 - sin(lat0*pi/180)**2)
-meters2ged_lat =  180 / ( earth_radius * pi)
-meters2ged_lon =  180 / ( small_radius * pi)
+meters2deg_lat =  180 / ( earth_radius * pi)
+meters2deg_lon =  180 / ( small_radius * pi)

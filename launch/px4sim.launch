@@ -24,7 +24,7 @@
         <!-- MAVROS configs -->
         <arg name="pluginlists_yaml" value="$(find mavros)/launch/px4_pluginlists.yaml"/>
         <arg name="config_yaml" value="$(find px4sim)/config/px4_config.yaml"/>
-        <!-- pass FCU-->
+        <!-- pass FCU -->
         <arg name="fcu_url" value="udp://:14540@localhost:14557"/>
         <arg name="gcs_url" value=""/>
         <arg name="tgt_system" value="1"/>
