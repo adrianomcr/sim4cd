@@ -53,7 +53,6 @@ def sim_main():
     # Connect to px4_sitl
     PX4.connect()
 
-
     p0 = np.array([0,0,0])
     v0 = np.array([0,0,0])
     q0 = np.array([1,0,0,0])
@@ -153,19 +152,19 @@ def sim_main():
 
         # Increment iteration count
         iteration += 1
-        if iteration % (100) == 0:
-            print("\33[0m\33[40mIteration:", iteration, "\33[0m")
-            print("\33[0m\33[97m  pos: ", p, "\33[0m")
-            print("\33[0m\33[40m  vel: ", v, "\33[0m")
-            print("\33[0m\33[97m quat: ", q, "\33[0m")
-            print("\33[0m\33[40momega: ", w, "\33[0m")
-            print("\33[0m\33[97mtau:   ", tau, "\33[0m")
-            # print("\33[0m\33[40macc:   ", acc, "\33[0m")
-            # print("\33[0m\33[97mgyro:  ", gyro, "\33[0m")
-            # print("\33[0m\33[40mmag:   ", mag, "\33[0m")
-            # print("\33[0m\33[97mbar:   ", bar, "\33[0m")
-            print("\33[0m\33[40mactuator_commands: %f  %f  %f  %f\33[0m" % (actuator_commands[0], actuator_commands[1], actuator_commands[2], actuator_commands[3]))
-            print("\33[0m")
+        # if iteration % (100) == 0:
+        #     print("\33[0m\33[40mIteration:", iteration, "\33[0m")
+        #     print("\33[0m\33[97m  pos: ", p, "\33[0m")
+        #     print("\33[0m\33[40m  vel: ", v, "\33[0m")
+        #     print("\33[0m\33[97m quat: ", q, "\33[0m")
+        #     print("\33[0m\33[40momega: ", w, "\33[0m")
+        #     print("\33[0m\33[97mtau:   ", tau, "\33[0m")
+        #     # print("\33[0m\33[40macc:   ", acc, "\33[0m")
+        #     # print("\33[0m\33[97mgyro:  ", gyro, "\33[0m")
+        #     # print("\33[0m\33[40mmag:   ", mag, "\33[0m")
+        #     # print("\33[0m\33[97mbar:   ", bar, "\33[0m")
+        #     print("\33[0m\33[40mactuator_commands: %f  %f  %f  %f\33[0m" % (actuator_commands[0], actuator_commands[1], actuator_commands[2], actuator_commands[3]))
+        #     print("\33[0m")
 
         # Sleep to control loop frequency
         elapsed_time = time.time() - loop_start_time

@@ -7,6 +7,89 @@
 # TODO: Add 1st order dynamic model
 # TODO: Add angular position to compute induced mechanical noise
 
+from math import pi
+import time
+
+class prop_actuator:
+    """
+    Class that represents a propulsion actuator
+    It simulates the overall behavior of a set with an ESC, a motor, and a propeller
+    """
+
+    def __init__(self, cw_ccw):
+        """
+        Constructor for the prop_actuator class
+        """
+
+        self.time_cte = 0.02 # [s]
+        self.state = False # on or off
+        self.speed = 0.0 # rotation speed # [rad/s]
+        self.sig = cw_ccw # direction of rotation (clock wise of counter clock wise)
+        self.cmd = 0
+        self.motor_kv = 320
+
+        self.last_time = time.time()
+
+
+    def actuator_sim_step(self, cmd_):
+
+        self.cmd = cmd_
+
+        time_now = time.time()
+        dt = time_now-self.last_time
+        self.last_time = time_now
+        if(dt > 1):
+            self.reset()
+        
+        self.speed = self.dynamics(dt)
+
+        return self.force_map(), self.torque_map()
+
+    def dynamics(self,dt):
+
+        new_speed = ((self.time_cte-dt)/self.time_cte)*self.speed + (dt/self.time_cte)*self.speed_map()
+
+        return new_speed
+
+    def speed_map(self):
+        
+        return 800*self.cmd # rad/s
+
+    def force_map(self):
+        
+        return 12*self.speed/800 # [N]
+
+    def torque_map(self):
+        torque = -self.sig*0.72*self.speed/800
+
+        return torque # [Nm]
+
+
+    def reset(self):
+
+        self.speed = 0
+
+        return
+
+
+
+    def get_rpm(self):
+
+        return self.speed*60/(2*pi)
+
+    def get_hz(self):
+
+        return self.speed/(2*pi)
+
+    def get_omega(self):
+
+        return self.speed
+
+
+
+
+
+
 
 def thrust(cmd):
 

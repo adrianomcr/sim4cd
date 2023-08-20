@@ -1,7 +1,7 @@
 
 
 vector_field:
-    vr: 1.0 # reference forward speed for the vector field
+    vr: 2.0 # reference forward speed for the vector field
     kf: 0.50 # convergence gain of the vector field
     reverse_direction: False # flag to invert the direction the curve will be followed
 
