@@ -83,6 +83,16 @@ class quad_dynamics(object):
         # T = np.array(T)
 
 
+
+        time_now = time.time()
+        dt = time_now-self.last_time
+        self.last_time = time_now
+        # Throw a warning if the simulation is computationally heavy
+        if(dt > self.dt):
+            print("\33[93m[Warning] simulation loop took too long to compute\33[0m")
+            print("%f ms\n" % (dt*1000))
+
+
         force, torque = self.vehicle_geo.vehicle_sim_step(cmd)
         self.tau = MU.norm(force)
         tau_vec_b = force
@@ -111,10 +121,14 @@ class quad_dynamics(object):
         w_dot = (1/self.J)*(-self.J*np.cross(self.w,self.w) + T + T_drag)
 
         # Model integration
-        self.p = self.p + p_dot*self.dt
-        self.v = self.v + v_dot*self.dt
-        self.q = self.q + q_dot*self.dt
-        self.w = self.w + w_dot*self.dt
+        # self.p = self.p + p_dot*self.dt
+        # self.v = self.v + v_dot*self.dt
+        # self.q = self.q + q_dot*self.dt
+        # self.w = self.w + w_dot*self.dt
+        self.p = self.p + p_dot*dt
+        self.v = self.v + v_dot*dt
+        self.q = self.q + q_dot*dt
+        self.w = self.w + w_dot*dt
 
         # Quaternion renormalization
         self.q = MU.normalize(self.q)

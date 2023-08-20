@@ -36,7 +36,7 @@ def sim_main():
     global channels
 
     # Set the desired loop frequency [Hz]
-    sim_frequency = 400
+    sim_frequency = 500
 
     # Calculate the time interval for one simulated step [s]
     sim_interval = 1 / sim_frequency
@@ -152,7 +152,8 @@ def sim_main():
 
         # Increment iteration count
         iteration += 1
-        # if iteration % (100) == 0:
+        if iteration % (100) == 0:
+            print("\33[1mAverage freq:", iteration/(time.time()-t0), "\33[0m")    
         #     print("\33[0m\33[40mIteration:", iteration, "\33[0m")
         #     print("\33[0m\33[97m  pos: ", p, "\33[0m")
         #     print("\33[0m\33[40m  vel: ", v, "\33[0m")
@@ -166,14 +167,14 @@ def sim_main():
         #     print("\33[0m\33[40mactuator_commands: %f  %f  %f  %f\33[0m" % (actuator_commands[0], actuator_commands[1], actuator_commands[2], actuator_commands[3]))
         #     print("\33[0m")
 
-        # Sleep to control loop frequency
-        elapsed_time = time.time() - loop_start_time
-        sleep_time = max(0, sim_interval - elapsed_time)
-        # Throw a warning if the simulatiion is computationally heavy
-        if(sleep_time==0):
-            print("\33[93m[Warning] simulation loop took too long to compute\33[0m")
-        print("%f ms" % (elapsed_time*1000))
-        time.sleep(sleep_time)
+        # # Sleep to control loop frequency
+        # elapsed_time = time.time() - loop_start_time
+        # sleep_time = max(0, sim_interval - elapsed_time)
+        # # Throw a warning if the simulation is computationally heavy
+        # if(sleep_time==0):
+        #     print("\33[93m[Warning] simulation loop took too long to compute\33[0m")
+        #     print("%f ms\n" % (elapsed_time*1000))
+        # time.sleep(sleep_time)
 
 
 if __name__ == "__main__":
