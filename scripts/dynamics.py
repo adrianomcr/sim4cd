@@ -74,7 +74,7 @@ class quad_dynamics(object):
         # self.tau = forces[0]+forces[1]+forces[2]+forces[3]
         # if(self.p[2]<=0 and self.v[2]<0 and self.tau<self.m*self.g):
         #     self.tau = self.m*self.g*1.001
-        tau_vec_b = np.array([0,0,self.tau]) # Actuation force in body frame [N]
+        # tau_vec_b = np.array([0,0,self.tau]) # Actuation force in body frame [N]
 
         # T = [0,0,0]
         # T[0] = self.arm_side_len*(-forces[0]+forces[1]+forces[2]-forces[3])

@@ -36,7 +36,7 @@ def sim_main():
     global channels
 
     # Set the desired loop frequency [Hz]
-    sim_frequency = 500
+    sim_frequency = 400
 
     # Calculate the time interval for one simulated step [s]
     sim_interval = 1 / sim_frequency
@@ -146,8 +146,8 @@ def sim_main():
         #     PX4.send_rc_commands(channels)
         #     last_time_rc = t
         
-        # update ROS vizualixation    
-        if iteration % (50) == 0:
+        # update ROS visualization    
+        if iteration % (20) == 0:
             ros_aux.update_ros_info(p,q,v,w,p0,q0)
 
         # Increment iteration count
@@ -170,9 +170,9 @@ def sim_main():
         elapsed_time = time.time() - loop_start_time
         sleep_time = max(0, sim_interval - elapsed_time)
         # Throw a warning if the simulatiion is computationally heavy
-        # if(sleep_time==0):
-        #     print("\33[93m[Warning] simulation loop took too long to compute\33[0m")
-        # print(sim_interval - elapsed_time)
+        if(sleep_time==0):
+            print("\33[93m[Warning] simulation loop took too long to compute\33[0m")
+        print("%f ms" % (elapsed_time*1000))
         time.sleep(sleep_time)
 
 

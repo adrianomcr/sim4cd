@@ -11,8 +11,9 @@ quadrobot:
     kw: 4.0 #4.0 # gain of the orientation error
 
 topics:
-    pose_topic_name: "drone/odom" # name of the topic in which the pose will be obtained
+    # pose_topic_name: "drone/odom" # name of the topic in which the pose will be obtained
     # pose_topic_name: "/mavros/local_position/odom" # name of the topic in which the pose will be obtained    
+    pose_topic_name: "/mavros/local_position/odom" # name of the topic in which the pose will be obtained
     pose_topic_type: "Odometry" # Options: 'Odometry'
     acrorate_cmd_topic_name: "drone/acrorate" # name of the topic in which the forward and angular velocities will be published
     path_topic_name: "example_path" # name of the topic in which the path will be published
