@@ -1,18 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
-# Quadcopter simulation with PX4 integration
-
+# Rigid body dynamics of 
 
 import numpy as np
 import time
 
-import actuators as ACT
 import vehicle as VEH
-import sensors as SENS
-import silsim_comm as COM
+# import sensors as SENS
 import math_utils as MU
-import ros_viz as VIZ
 
 
 class quad_dynamics(object):
@@ -20,9 +16,16 @@ class quad_dynamics(object):
     Drone dynamics class
     """
 
-    def __init__(self, dt_, p0_,v0_,q0_,w0_):
+    def __init__(self, dt_max_, p0_,v0_,q0_,w0_):
         """
-        Constructor
+        Constructor for the dynamics class
+
+        Parameters:
+            dt_max_ (float): Maximum
+            p0_ (numpy.ndarray): Vehicle initial position [m]
+            v0_ (numpy.ndarray): Vehicle initial world velocity [m/s]
+            q0_ (numpy.ndarray): Vehicle initial orientation (qw, qx, qy, qz)
+            w0_ (numpy.ndarray): Vehicle initial angular velocity [rad/s]
         """
 
         # Model constants
@@ -38,24 +41,20 @@ class quad_dynamics(object):
         self.q = q0_ # orientation (as a quaternion) in the world frame
         self.w = w0_ # angular velocity in the body frame
 
-        self.arm_side_len = 0.15
-
         # Important variables
-        self.tau = 0
-        self.total_force = 0
+        self.Force_b = np.array([0, 0, 0])
+        self.Torque_b = np.array([0, 0, 0])
+        self.total_force_w = np.array([0, 0, 0])
 
-        # Simulation time step
-        self.dt = dt_
+        # Maximum desired simulation time step
+        self.dt_max = dt_max_
 
-        # act0 = ACT.prop_actuator(1) # spins clock wise
-        # act1 = ACT.prop_actuator(1)
-        # act2 = ACT.prop_actuator(-1) # spins counter clock wise
-        # act3 = ACT.prop_actuator(-1)
-        # self.act_list = [act0, act1, act2, act3]
-
+        # Define the vehicle geometry
         self.vehicle_geo = VEH.vehicle_geometry()
 
+        # Initialize the last time variable for time step computation
         self.last_time = time.time()
+
 
     def model_step(self, cmd):
         """
@@ -65,41 +64,21 @@ class quad_dynamics(object):
             cmd (numpy.ndarray): PWM values (from 0 to 1) for each actuator
         """
 
-        # forces = [0]*len(self.act_list)
-        # torques = [0]*len(self.act_list)
-        # for i, act in enumerate(self.act_list):
-        #     forces[i], torques[i] = self.act_list[i].actuator_sim_step(cmd[i])
-
-
-        # self.tau = forces[0]+forces[1]+forces[2]+forces[3]
-        # if(self.p[2]<=0 and self.v[2]<0 and self.tau<self.m*self.g):
-        #     self.tau = self.m*self.g*1.001
-        # tau_vec_b = np.array([0,0,self.tau]) # Actuation force in body frame [N]
-
-        # T = [0,0,0]
-        # T[0] = self.arm_side_len*(-forces[0]+forces[1]+forces[2]-forces[3])
-        # T[1] = self.arm_side_len*(-forces[0]+forces[1]-forces[2]+forces[3])
-        # T[2] = torques[0]+torques[1]+torques[2]+torques[3]
-        # T = np.array(T)
-
-
-
+        # Compute the (variable) time step
         time_now = time.time()
         dt = time_now-self.last_time
         self.last_time = time_now
+
         # Throw a warning if the simulation is computationally heavy
-        if(dt > self.dt):
-            print("\33[93m[Warning] simulation loop took too long to compute\33[0m")
-            print("%f ms\n" % (dt*1000))
+        if(dt > self.dt_max):
+            print("\33[93m[Warning] simulation loop took too long to compute: %f ms\33[0m" % (dt*1000))
 
+        # Compute the forces and torques that the actuators are applying to the vehicle body
+        self.Force_b, self.Torque_b = self.vehicle_geo.vehicle_sim_step(cmd)
 
-        force, torque = self.vehicle_geo.vehicle_sim_step(cmd)
-        self.tau = MU.norm(force)
-        tau_vec_b = force
-        T = np.array(torque)
-        if(self.p[2]<=0 and self.v[2]<0 and self.tau<self.m*self.g):
-            self.tau = self.m*self.g*1.001
-            tau_vec_b = [0,0,self.tau]
+        # Temporary trick to stop the drone before takeoff
+        if(self.p[2]<=0 and self.v[2]<0 and MU.norm(self.Force_b)<self.m*self.g):
+            self.Force_b = [0,0,self.m*self.g*1.001]
 
         # Compute linear drag
         f_drag = -self.drag_v*self.v
@@ -107,24 +86,20 @@ class quad_dynamics(object):
         T_drag = -self.drag_w*self.w
 
         # Compute torque due to gyroscopic effect
-        Tg = np.array([0,0,0]) # TODO: blades gyroscopic effect
+        Tg = np.array([0,0,0]) # TODO: implement blades gyroscopic effect
 
         # Compute non inertial forces acting on the drone
-        self.total_force = MU.quat_apply_rot(self.q,tau_vec_b) + f_drag
+        self.total_force_w = MU.quat_apply_rot(self.q,self.Force_b) + f_drag
         # Compute kinematic acceleraion
-        acc_w = np.array([0,0,-self.g]) + self.total_force/self.m
+        acc_w = np.array([0,0,-self.g]) + self.total_force_w/self.m
 
         # Dynamic model
         p_dot = self.v
         v_dot = acc_w
         q_dot = MU.quaternion_derivative(self.q,self.w)
-        w_dot = (1/self.J)*(-self.J*np.cross(self.w,self.w) + T + T_drag)
+        w_dot = (1/self.J)*(-self.J*np.cross(self.w,self.w) + self.Torque_b + T_drag) #TODO: fix J
 
-        # Model integration
-        # self.p = self.p + p_dot*self.dt
-        # self.v = self.v + v_dot*self.dt
-        # self.q = self.q + q_dot*self.dt
-        # self.w = self.w + w_dot*self.dt
+        # Model integration (variable time step)
         self.p = self.p + p_dot*dt
         self.v = self.v + v_dot*dt
         self.q = self.q + q_dot*dt
@@ -134,12 +109,26 @@ class quad_dynamics(object):
         self.q = MU.normalize(self.q)
 
 
+    def get_states(self):
+        """
+        Return the vehicles states
+
+        Returns:
+            self.p (numpy.ndarray): Vehicle position [m]
+            self.v (numpy.ndarray): Vehicle world velocity [m/s]
+            self.q (numpy.ndarray): Vehicle orientation (qw, qx, qy, qz)
+            self.w (numpy.ndarray): Vehicle angular velocity [rad/s]
+        """
+
+        return self.p, self.v, self.q, self.w
+
+
     def get_pos(self):
         """
         Return the vehicle local position
 
         Returns:
-            numpy.ndarray: Vehicle position  [m]
+            self.p (numpy.ndarray): Vehicle position [m]
         """
 
         return self.p
@@ -150,7 +139,7 @@ class quad_dynamics(object):
         Return the vehicle velocity in the world frame
 
         Returns:
-            numpy.ndarray: Vehicle world velocity [m/sx]
+            self.v (numpy.ndarray): Vehicle world velocity [m/s]
         """
 
         return self.v
@@ -161,7 +150,7 @@ class quad_dynamics(object):
         Return the vehicle orientation in an unit quaternion format
 
         Returns:
-            numpy.ndarray: Vehicle orientation (qw, qx, qy, qz)
+            self.q (numpy.ndarray): Vehicle orientation (qw, qx, qy, qz)
         """
 
         return self.q
@@ -172,7 +161,7 @@ class quad_dynamics(object):
         Return the vehicle angular velocity in the body frame
 
         Returns:
-            numpy.ndarray: Vehicle angular velocity [rad/s]
+            self.w (numpy.ndarray): Vehicle angular velocity [rad/s]
         """
 
         return self.w
@@ -183,10 +172,12 @@ class quad_dynamics(object):
         Return the vehicle total thrust
 
         Returns:
-            float: Vehicle total thrust [N]
+            tau (float): Vehicle total thrust [N]
         """
+        
+        tau = MU.norm(self.Force_b)
 
-        return self.tau
+        return tau #TODO: Revise this. In general, it does not make sense
 
 
     def get_total_force(self):
@@ -194,7 +185,7 @@ class quad_dynamics(object):
         Return the sum of all forces getting applied to the vehicle except gravity
 
         Returns:
-            numpy.ndarray: Applied non inertial forces [N]
+            self.total_force_w (numpy.ndarray): Applied non inertial forces [N]
         """
 
-        return self.total_force
+        return self.total_force_w
