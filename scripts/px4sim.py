@@ -21,10 +21,13 @@ def custom_handler(signal, frame):
     ROS cleanup  function
     """
 
-    print("\33[92mCtrl+C pressed. Running cleanup function.\33[0m]")
+    print("\33[92mCtrl+C pressed. Running cleanup function\33[0m")
     global ros_aux
+    # Terminate ROS node
     del ros_aux
 
+    # Terminate px4sim
+    print("\33[92mExiting\33[0m") 
     exit()
 
 
@@ -35,11 +38,11 @@ def sim_main():
 
     global channels
 
-    # Set the desired loop frequency [Hz]
-    sim_frequency = 500
+    # Set the minimum desired frequency [Hz]
+    sim_frequency_alert = 400 # an alert will show if a simulation step takes more than 1/sim_frequency_alert seconds
 
-    # Calculate the time interval for one simulated step [s]
-    sim_interval = 1 / sim_frequency
+    # Calculate the maximum desired time interval for one simulated step [s]
+    max_sim_interval = 1 / sim_frequency_alert
 
     # Register the custom_handler function to be called when Ctrl+C is pressed
     signal.signal(signal.SIGINT, custom_handler)
@@ -53,14 +56,13 @@ def sim_main():
     # Connect to px4_sitl
     PX4.connect()
 
-
     p0 = np.array([0,0,0])
     v0 = np.array([0,0,0])
     q0 = np.array([1,0,0,0])
     # q0 = np.array([0.707,0,0,-0.707])
     w0 = np.array([0,0,0])
     # Create an object to simulate the vehicle dynamics
-    quad = DYN.quad_dynamics(sim_interval, p0,v0,q0,w0)
+    quad = DYN.quad_dynamics(max_sim_interval, p0,v0,q0,w0)
 
     # Flags to control the frequency of communication with px4
     last_time_sys_time = -1
@@ -69,11 +71,9 @@ def sim_main():
     last_time_gps = -1
     last_time_gt = -1
     last_time_rc = -1
-
-    # # Create a thread that keeps listening to a joystick
-    # channels = [1500]*18
-    # keyboard_thread = threading.Thread(target=JOY.keyboard_input_thread)
-    # keyboard_thread.start()
+    last_time_ros_viz = -1
+    last_time_print = -1
+    #TODO: Create a timer class to control these stuff
     
     # variable that store the actuator PWMs
     actuator_commands = [0,0,0,0]
@@ -85,6 +85,9 @@ def sim_main():
     while True:
         loop_start_time = time.time()
 
+        # Increment iteration count
+        iteration += 1
+
         # Check for new actuator controls from PX4
         new, value = PX4.get_actuator_controls()
         if(new):
@@ -93,16 +96,13 @@ def sim_main():
         # Perform the dynamic model integration step
         quad.model_step(actuator_commands)
 
-        # Get some state variables
-        p = quad.get_pos()
-        q = quad.get_quat()
-        v = quad.get_vel_w()
-        w = quad.get_omega()
+        # Get some state variables for sensor simulation
+        p, v, q, w = quad.get_states()
         tau = quad.get_tau()
         total_force = quad.get_total_force()
         m = quad.m
 
-        # Compute sensors
+        # Compute sensors TODO: Simulate sensors inside dynamics
         acc = SENS.get_acc(q, total_force, m)
         gyro = SENS.get_gyro(w)
         mag = SENS.get_mag(q,tau)
@@ -133,7 +133,7 @@ def sim_main():
             PX4.send_gps(gps)
             last_time_gps = t
 
-        # Send system Ground Truth data to PX4 (for lgging and comparison purpuses)
+        # Send system Ground Truth data to PX4 (for logging and comparison purposes)
         t = time.time()
         if (t-last_time_gt > 0.02): # 50Hz
             gt = SENS.get_ground_truth(p,v,q,w)
@@ -147,14 +147,17 @@ def sim_main():
         #     PX4.send_rc_commands(channels)
         #     last_time_rc = t
         
-        # update ROS vizualixation    
-        if iteration % (50) == 0:
+        # Update ROS visualization
+        t = time.time()
+        if (t-last_time_ros_viz > 0.05): # 20Hz
             ros_aux.update_ros_info(p,q,v,w,p0,q0)
+            last_time_ros_viz = t
 
-        # Increment iteration count
-        iteration += 1
-        if iteration % (100) == 0:
-            print("\33[0m\33[40mIteration:", iteration, "\33[0m")
+        # Print info
+        t = time.time()
+        if (t-last_time_print > 0.1): # 10Hz
+            print("\33[1mIteration:", iteration, "\33[0m")
+            print("\33[0m\33[40mAverage freq:", iteration/(time.time()-t0), "\33[0m")
             print("\33[0m\33[97m  pos: ", p, "\33[0m")
             print("\33[0m\33[40m  vel: ", v, "\33[0m")
             print("\33[0m\33[97m quat: ", q, "\33[0m")
@@ -166,15 +169,7 @@ def sim_main():
             # print("\33[0m\33[97mbar:   ", bar, "\33[0m")
             print("\33[0m\33[40mactuator_commands: %f  %f  %f  %f\33[0m" % (actuator_commands[0], actuator_commands[1], actuator_commands[2], actuator_commands[3]))
             print("\33[0m")
-
-        # Sleep to control loop frequency
-        elapsed_time = time.time() - loop_start_time
-        sleep_time = max(0, sim_interval - elapsed_time)
-        # Throw a warning if the simulatiion is computationally heavy
-        # if(sleep_time==0):
-        #     print("\33[93m[Warning] simulation loop took too long to compute\33[0m")
-        # print(sim_interval - elapsed_time)
-        time.sleep(sleep_time)
+            last_time_print = t
 
 
 if __name__ == "__main__":

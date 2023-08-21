@@ -134,6 +134,7 @@ class px4_connection:
         # Send HIL_GPS message through mavlink
         if self.vehicle != None:
             self.vehicle.mav.hil_gps_send(
+            # self.vehicle.mav.hil_gps_encode(
                 time_usec           = time_usec             ,
                 fix_type            = fix_type              ,
                 lat                 = lat                   ,
@@ -187,6 +188,7 @@ class px4_connection:
         # Send HIL_STATE_QUATERNION message through mavlink
         if self.vehicle != None:
             self.vehicle.mav.hil_state_quaternion_send(
+            # self.vehicle.mav.hil_state_quaternion_encode(
                 time_usec           = time_usec             ,
                 attitude_quaternion = attitude_quaternion   ,
                 rollspeed           = rollspeed             ,

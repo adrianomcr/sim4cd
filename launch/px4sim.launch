@@ -1,6 +1,10 @@
 <?xml version="1.0"?>
 <launch>
 
+    <!--Run PX4 sitl-->
+    <node pkg = "px4sim" name = "px4_stil" type = "px4_stil.sh" args="$(find px4)" output="screen">
+    </node>
+
     <!--Run rviz to visualize the drone-->
     <node pkg = "rviz" name = "rviz" type = "rviz" args="-d $(find px4sim)/rviz/basic.rviz">
     </node>
@@ -33,6 +37,7 @@
         <arg name="fcu_protocol" value="v2.0"/>
         <arg name="respawn_mavros" default="true"/>
     </include>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="static_tf_publisher" args="0 0 0 0 0 0 world map"/>
 
 </launch>
 
