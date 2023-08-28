@@ -47,14 +47,14 @@ class drone_show(object):
         # self.pub_rviz_hist = rospy.Publisher("/drone/history", MarkerArray, queue_size=1)
 
 
-    def update_ros_info(self,p,q,vw,omega,p0,q0):
+    def update_ros_info(self,p,vw,q,omega,p0,q0):
         """
         Publish information as ROS topics
 
         Parameters:
             p (numpy.ndarray): Position vector [x, y, z]
-            q (numpy.ndarray): Orientation quaternion [qw, qx, qy, qz]
             vw (numpy.ndarray): World velocity vector [vx, vy, vz]
+            q (numpy.ndarray): Orientation quaternion [qw, qx, qy, qz]
             omega (numpy.ndarray): Body angular velocity [wx, wy, wz]
             p0 (numpy.ndarray): Initial position vector [x, y, z]
             q0 (numpy.ndarray): Initial orientation quaternion [qw, qx, qy, qz]

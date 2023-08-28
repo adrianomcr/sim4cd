@@ -20,7 +20,7 @@ class vehicle_geometry:
         Constructor for the vehicle_geometry class
         """
 
-        self.cmd = [0, 0, 0, 0] # List of the PWM commands for the actuators
+        self.cmds = [0, 0, 0, 0] # List of the PWM commands for the actuators
         self.forces = [0, 0, 0, 0] # List of forces being exercised by each actuator
         self.torques = [0, 0, 0, 0] # List of torques being exercised by each actuator
         self.total_force = np.array([0, 0, 0]) # Collective force vector exercised by the actuators
@@ -51,7 +51,7 @@ class vehicle_geometry:
                           np.array([-self.d, -self.d, 0])]
 
         # Define a list with the direction (with respect to the body frame) of each actuator
-        self.directions = [np.array([0, 0, 1]),
+        self.directions = [np.array([0.05, 0.05, 1]),
                            np.array([0, 0, 1]),
                            np.array([0, 0, 1]),
                            np.array([0, 0, 1])]
@@ -120,6 +120,17 @@ class vehicle_geometry:
         self.total_force = np.array([0, 0, 0])
 
 
+    def get_cmds(self):
+        """
+        Get the commands list
+        
+        Returns:
+            self.cmds (numpy.ndarray): List with commands of each actuator [PWM]
+        """
+
+        return self.cmds
+
+
     def get_force(self):
         """
         Get the collective force (in body frame) the vehicles actuators are producing
@@ -140,3 +151,72 @@ class vehicle_geometry:
         """
         
         return self.total_torque
+
+
+    def get_actuators_positions(self):
+        """
+        Get a list with the angular positions of the actuators
+        
+        Returns:
+            self.total_torque (numpy.ndarray): Collective torque vector the actuators are exercising [Nm]
+        """
+
+        ang_pos_list = [a.get_angular_position() for a in self.actuators]
+        
+        return ang_pos_list
+
+
+    def get_acc_noise_combined(self):
+        """
+        Get the combined noise the actuators inject on the vehicle's acceleration
+        
+        Returns:
+            acc_combined_noise (numpy.ndarray): Collective acceleration (3-axis) noise caused by the set of actuators [m/s2]
+        """
+
+        # Add the acceleration noise induced by all of the actuators
+        acc_combined_noise = sum(a.acc_induced_noise() for a in self.actuators)
+
+        return acc_combined_noise # [m/s2]
+
+
+    def get_gyro_noise_combined(self):
+        """
+        Get the combined noise the actuators inject on the vehicle's angular speed
+        
+        Returns:
+            gyro_combined_noise (numpy.ndarray): Collective angular speed (3-axis) noise caused by the set of actuators [rad/s]
+        """
+
+        # Add the angular speed noise induced by all of the actuators
+        gyro_combined_noise = sum(a.gyro_induced_noise() for a in self.actuators)
+
+        return gyro_combined_noise
+
+
+    def get_total_current(self):
+        """
+        Get the combined current used by all of the actuators
+        
+        Returns:
+            total_current (float): Total current being consumed by all of the actuators [A]
+        """
+
+        # Add the current being consumed by all of the actuators
+        total_current = sum(a.current for a in self.actuators)
+
+        return total_current
+
+
+    def get_mag_noise(self):
+        """
+        Get the internal magnetic noise caused by the total internal current
+        
+        Returns:
+            mag_noise (numpy.ndarray): Internal magnetic field (3-axis) cause by internal currents [G]
+        """
+
+        # Compute the internal magnetic field
+        mag_noise = np.array([-0.14, -0.02, -0.08])*(self.get_total_current()/40)**2 #TODO: improve model
+
+        return mag_noise

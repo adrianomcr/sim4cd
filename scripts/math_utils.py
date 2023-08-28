@@ -72,7 +72,7 @@ def quat_mult(q1, q2):
 
 def quat_apply_rot(q_in,u_in):
     """
-    Perform quaternion multiplication (Hamilton product).
+    Apply the rotation represented by a quaternion to a vector.
 
     Parameters:
         q_in (numpy.ndarray): Quaternion [qw, qx, qy, qz].
@@ -112,13 +112,27 @@ def norm(u):
     Return the norm of the vector u whose norm will be computed
 
     Parameters:
-        u (numpy.ndarray): Vector
+        u (numpy.ndarray): Vector whose norm will be computed
 
     Returns:
         (float): Euclidean norm of the vector u
     """
 
     return np.linalg.norm(u)
+
+
+def mean(u):
+    """
+    Return the mean value of the elements in the vector u
+
+    Parameters:
+        u (numpy.ndarray / list): Vector whose mean will be computed
+
+    Returns:
+        (float): Mean value of the elements of vector u
+    """
+
+    return np.array(u).mean()
 
 
 def quat2rotm(q):

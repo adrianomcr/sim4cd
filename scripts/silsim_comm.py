@@ -56,8 +56,8 @@ class px4_connection:
 
         # Save the boot time
         t_abs__s    = time.time()
-        t_abs__us   = round(t_abs__s * 1e6)
-        self.t_boot__us  = round(t_abs__us - 30e6)
+        t_abs__us   = int(t_abs__s * 1e6)
+        self.t_boot__us  = int(t_abs__us - 30e6)
         
         # Return the connection object
         return self.vehicle
@@ -70,11 +70,11 @@ class px4_connection:
         
         # Get current time
         t_abs__s    = time.time()
-        t_abs__us   = round(t_abs__s * 1e6)
+        t_abs__us   = int(t_abs__s * 1e6)
 
         # Compute time since boot
         since_boot__us = t_abs__us - self.t_boot__us
-        since_boot__ms = round(since_boot__us / 1000)
+        since_boot__ms = int(since_boot__us / 1000)
         
         # Send SYSTEM_TIME message through mavlink
         if self.vehicle != None:
@@ -112,20 +112,20 @@ class px4_connection:
 
         # Get current time
         t_abs__s    = time.time()
-        t_abs__us   = round(t_abs__s * 1e6)
+        t_abs__us   = int(t_abs__s * 1e6)
 
         # Extract GPS information from dictionary and round when necessary
         time_usec          = t_abs__us                     # Timestamp (UNIX Epoch time or time since system boot). The receiving end can infer timestamp format (since 1.1.1970 or since system boot) by checking for the magnitude of the number. [us] (type:uint64_t)
         fix_type           = 3                             # 0-1: no fix, 2: 2D fix, 3: 3D fix. Some applications will not use the value of this field unless it is at least two, so always correctly fill in the fix. (type:uint8_t)
-        lat                = round(gps['i_lat__degE7'])    # Latitude (WGS84) [degE7] (type:int32_t)
-        lon                = round(gps['i_lon__degE7'])    # Longitude (WGS84) [degE7] (type:int32_t)
-        alt                = round(gps['i_alt__mm'])       # Altitude (MSL). Positive for up. [mm] (type:int32_t)
-        eph                = round(gps['i_eph__cm'])       # GPS HDOP horizontal dilution of position (unitless). If unknown, set to: UINT16_MAX (type:uint16_t)
-        epv                = round(gps['i_epv__cm'])       # GPS VDOP vertical dilution of position (unitless). If unknown, set to: UINT16_MAX (type:uint16_t)
-        vel                = round(gps['i_vel__cm/s'])     # GPS ground speed. If unknown, set to: 65535 [cm/s] (type:uint16_t)
-        vn                 = round(gps['i_vn__cm/s'])      # GPS velocity in north direction in earth-fixed NED frame [cm/s] (type:int16_t)
-        ve                 = round(gps['i_ve__cm/s'])      # GPS velocity in east direction in earth-fixed NED frame [cm/s] (type:int16_t)
-        vd                 = round(gps['i_vd__cm/s'])      # GPS velocity in down direction in earth-fixed NED frame [cm/s] (type:int16_t)
+        lat                = int(gps['i_lat__degE7'])    # Latitude (WGS84) [degE7] (type:int32_t)
+        lon                = int(gps['i_lon__degE7'])    # Longitude (WGS84) [degE7] (type:int32_t)
+        alt                = int(gps['i_alt__mm'])       # Altitude (MSL). Positive for up. [mm] (type:int32_t)
+        eph                = int(gps['i_eph__cm'])       # GPS HDOP horizontal dilution of position (unitless). If unknown, set to: UINT16_MAX (type:uint16_t)
+        epv                = int(gps['i_epv__cm'])       # GPS VDOP vertical dilution of position (unitless). If unknown, set to: UINT16_MAX (type:uint16_t)
+        vel                = int(gps['i_vel__cm/s'])     # GPS ground speed. If unknown, set to: 65535 [cm/s] (type:uint16_t)
+        vn                 = int(gps['i_vn__cm/s'])      # GPS velocity in north direction in earth-fixed NED frame [cm/s] (type:int16_t)
+        ve                 = int(gps['i_ve__cm/s'])      # GPS velocity in east direction in earth-fixed NED frame [cm/s] (type:int16_t)
+        vd                 = int(gps['i_vd__cm/s'])      # GPS velocity in down direction in earth-fixed NED frame [cm/s] (type:int16_t)
         cog                = 65535                         # Course over ground (NOT heading, but direction of movement), 0.0..359.99 degrees. If unknown, set to: 65535 [cdeg] (type:uint16_t)
         satellites_visible = 10                            # Number of satellites visible. If unknown, set to 255 (type:uint8_t)
         the_id             = 0                             # GPS ID (zero indexed). Used for multiple GPS inputs (type:uint8_t)
@@ -165,7 +165,7 @@ class px4_connection:
 
         # Get current time
         t_abs__s    = time.time()
-        t_abs__us   = round(t_abs__s * 1e6)
+        t_abs__us   = int(t_abs__s * 1e6)
         
         # Extract Ground Truth information from dictionary and round when necessary
         time_usec           = t_abs__us                    # Timestamp (UNIX Epoch time or time since system boot). The receiving end can infer timestamp format (since 1.1.1970 or since system boot) by checking for the magnitude of the number. [us] (type:uint64_t)
@@ -173,17 +173,17 @@ class px4_connection:
         rollspeed           = gt['rollspeed']              # Body frame roll / phi angular speed [rad/s] (type:float)
         pitchspeed          = gt['pitchspeed']             # Body frame pitch / theta angular speed [rad/s] (type:float)
         yawspeed            = gt['yawspeed']               # Body frame yaw / psi angular speed [rad/s] (type:float)
-        lat                 = round(gt['i_lat__degE7'])    # Latitude [degE7] (type:int32_t)
-        lon                 = round(gt['i_lon__degE7'])    # Longitude [degE7] (type:int32_t)
-        alt                 = round(gt['i_alt__mm'])       # Altitude [mm] (type:int32_t)
-        vx                  = round(gt['vx'])              # Ground X Speed (Latitude) [cm/s] (type:int16_t)
-        vy                  = round(gt['vy'])              # Ground Y Speed (Longitude) [cm/s] (type:int16_t)
-        vz                  = round(gt['vz'])              # Ground Z Speed (Altitude) [cm/s] (type:int16_t)
-        ind_airspeed        = round(gt['ind_airspeed'])    # Indicated airspeed [cm/s] (type:uint16_t)
-        true_airspeed       = round(gt['true_airspeed'])   # True airspeed [cm/s] (type:uint16_t)
-        xacc                = round(gt['xacc'])            # X acceleration [mG] (type:int16_t)
-        yacc                = round(gt['yacc'])            # Y acceleration [mG] (type:int16_t)
-        zacc                = round(gt['zacc'])            # Z acceleration [mG] (type:int16_t)
+        lat                 = int(gt['i_lat__degE7'])    # Latitude [degE7] (type:int32_t)
+        lon                 = int(gt['i_lon__degE7'])    # Longitude [degE7] (type:int32_t)
+        alt                 = int(gt['i_alt__mm'])       # Altitude [mm] (type:int32_t)
+        vx                  = int(gt['vx'])              # Ground X Speed (Latitude) [cm/s] (type:int16_t)
+        vy                  = int(gt['vy'])              # Ground Y Speed (Longitude) [cm/s] (type:int16_t)
+        vz                  = int(gt['vz'])              # Ground Z Speed (Altitude) [cm/s] (type:int16_t)
+        ind_airspeed        = int(gt['ind_airspeed'])    # Indicated airspeed [cm/s] (type:uint16_t)
+        true_airspeed       = int(gt['true_airspeed'])   # True airspeed [cm/s] (type:uint16_t)
+        xacc                = int(gt['xacc'])            # X acceleration [mG] (type:int16_t)
+        yacc                = int(gt['yacc'])            # Y acceleration [mG] (type:int16_t)
+        zacc                = int(gt['zacc'])            # Z acceleration [mG] (type:int16_t)
 
         # Send HIL_STATE_QUATERNION message through mavlink
         if self.vehicle != None:
@@ -221,7 +221,7 @@ class px4_connection:
 
         # Get current time
         t_abs__s    = time.time()
-        t_abs__us   = round(t_abs__s * 1e6)
+        t_abs__us   = int(t_abs__s * 1e6)
         
         # Get all the information to populate the sensor message
         time_usec           = t_abs__us                       # Timestamp (UNIX Epoch time or time since system boot). The receiving end can infer timestamp format (since 1.1.1970 or since system boot) by checking for the magnitude of the number. [us] (type:uint64_t)
@@ -272,11 +272,11 @@ class px4_connection:
 
         # Get current time
         t_abs__s    = time.time()
-        t_abs__us   = round(t_abs__s * 1e6)
+        t_abs__us   = int(t_abs__s * 1e6)
 
         # Compute time since boot
         since_boot__us = t_abs__us - self.t_boot__us
-        since_boot__ms = round(since_boot__us / 1000)
+        since_boot__ms = int(since_boot__us / 1000)
 
         # Send RC_CHANNELS message through mavlink
         if self.vehicle != None:
@@ -333,3 +333,36 @@ class px4_connection:
                     update = True
             
         return update, actuator_commands
+
+
+
+
+
+
+
+
+
+    # TODO: Implementation of battery levels. PX4 will require changes to receive it.
+    def send_battery(self):
+
+        # Get current time
+        t_abs__s    = time.time()
+        t_abs__us   = int(t_abs__s * 1e6)
+
+        # Compute time since boot
+        since_boot__us = t_abs__us - self.t_boot__us
+        since_boot__ms = int(since_boot__us / 1000)
+
+        # Send BATTERY_STATUS message through mavlink
+        if self.vehicle != None:
+            self.vehicle.mav.battery_status_send(
+                id = 0,
+                battery_function = 0, #MAV_BATTERY_FUNCTION_UNKNOWN
+                type = 1, #LIPO
+                temperature = 60, #Celsius
+                voltages = [int((24.3-0.02*since_boot__ms/1000)*1000),65535,65535,65535,65535,65535,65535,65535,65535,65535],
+                current_battery = -1,
+                current_consumed = -1,
+                energy_consumed = -1,
+                battery_remaining = -1,
+            )
