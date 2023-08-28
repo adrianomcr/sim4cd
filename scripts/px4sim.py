@@ -59,7 +59,8 @@ def sim_main():
     p0 = np.array([0,0,0])
     v0 = np.array([0,0,0])
     q0 = np.array([1,0,0,0])
-    # q0 = np.array([0.707,0,0,-0.707])
+    # q0 = np.array([0.707,0,0,0.707])
+    # q0 = np.array([0,0,0,1])
     w0 = np.array([0,0,0])
     # Create an object to simulate the vehicle dynamics
     quad = DYN.quad_dynamics(max_sim_interval, p0,v0,q0,w0)
@@ -96,18 +97,6 @@ def sim_main():
         # Perform the dynamic model integration step
         quad.model_step(actuator_commands)
 
-        # Get some state variables for sensor simulation
-        p, v, q, w = quad.get_states()
-        tau = quad.get_tau()
-        total_force = quad.get_total_force()
-        m = quad.m
-
-        # Compute sensors TODO: Simulate sensors inside dynamics
-        acc = SENS.get_acc(q, total_force, m)
-        gyro = SENS.get_gyro(w)
-        mag = SENS.get_mag(q,tau)
-        bar = SENS.get_baro(p[2])
-
         # Send system time to PX4
         t = time.time()
         if (t-last_time_sys_time > 4):
@@ -122,21 +111,27 @@ def sim_main():
 
         # Send system sensors data to PX4
         t = time.time()
-        if (t-last_time_sensors > 0):
+        if (t-last_time_sensors > 1/800):
+            # Get the current sensor values
+            acc = quad.get_acc()
+            gyro = quad.get_gyro()
+            mag = quad.get_mag()
+            bar = quad.get_baro()
             PX4.send_sensors(acc,gyro,mag,bar)
             last_time_sensors = t
 
         # Send system GPS data to PX4
         t = time.time()
         if (t-last_time_gps > 0.02): # 50Hz
-            gps = SENS.get_gps(p,v)
+            gps = quad.get_gps()
             PX4.send_gps(gps)
+            # PX4.send_battery()
             last_time_gps = t
 
         # Send system Ground Truth data to PX4 (for logging and comparison purposes)
         t = time.time()
         if (t-last_time_gt > 0.02): # 50Hz
-            gt = SENS.get_ground_truth(p,v,q,w)
+            gt = quad.get_ground_truth()
             PX4.send_ground_truth(gt)
             last_time_gt = t
 
@@ -150,12 +145,18 @@ def sim_main():
         # Update ROS visualization
         t = time.time()
         if (t-last_time_ros_viz > 0.05): # 20Hz
-            ros_aux.update_ros_info(p,q,v,w,p0,q0)
+            p, v, q, w = quad.get_states()
+            ros_aux.update_ros_info(p,v,q,w,p0,q0)
             last_time_ros_viz = t
 
         # Print info
         t = time.time()
         if (t-last_time_print > 0.1): # 10Hz
+            # Get some state variables for sensor simulation
+            p, v, q, w = quad.get_states()
+            tau = quad.get_tau()
+            total_force = quad.get_total_force()
+            m = quad.m
             print("\33[1mIteration:", iteration, "\33[0m")
             print("\33[0m\33[40mAverage freq:", iteration/(time.time()-t0), "\33[0m")
             print("\33[0m\33[97m  pos: ", p, "\33[0m")
@@ -168,6 +169,9 @@ def sim_main():
             # print("\33[0m\33[40mmag:   ", mag, "\33[0m")
             # print("\33[0m\33[97mbar:   ", bar, "\33[0m")
             print("\33[0m\33[40mactuator_commands: %f  %f  %f  %f\33[0m" % (actuator_commands[0], actuator_commands[1], actuator_commands[2], actuator_commands[3]))
+            color = ['\33[92m','\33[91m','\33[93m']
+            status = quad.get_status()
+            print(color[status]+"status: ", status,'\33[0m')
             print("\33[0m")
             last_time_print = t
 
