@@ -51,7 +51,7 @@ class vehicle_geometry:
                           np.array([-self.d, -self.d, 0])]
 
         # Define a list with the direction (with respect to the body frame) of each actuator
-        self.directions = [np.array([0.001, 0.001, 1]),
+        self.directions = [np.array([0.05, 0.05, 1]),
                            np.array([0, 0, 1]),
                            np.array([0, 0, 1]),
                            np.array([0, 0, 1])]
