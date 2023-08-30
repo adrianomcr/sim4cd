@@ -44,6 +44,7 @@ class quad_dynamics(object):
         self.Jzz = 0.1060739
         self.J = np.array([[self.Jxx, 0, 0],[0, self.Jyy, 0],[0, 0, self.Jzz]])
         self.Jinv = MU.inv(self.J)
+        self.wind_vw = np.array([0,0,0]) # wind speed
 
         # Initialize states
         self.p = p0_ # position in the world frame
@@ -138,9 +139,9 @@ class quad_dynamics(object):
         # ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------
 
         # Compute linear drag
-        f_drag = -self.drag_v*self.v
+        f_drag = -self.drag_v*(self.v-self.wind_vw) #TODO: Add different drag for different directions
         # Compute angular drag
-        T_drag = -self.drag_w*self.w
+        T_drag = -self.drag_w*self.w #TODO: Add different drag for different directions
 
         # Compute torque due to gyroscopic effect
         Tg = np.array([0,0,0]) # TODO: implement blades gyroscopic effect
