@@ -39,7 +39,11 @@ class quad_dynamics(object):
         self.m = 2.0
         self.drag_v = 0.1*5
         self.drag_w = 0.01*5
-        self.J = 0.006*10
+        self.Jxx = 0.07625
+        self.Jyy = 0.077812
+        self.Jzz = 0.1060739
+        self.J = np.array([[self.Jxx, 0, 0],[0, self.Jyy, 0],[0, 0, self.Jzz]])
+        self.Jinv = MU.inv(self.J)
 
         # Initialize states
         self.p = p0_ # position in the world frame
@@ -94,7 +98,6 @@ class quad_dynamics(object):
         # Compute the forces and torques that the actuators are applying to the vehicle body
         self.Force_b, self.Torque_b = self.vehicle_geo.vehicle_sim_step(self.cmds)
 
-
         # Temporary trick to deal with ground interaction during take off and landing
         # ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------
         if(self.status == 0): #landed stage
@@ -131,7 +134,7 @@ class quad_dynamics(object):
                 break_force_w = - self.m*self.v*10
                 break_force_w[2] = break_force_w[2]*3 + self.m*self.g
                 self.Force_b = MU.quat_apply_rot(MU.quat_conj(self.q),break_force_w)
-                self.Torque_b = -self.J*self.w*10 - w_align*20
+                self.Torque_b = -self.J@self.w*10 - w_align*20
         # ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------
 
         # Compute linear drag
@@ -151,7 +154,7 @@ class quad_dynamics(object):
         p_dot = self.v
         v_dot = acc_w
         q_dot = MU.quaternion_derivative(self.q,self.w)
-        w_dot = (1/self.J)*(-self.J*np.cross(self.w,self.w) + self.Torque_b + T_drag) #TODO: fix J
+        w_dot = self.Jinv@(-np.cross(self.w,self.J@self.w) + self.Torque_b + T_drag)
 
         # Model integration (variable time step)
         self.p = self.p + p_dot*dt
