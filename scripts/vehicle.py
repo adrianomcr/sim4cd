@@ -34,10 +34,10 @@ class vehicle_geometry:
         #    1 /   \ 3
 
         # Define the four actuator objects
-        act0 = ACT.prop_actuator(1) # spins clock wise
-        act1 = ACT.prop_actuator(1) # spins clock wise
-        act2 = ACT.prop_actuator(-1) # spins counter clock wise
-        act3 = ACT.prop_actuator(-1) # spins counter clock wise
+        act0 = ACT.prop_actuator(1) # spins counter clock wise
+        act1 = ACT.prop_actuator(1) # spins counter clock wise
+        act2 = ACT.prop_actuator(-1) # spins clock wise
+        act3 = ACT.prop_actuator(-1) # spins clock wise
         # Define the list of actuator objects
         self.actuators = [act0,
                           act1,
