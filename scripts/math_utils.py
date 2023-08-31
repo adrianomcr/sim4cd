@@ -121,6 +121,20 @@ def norm(u):
     return np.linalg.norm(u)
 
 
+def inv(M):
+    """
+    Return the inverse of the matrix
+
+    Parameters:
+        M (numpy.ndarray nxn): Square matrix
+
+    Returns:
+        (numpy.ndarray nxn): Inverse of the matrix M
+    """
+
+    return np.linalg.inv(M)
+
+
 def mean(u):
     """
     Return the mean value of the elements in the vector u

@@ -26,6 +26,7 @@ class vehicle_geometry:
         self.total_force = np.array([0, 0, 0]) # Collective force vector exercised by the actuators
         self.total_torque = np.array([0, 0, 0]) # Collective torque vector exercised by the actuators
         self.d = 0.15 # Lateral distance between the actuators and the vehicle center
+        self.Jr = 0.001 # Moment of inertia of onde actuator TODO: Define it in a beter place
 
         # Actuators configuration
         #    2       0
@@ -33,11 +34,17 @@ class vehicle_geometry:
         #        |
         #    1 /   \ 3
 
+        # Define a list with the direction of spin of each actuator
+        self.spin = [ 1,  # spins counter clock wise
+                      1,  # spins counter clock wise
+                     -1,  # spins clock wise
+                     -1]  # spins clock wise
+
         # Define the four actuator objects
-        act0 = ACT.prop_actuator(1) # spins clock wise
-        act1 = ACT.prop_actuator(1) # spins clock wise
-        act2 = ACT.prop_actuator(-1) # spins counter clock wise
-        act3 = ACT.prop_actuator(-1) # spins counter clock wise
+        act0 = ACT.prop_actuator(self.spin[0]) # spins counter clock wise
+        act1 = ACT.prop_actuator(self.spin[1]) # spins counter clock wise
+        act2 = ACT.prop_actuator(self.spin[2]) # spins clock wise
+        act3 = ACT.prop_actuator(self.spin[3]) # spins clock wise
         # Define the list of actuator objects
         self.actuators = [act0,
                           act1,
@@ -104,6 +111,27 @@ class vehicle_geometry:
 
         # Return the collective force and torque the vehicle is receiving from the actuators
         return self.total_force, self.total_torque
+
+
+
+    def gyroscopic_torque(self,omega):
+        """
+        Compute the gyroscopic effect due to the spinning actuators as an quivalent torque for a rigid body
+
+        Parameters:
+            omega (numpy.ndarray): Vehicle angular velocity (3-axis) in the body frame [rad/s]
+
+        Returns:
+            Tg (numpy.ndarray): Torque in th body frame that represents the gyroscopic effect [Nm]
+        """
+
+        # Initialize the Tg variable
+        Tg = np.array([0, 0, 0])
+        # Account for the effect of each actuator
+        for i, act in enumerate(self.actuators):
+            Tg = Tg + (-1*self.spin[i]*self.Jr*np.cross(omega,self.directions[0]*act.get_omega()))
+
+        return Tg
 
 
     def reset(self):

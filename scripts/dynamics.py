@@ -37,9 +37,14 @@ class quad_dynamics(object):
         # Model constants
         self.g = 9.81
         self.m = 2.0
-        self.drag_v = 0.1*5
-        self.drag_w = 0.01*5
-        self.J = 0.006*10
+        self.drag_v = 0.2
+        self.drag_w = 0.02
+        self.Jxx = 0.07625
+        self.Jyy = 0.077812
+        self.Jzz = 0.1060739
+        self.J = np.array([[self.Jxx, 0, 0],[0, self.Jyy, 0],[0, 0, self.Jzz]])
+        self.Jinv = MU.inv(self.J)
+        self.wind_vw = np.array([0,0,0]) # wind speed
 
         # Initialize states
         self.p = p0_ # position in the world frame
@@ -87,16 +92,53 @@ class quad_dynamics(object):
         dt = time_now-self.last_time
         self.last_time = time_now
 
-        # Throw a warning if the simulation is computationally heavy
-        if(dt > self.dt_max):
-            print("\33[93m[Warning] simulation loop took too long to compute: %f ms\33[0m" % (dt*1000))
+        # # Throw a warning if the simulation is computationally heavy
+        # if(dt > self.dt_max):
+        #     print("\33[93m[Warning] simulation loop took too long to compute: %f ms\33[0m" % (dt*1000))
 
         # Compute the forces and torques that the actuators are applying to the vehicle body
         self.Force_b, self.Torque_b = self.vehicle_geo.vehicle_sim_step(self.cmds)
 
+        # Deal with ground interaction during take off and landing
+        self.check_ground_interaction()
 
-        # Temporary trick to deal with ground interaction during take off and landing
-        # ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------
+        # Compute linear drag
+        f_drag = -self.drag_v*(self.v-self.wind_vw) #TODO: Add different drag for different directions and improve model
+        # Compute angular drag
+        T_drag = -self.drag_w*self.w #TODO: Add different drag for different directions and improve model
+
+        # Compute torque due to gyroscopic effect
+        Tg = self.vehicle_geo.gyroscopic_torque(self.w)
+
+        # Compute non inertial forces acting on the drone
+        self.total_force_w = MU.quat_apply_rot(self.q,self.Force_b) + f_drag
+        # Compute kinematic acceleraion
+        acc_w = np.array([0,0,-self.g]) + self.total_force_w/self.m
+
+        # Dynamic model
+        p_dot = self.v
+        v_dot = acc_w
+        q_dot = MU.quaternion_derivative(self.q,self.w)
+        w_dot = self.Jinv@(-np.cross(self.w,self.J@self.w) + self.Torque_b + T_drag + Tg)
+
+        # Model integration (variable time step)
+        self.p = self.p + p_dot*dt
+        self.v = self.v + v_dot*dt
+        self.q = self.q + q_dot*dt
+        self.w = self.w + w_dot*dt
+
+        # Update the list with the angular positions of the actuators
+        self.angle_list = self.vehicle_geo.get_actuators_positions()
+
+        # Quaternion renormalization
+        self.q = MU.normalize(self.q)
+
+
+    def check_ground_interaction(self):
+        """
+        Check for interaction between the drone and the floor
+        """
+
         if(self.status == 0): #landed stage
             if(self.Force_b[2]>self.m*self.g): # go to flying
                 self.status = 1
@@ -131,39 +173,7 @@ class quad_dynamics(object):
                 break_force_w = - self.m*self.v*10
                 break_force_w[2] = break_force_w[2]*3 + self.m*self.g
                 self.Force_b = MU.quat_apply_rot(MU.quat_conj(self.q),break_force_w)
-                self.Torque_b = -self.J*self.w*10 - w_align*20
-        # ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------
-
-        # Compute linear drag
-        f_drag = -self.drag_v*self.v
-        # Compute angular drag
-        T_drag = -self.drag_w*self.w
-
-        # Compute torque due to gyroscopic effect
-        Tg = np.array([0,0,0]) # TODO: implement blades gyroscopic effect
-
-        # Compute non inertial forces acting on the drone
-        self.total_force_w = MU.quat_apply_rot(self.q,self.Force_b) + f_drag
-        # Compute kinematic acceleraion
-        acc_w = np.array([0,0,-self.g]) + self.total_force_w/self.m
-
-        # Dynamic model
-        p_dot = self.v
-        v_dot = acc_w
-        q_dot = MU.quaternion_derivative(self.q,self.w)
-        w_dot = (1/self.J)*(-self.J*np.cross(self.w,self.w) + self.Torque_b + T_drag) #TODO: fix J
-
-        # Model integration (variable time step)
-        self.p = self.p + p_dot*dt
-        self.v = self.v + v_dot*dt
-        self.q = self.q + q_dot*dt
-        self.w = self.w + w_dot*dt
-
-        # Update the list with the angular positions of the actuators
-        self.angle_list = self.vehicle_geo.get_actuators_positions()
-
-        # Quaternion renormalization
-        self.q = MU.normalize(self.q)
+                self.Torque_b = -self.J@self.w*10 - w_align*20
 
 
     def get_status(self):
@@ -258,9 +268,7 @@ class quad_dynamics(object):
         Returns:
             self.total_force_w (numpy.ndarray): Applied non inertial forces [N]
         """
-
         return self.total_force_w
-
 
 
     def get_acc(self):
@@ -270,8 +278,6 @@ class quad_dynamics(object):
         Returns:
             SENS.get_acc() (numpy.ndarray): Accelerometer measurement (3 axis) in meters per second square [m/s2]
         """
-        
-        #return SENS.get_acc(self.q, self.total_force_w, self.m, self.angle_list, MU.mean(self.cmds))
         return SENS.get_acc(self.q, self.total_force_w, self.m, self.vehicle_geo.get_acc_noise_combined())
 
     def get_gyro(self):
@@ -281,7 +287,6 @@ class quad_dynamics(object):
         Returns:
             SENS.get_gyro() (numpy.ndarray): Gyro measurement (3 axis) in radians per second [rad/s]
         """
-        # return SENS.get_gyro(self.w, self.angle_list, MU.mean(self.cmds))
         return SENS.get_gyro(self.w, self.vehicle_geo.get_gyro_noise_combined())
 
     def get_mag(self):
@@ -291,8 +296,6 @@ class quad_dynamics(object):
         Returns:
             SENS.get_mag() (numpy.ndarray): Magnetometer measurement (3 axis) Gauss [G]
         """
-
-        # return SENS.get_mag(self.q, MU.mean(self.cmds))
         return SENS.get_mag(self.q, self.vehicle_geo.get_mag_noise()) #self.vehicle_geo.get_total_current()
 
     def get_baro(self):
