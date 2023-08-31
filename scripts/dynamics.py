@@ -99,8 +99,46 @@ class quad_dynamics(object):
         # Compute the forces and torques that the actuators are applying to the vehicle body
         self.Force_b, self.Torque_b = self.vehicle_geo.vehicle_sim_step(self.cmds)
 
-        # Temporary trick to deal with ground interaction during take off and landing
-        # ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------
+        # Deal with ground interaction during take off and landing
+        self.check_ground_interation()
+
+        # Compute linear drag
+        f_drag = -self.drag_v*(self.v-self.wind_vw) #TODO: Add different drag for different directions and improve model
+        # Compute angular drag
+        T_drag = -self.drag_w*self.w #TODO: Add different drag for different directions and improve model
+
+        # Compute torque due to gyroscopic effect
+        Tg = self.vehicle_geo.gyroscopic_torque(self.w)
+
+        # Compute non inertial forces acting on the drone
+        self.total_force_w = MU.quat_apply_rot(self.q,self.Force_b) + f_drag
+        # Compute kinematic acceleraion
+        acc_w = np.array([0,0,-self.g]) + self.total_force_w/self.m
+
+        # Dynamic model
+        p_dot = self.v
+        v_dot = acc_w
+        q_dot = MU.quaternion_derivative(self.q,self.w)
+        w_dot = self.Jinv@(-np.cross(self.w,self.J@self.w) + self.Torque_b + T_drag + Tg)
+
+        # Model integration (variable time step)
+        self.p = self.p + p_dot*dt
+        self.v = self.v + v_dot*dt
+        self.q = self.q + q_dot*dt
+        self.w = self.w + w_dot*dt
+
+        # Update the list with the angular positions of the actuators
+        self.angle_list = self.vehicle_geo.get_actuators_positions()
+
+        # Quaternion renormalization
+        self.q = MU.normalize(self.q)
+
+
+    def check_ground_interation(self):
+        """
+        Check for interation between the drone and the floor
+        """
+
         if(self.status == 0): #landed stage
             if(self.Force_b[2]>self.m*self.g): # go to flying
                 self.status = 1
@@ -136,38 +174,6 @@ class quad_dynamics(object):
                 break_force_w[2] = break_force_w[2]*3 + self.m*self.g
                 self.Force_b = MU.quat_apply_rot(MU.quat_conj(self.q),break_force_w)
                 self.Torque_b = -self.J@self.w*10 - w_align*20
-        # ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------
-
-        # Compute linear drag
-        f_drag = -self.drag_v*(self.v-self.wind_vw) #TODO: Add different drag for different directions and improve model
-        # Compute angular drag
-        T_drag = -self.drag_w*self.w #TODO: Add different drag for different directions and improve model
-
-        # Compute torque due to gyroscopic effect
-        Tg = self.vehicle_geo.gyroscopic_torque(self.w)
-
-        # Compute non inertial forces acting on the drone
-        self.total_force_w = MU.quat_apply_rot(self.q,self.Force_b) + f_drag
-        # Compute kinematic acceleraion
-        acc_w = np.array([0,0,-self.g]) + self.total_force_w/self.m
-
-        # Dynamic model
-        p_dot = self.v
-        v_dot = acc_w
-        q_dot = MU.quaternion_derivative(self.q,self.w)
-        w_dot = self.Jinv@(-np.cross(self.w,self.J@self.w) + self.Torque_b + T_drag + Tg)
-
-        # Model integration (variable time step)
-        self.p = self.p + p_dot*dt
-        self.v = self.v + v_dot*dt
-        self.q = self.q + q_dot*dt
-        self.w = self.w + w_dot*dt
-
-        # Update the list with the angular positions of the actuators
-        self.angle_list = self.vehicle_geo.get_actuators_positions()
-
-        # Quaternion renormalization
-        self.q = MU.normalize(self.q)
 
 
     def get_status(self):
