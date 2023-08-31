@@ -37,8 +37,8 @@ class quad_dynamics(object):
         # Model constants
         self.g = 9.81
         self.m = 2.0
-        self.drag_v = 0.1*5
-        self.drag_w = 0.01*5
+        self.drag_v = 0.2
+        self.drag_w = 0.02
         self.Jxx = 0.07625
         self.Jyy = 0.077812
         self.Jzz = 0.1060739
@@ -92,9 +92,9 @@ class quad_dynamics(object):
         dt = time_now-self.last_time
         self.last_time = time_now
 
-        # Throw a warning if the simulation is computationally heavy
-        if(dt > self.dt_max):
-            print("\33[93m[Warning] simulation loop took too long to compute: %f ms\33[0m" % (dt*1000))
+        # # Throw a warning if the simulation is computationally heavy
+        # if(dt > self.dt_max):
+        #     print("\33[93m[Warning] simulation loop took too long to compute: %f ms\33[0m" % (dt*1000))
 
         # Compute the forces and torques that the actuators are applying to the vehicle body
         self.Force_b, self.Torque_b = self.vehicle_geo.vehicle_sim_step(self.cmds)
@@ -139,12 +139,12 @@ class quad_dynamics(object):
         # ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------
 
         # Compute linear drag
-        f_drag = -self.drag_v*(self.v-self.wind_vw) #TODO: Add different drag for different directions
+        f_drag = -self.drag_v*(self.v-self.wind_vw) #TODO: Add different drag for different directions and improve model
         # Compute angular drag
-        T_drag = -self.drag_w*self.w #TODO: Add different drag for different directions
+        T_drag = -self.drag_w*self.w #TODO: Add different drag for different directions and improve model
 
         # Compute torque due to gyroscopic effect
-        Tg = np.array([0,0,0]) # TODO: implement blades gyroscopic effect
+        Tg = self.vehicle_geo.gyroscopic_torque(self.w)
 
         # Compute non inertial forces acting on the drone
         self.total_force_w = MU.quat_apply_rot(self.q,self.Force_b) + f_drag
@@ -155,7 +155,7 @@ class quad_dynamics(object):
         p_dot = self.v
         v_dot = acc_w
         q_dot = MU.quaternion_derivative(self.q,self.w)
-        w_dot = self.Jinv@(-np.cross(self.w,self.J@self.w) + self.Torque_b + T_drag)
+        w_dot = self.Jinv@(-np.cross(self.w,self.J@self.w) + self.Torque_b + T_drag + Tg)
 
         # Model integration (variable time step)
         self.p = self.p + p_dot*dt
@@ -262,9 +262,7 @@ class quad_dynamics(object):
         Returns:
             self.total_force_w (numpy.ndarray): Applied non inertial forces [N]
         """
-
         return self.total_force_w
-
 
 
     def get_acc(self):
@@ -274,8 +272,6 @@ class quad_dynamics(object):
         Returns:
             SENS.get_acc() (numpy.ndarray): Accelerometer measurement (3 axis) in meters per second square [m/s2]
         """
-        
-        #return SENS.get_acc(self.q, self.total_force_w, self.m, self.angle_list, MU.mean(self.cmds))
         return SENS.get_acc(self.q, self.total_force_w, self.m, self.vehicle_geo.get_acc_noise_combined())
 
     def get_gyro(self):
@@ -285,7 +281,6 @@ class quad_dynamics(object):
         Returns:
             SENS.get_gyro() (numpy.ndarray): Gyro measurement (3 axis) in radians per second [rad/s]
         """
-        # return SENS.get_gyro(self.w, self.angle_list, MU.mean(self.cmds))
         return SENS.get_gyro(self.w, self.vehicle_geo.get_gyro_noise_combined())
 
     def get_mag(self):
@@ -295,8 +290,6 @@ class quad_dynamics(object):
         Returns:
             SENS.get_mag() (numpy.ndarray): Magnetometer measurement (3 axis) Gauss [G]
         """
-
-        # return SENS.get_mag(self.q, MU.mean(self.cmds))
         return SENS.get_mag(self.q, self.vehicle_geo.get_mag_noise()) #self.vehicle_geo.get_total_current()
 
     def get_baro(self):
