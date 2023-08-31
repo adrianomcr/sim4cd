@@ -100,7 +100,7 @@ class quad_dynamics(object):
         self.Force_b, self.Torque_b = self.vehicle_geo.vehicle_sim_step(self.cmds)
 
         # Deal with ground interaction during take off and landing
-        self.check_ground_interation()
+        self.check_ground_interaction()
 
         # Compute linear drag
         f_drag = -self.drag_v*(self.v-self.wind_vw) #TODO: Add different drag for different directions and improve model
@@ -134,9 +134,9 @@ class quad_dynamics(object):
         self.q = MU.normalize(self.q)
 
 
-    def check_ground_interation(self):
+    def check_ground_interaction(self):
         """
-        Check for interation between the drone and the floor
+        Check for interaction between the drone and the floor
         """
 
         if(self.status == 0): #landed stage
