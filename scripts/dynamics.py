@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
-# Rigid body dynamics of 
+# Rigid body dynamics
 
 import numpy as np
 import time
