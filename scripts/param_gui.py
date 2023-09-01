@@ -4,20 +4,21 @@
 import tkinter as tk
 from tkinter import filedialog, ttk
 import json
+from ttkthemes import ThemedTk
 
 class JsonViewerApp:
     def __init__(self, root):
-        self.root = root        
+        self.root = root
         self.root.title("JSON Viewer")
         
-        self.load_button = tk.Button(root, text="Load JSON File", command=self.load_json)
-        self.load_button.pack(pady=10, side=tk.LEFT)
+        self.load_button = ttk.Button(root, text="Load JSON File", command=self.load_json)
+        self.load_button.pack(pady=10, side=tk.RIGHT)
 
-        self.save_button = tk.Button(root, text="Save", command=self.save_json)
-        self.save_button.pack(pady=10, side=tk.LEFT)
+        self.save_button = ttk.Button(root, text="Save", command=self.save_json)
+        self.save_button.pack(pady=10, side=tk.RIGHT)
 
-        self.saveas_button = tk.Button(root, text="Save As", command=self.saveas_json)
-        self.saveas_button.pack(pady=10, side=tk.LEFT)
+        self.saveas_button = ttk.Button(root, text="Save As", command=self.saveas_json)
+        self.saveas_button.pack(pady=10, side=tk.RIGHT)
         
 
         # self.load_button = tk.Button(root, text="Load JSON File", command=self.load_json)
@@ -43,30 +44,30 @@ class JsonViewerApp:
 
         self.tree.pack(side=tk.LEFT, padx=10)
         
-        self.details_frame = tk.Frame(root)
+        self.details_frame = ttk.Frame(root)
         self.details_frame.pack(side=tk.LEFT, padx=10)
         
-        self.parameter_label = tk.Label(self.details_frame, text="Parameter Details:")
+        self.parameter_label = ttk.Label(self.details_frame, text="Parameter Details:")
         self.parameter_label.pack(pady=10)
         
-        self.description_label = tk.Label(self.details_frame, text="Description:")
+        self.description_label = ttk.Label(self.details_frame, text="Description:")
         self.description_label.pack()
         
         # Create an editable Entry widget for the "Value" field
-        self.value_entry = tk.Entry(self.details_frame)
+        self.value_entry = ttk.Entry(self.details_frame)
         self.value_entry.pack()
         
-        self.default_label = tk.Label(self.details_frame, text="Default:")
+        self.default_label = ttk.Label(self.details_frame, text="Default:")
         self.default_label.pack()
         
-        self.type_label = tk.Label(self.details_frame, text="Type:")
+        self.type_label = ttk.Label(self.details_frame, text="Type:")
         self.type_label.pack()
         
-        self.unit_label = tk.Label(self.details_frame, text="Unit:")
+        self.unit_label = ttk.Label(self.details_frame, text="Unit:")
         self.unit_label.pack()
         
         # Add a "Set" button to save the edited value
-        self.set_button = tk.Button(self.details_frame, text="Set", command=self.set_value)
+        self.set_button = ttk.Button(self.details_frame, text="Set", command=self.set_value)
         self.set_button.pack(pady=10)
 
         self.file_path = False
@@ -186,7 +187,8 @@ class JsonViewerApp:
 
             
 if __name__ == "__main__":
-    root = tk.Tk()
+    # root = tk.Tk()
+    root = ThemedTk(theme='black')
     app = JsonViewerApp(root)
     app.tree.bind("<<TreeviewSelect>>", app.update_details)
     root.mainloop()

@@ -3,6 +3,7 @@
 
 
 import json
+import os
 
 def set_parameter(key, value):
     parameters = load_parameters()
@@ -24,7 +25,7 @@ def save_parameters(parameters):
     with open(PARAM_FILE, "w") as file:
         json.dump(parameters, file, indent=4)
 
-PARAM_FILE = "/home/adrianomcr/simulation_ws/src/px4sim/config/sim_params.json"
+PARAM_FILE = os.path.expanduser('~')+"/simulation_ws/src/px4sim/config/sim_params.json"
 
 
 data = {}
