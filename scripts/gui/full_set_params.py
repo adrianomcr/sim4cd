@@ -91,6 +91,10 @@ class JsonViewerApp:
         self.set_default_button = ttk.Button(buttons2, text="Restore", command=self.set_default_value)
         self.set_default_button.pack(pady=10, side=tk.LEFT)
 
+        self.checkbox_state = tk.BooleanVar()
+        self.checkbox = ttk.Checkbutton(self.details_frame, text="Auto Save", variable=self.checkbox_state)#, command=on_checkbox_toggle)
+        self.checkbox.pack()
+
         self.file_path = False
         
         self.data = {}  # Store loaded JSON data
@@ -203,7 +207,12 @@ class JsonViewerApp:
                 self.tree.item(selected_item, values=(new_value, self.data[selected_param]['unit'], self.data[selected_param]['description'].split('\n')[0]), tags=("white",))
             else:
                 self.tree.item(selected_item, values=(new_value, self.data[selected_param]['unit'], self.data[selected_param]['description'].split('\n')[0]), tags=("different",))
-            # self.tree.item(selected_item, values=(new_value, self.data[selected_param]['unit'], self.data[selected_param]['description'].split('\n')[0]))
+
+            if(self.auto_save()):
+                self.save_json()
+
+    def auto_save(self):
+        return self.checkbox_state.get()
 
     def set_default_value(self):
         selected_items = self.tree.selection()
@@ -217,12 +226,15 @@ class JsonViewerApp:
             self.value_entry.insert(0, new_value)
             self.tree.item(selected_item, values=(new_value, self.data[selected_param]['unit'], self.data[selected_param]['description'].split('\n')[0]), tags=("white",))
 
+            if(self.auto_save()):
+                self.save_json()
+
 
 if __name__ == "__main__":
     root = ThemedTk(theme='black')
     root.title("Parameters Editor")
     app = JsonViewerApp(root)
-    root.geometry('1100x450')
+    root.geometry('1150x450')
     try:
         # Define and set a PIT icon for the GUI
         photo = tk.PhotoImage(file = os.path.abspath(__file__).rsplit('/', 1)[0]+'/resources/params_icon.png')
