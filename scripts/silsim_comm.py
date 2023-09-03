@@ -10,7 +10,7 @@ import atexit
 from random import random
 from pymavlink import mavutil
 from math import log
-from constants import *
+from constants import * #TODO: remove this
 
 
 class px4_connection:

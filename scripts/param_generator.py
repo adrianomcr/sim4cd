@@ -109,11 +109,11 @@ data["ENV_PRES_SEA"] ={
     "unit":         "[hPa]"}
 data["ENV_GRAVITY"] = {
     "description":   "Earth-surface gravitational acceleration in meters per second square.",
-    "value":         9.81,
-    "default":       9.81,
+    "value":         9.80665,
+    "default":       9.80665,
     "type":          "float",
     "unit":          "[m/(s*s)]"}
-data["ENV_MOL_MAS"] = {
+data["ENV_MOL_MASS"] = {
     "description":   "Molar mass of dry air in kilograms per mol.",
     "value":         0.02896968,
     "default":       0.02896968,

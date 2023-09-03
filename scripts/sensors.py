@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
-# Sensor models
+# Class that contains the sensor models
 # Compute the measurements based on the ground truth state
 # Add noise and bias
 
@@ -12,17 +12,13 @@
 # Barometer
 # GPS
 
-
 import numpy as np
 import random
 from math import pi, sqrt, exp, sin, cos
 from random import random
-import math_utils as MU
-from constants import *
-
 import time
 
-
+import math_utils as MU
 
 
 class sensors(object):
@@ -38,7 +34,9 @@ class sensors(object):
             params (<parameter_server.parameter_server>): Parameter server object
         """
 
-        #TODO: Implement and load parameters
+        # Load model parameters
+        self.load_parameters(params)
+
 
     def get_acc(self, q,f,m,induced_noises):
         """
@@ -102,7 +100,7 @@ class sensors(object):
             mag (numpy.ndarray): Magnetometer measurement (3 axis) Gauss [G]
         """
 
-        mag = np.array(earth_mag_field)
+        mag = np.array(self.earth_mag_field)
 
         # Compute Earth magnetic field on the body frame and add noise
         mag =  MU.quat_apply_rot(MU.quat_conj(q),mag) + np.random.normal(loc=0.0, scale=0.2, size=3)
@@ -128,13 +126,13 @@ class sensors(object):
         """
 
         # Compute pressure given the height
-        bar = pressure_sea * exp(-(z+h0) / C_bar)
+        bar = self.pressure_sea * exp(-(z+self.h0) / self.C_bar)
 
         # Add noise to barometric pressure
         bar = bar + np.random.normal(loc=0.0, scale=0.001, size=1)
 
         # Inverse model
-        # z =  -C_bar*ln(bar/pressure_sea)-h0
+        # z =  -self.C_bar*ln(bar/self.pressure_sea)-self.h0
 
         return bar # hPa
 
@@ -155,9 +153,9 @@ class sensors(object):
         gps = {}
 
         # Populate dictionary
-        gps['i_lat__degE7'] = ( lat0+p[1]*meters2deg_lat + self.crandom()*5e-8 )*1e7    # Latitude (WGS84) [degE7] (type:int32_t)
-        gps['i_lon__degE7'] = ( lon0+p[0]*meters2deg_lon + self.crandom()*5e-8 )*1e7    # Longitude (WGS84) [degE7] (type:int32_t)
-        gps['i_alt__mm'] = ( h0 + p[2] + self.crandom()*0.05 )*1000                     # Altitude (MSL). Positive for up. [mm] (type:int32_t)
+        gps['i_lat__degE7'] = ( self.lat0+p[1]*self.meters2deg_lat + self.crandom()*5e-8 )*1e7    # Latitude (WGS84) [degE7] (type:int32_t)
+        gps['i_lon__degE7'] = ( self.lon0+p[0]*self.meters2deg_lon + self.crandom()*5e-8 )*1e7    # Longitude (WGS84) [degE7] (type:int32_t)
+        gps['i_alt__mm'] = ( self.h0 + p[2] + self.crandom()*0.05 )*1000                     # Altitude (MSL). Positive for up. [mm] (type:int32_t)
         gps['i_eph__cm'] = ( 0 + random()*0.001 )*100                                   # GPS HDOP horizontal dilution of position (unitless). If unknown, set to: UINT16_MAX (type:uint16_t)
         gps['i_epv__cm'] = ( 0 + random()*0.001 )*100                                   # GPS VDOP vertical dilution of position (unitless). If unknown, set to: UINT16_MAX (type:uint16_t)
         gps['i_vel__cm/s'] = 65535                                                      # GPS ground speed. If unknown, set to: 65535 [cm/s] (type:uint16_t)
@@ -195,9 +193,9 @@ class sensors(object):
         gt['rollspeed'] = omega[0]                             # Body frame roll / phi angular speed [rad/s] (type:float)
         gt['pitchspeed'] = -omega[1]                           # Body frame pitch / theta angular speed [rad/s] (type:float)
         gt['yawspeed'] = -omega[2]                             # Body frame yaw / psi angular speed [rad/s] (type:float)
-        gt['i_lat__degE7'] = (lat0+p[1]*meters2deg_lat)*1e7    # Latitude [degE7] (type:int32_t)
-        gt['i_lon__degE7'] = (lon0+p[0]*meters2deg_lon)*1e7    # Longitude [degE7] (type:int32_t)
-        gt['i_alt__mm'] = h0 + p[2]                            # Altitude [mm] (type:int32_t)
+        gt['i_lat__degE7'] = (self.lat0+p[1]*self.meters2deg_lat)*1e7    # Latitude [degE7] (type:int32_t)
+        gt['i_lon__degE7'] = (self.lon0+p[0]*self.meters2deg_lon)*1e7    # Longitude [degE7] (type:int32_t)
+        gt['i_alt__mm'] = self.h0 + p[2]                            # Altitude [mm] (type:int32_t)
         gt['vx'] = vw[1]*100                                   # Ground X Speed (Latitude) [cm/s] (type:int16_t)
         gt['vy'] = vw[0]*100                                   # Ground Y Speed (Longitude) [cm/s] (type:int16_t)
         gt['vz'] = -vw[2]*100                                  # Ground Z Speed (Altitude) [cm/s] (type:int16_t)
@@ -215,3 +213,35 @@ class sensors(object):
         Return a random value with distribution around 0
         """
         return random()-0.5
+
+
+    def load_parameters(self, params):
+        """
+        Load parameters necessary for the sensors and store them in the instance variables
+
+        Parameters:
+            params (<parameter_server.parameter_server>): Parameter server object that contains the values of interest
+        """
+
+        # Global environmental values
+        self.pressure_sea = params.get_parameter_value('ENV_PRES_SEA') # Sea level standard atmospheric pressure [hPa]
+        g =  params.get_parameter_value('ENV_GRAVITY') # Earth-surface gravitational acceleration [m/ss]
+        M = params.get_parameter_value('ENV_MOL_MASS') # Molar mass of dry air [kg/mol]
+        T0 = params.get_parameter_value('ENV_TMP_SEA') # Sea level standard temperature [K]
+        R0 = params.get_parameter_value('ENV_GAS_CTE') # Universal gas constant [J/(mol*K)]
+        self.C_bar = (T0*R0)/(g*M)
+            
+        # Local environmental values defined for NEA parking
+        self.lat0 = params.get_parameter_value('SENS_LAT_ORIGIN') # initial latitude (degrees)
+        self.lon0 = params.get_parameter_value('SENS_LON_ORIGIN') # initial longitude (degrees)
+        self.h0 = params.get_parameter_value('SENS_ALT_ORIGIN') # initial altitude (meters above average sea level)
+        magx = params.get_parameter_value('SENS_MAG_FIELD_E')
+        magy = params.get_parameter_value('SENS_MAG_FIELD_N')
+        magz = params.get_parameter_value('SENS_MAG_FIELD_U')
+        self.earth_mag_field = [magx, magy, magz] # Local Earth magnetic field (East, North, UP) in Gauss
+
+        # Values for the conversion between local position and geographic coordinates
+        earth_radius = 6378100
+        small_radius = earth_radius*sqrt(1 - sin(self.lat0*pi/180)**2)
+        self.meters2deg_lat =  180 / ( earth_radius * pi)
+        self.meters2deg_lon =  180 / ( small_radius * pi)
