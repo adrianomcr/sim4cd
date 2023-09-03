@@ -13,7 +13,7 @@ class JsonViewerApp:
     def __init__(self, root):
         self.root = root 
 
-        self.root.geometry('1100x450')
+        
         
         self.tree = ttk.Treeview(root, columns=("Value", "Unit", "Description"), height=20)
         self.tree.heading("#1", text="Value")
@@ -222,6 +222,7 @@ if __name__ == "__main__":
     root = ThemedTk(theme='black')
     root.title("Parameters Editor")
     app = JsonViewerApp(root)
+    root.geometry('1100x450')
     try:
         # Define and set a PIT icon for the GUI
         photo = tk.PhotoImage(file = os.path.abspath(__file__).rsplit('/', 1)[0]+'/resources/params_icon.png')
