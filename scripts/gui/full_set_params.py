@@ -7,10 +7,13 @@ import tkinter as tk
 from tkinter import filedialog, ttk
 import json
 from ttkthemes import ThemedTk
+import os
 
 class JsonViewerApp:
     def __init__(self, root):
         self.root = root 
+
+        self.root.geometry('1100x450')
         
         self.tree = ttk.Treeview(root, columns=("Value", "Unit", "Description"), height=20)
         self.tree.heading("#1", text="Value")
@@ -19,17 +22,20 @@ class JsonViewerApp:
         
         self.tree.bind("<<TreeviewSelect>>", self.update_details)
 
-        self.tree.column("#0", width=150)  # Column 1 (Value) width
+        self.tree.column("#0", width=170)  # Column 1 (Value) width
         self.tree.column("#1", width=120)  # Column 1 (Value) width
         self.tree.column("#2", width=100)  # Column 2 (Description) width
         self.tree.column("#3", width=400)   # Column 3 (Unit) width
 
         self.tree.pack(side=tk.LEFT, padx=10)
+
+        
         
 
         # Right pannel
         right_frame = ttk.Frame(root)
-        right_frame.pack(side=tk.LEFT, padx=10)
+        right_frame.pack(side=tk.LEFT)
+        # right_frame.geometry('500x350')
 
 
         # Buttons to load and save file
@@ -54,26 +60,36 @@ class JsonViewerApp:
         style.configure("Bold.TLabel", font=("TkDefaultFont", 12, "bold"))
         self.parameter_label = ttk.Label(self.details_frame, text="Parameter Details", style="Bold.TLabel")
         self.parameter_label.pack(pady=10)
-        
-        self.description_label = ttk.Label(self.details_frame, text="Description:", wraplength=250)
-        self.description_label.pack()
-        
+
+        self.name_label = ttk.Label(self.details_frame, text="")
+        self.name_label.pack(pady=2)
+
         # Create an editable Entry widget for the "Value" field
         self.value_entry = ttk.Entry(self.details_frame)
-        self.value_entry.pack()
-        
+        self.value_entry.pack(pady=2)
+
         self.default_label = ttk.Label(self.details_frame, text="Default:")
-        self.default_label.pack()
+        self.default_label.pack(pady=2)
+        
+        self.description_label = ttk.Label(self.details_frame, text=f"Description:", wraplength=250)
+        self.description_label.pack(pady=2)
         
         self.type_label = ttk.Label(self.details_frame, text="Type:")
-        self.type_label.pack()
+        self.type_label.pack(pady=2)
         
         self.unit_label = ttk.Label(self.details_frame, text="Unit:")
-        self.unit_label.pack()
+        self.unit_label.pack(pady=2)
         
+        # Buttons Set new values and restore default
+        buttons2 = ttk.Frame(self.details_frame)
+        buttons2.pack(side=tk.TOP, padx=10)
+
         # Add a "Set" button to save the edited value
-        self.set_button = ttk.Button(self.details_frame, text="Set", command=self.set_value)
-        self.set_button.pack(pady=10)
+        self.set_button = ttk.Button(buttons2, text="Set", command=self.set_value)
+        self.set_button.pack(pady=10, side=tk.LEFT)
+        # Add a "Restore default" button to save the edited value
+        self.set_default_button = ttk.Button(buttons2, text="Restore", command=self.set_default_value)
+        self.set_default_button.pack(pady=10, side=tk.LEFT)
 
         self.file_path = False
         
@@ -91,31 +107,41 @@ class JsonViewerApp:
     def populate_tree(self):
         self.tree.delete(*self.tree.get_children())
         for param, details in self.data.items():
-            description = details["description"]
+            description = details["description"].split('\n')[0]
             value = details["value"]
             # default = details["default"]
             # data_type = details["type"]
             unit = details["unit"]
             
-            # self.tree.insert("", "end", text=param, values=(description, value, default, data_type, unit))
-            self.tree.insert("", "end", text=param, values=(value, unit, description))
+            # # self.tree.insert("", "end", text=param, values=(description, value, default, data_type, unit))
+            # self.tree.insert("", "end", text=param, values=(value, unit, description))
+
+            self.tree.tag_configure("different", foreground="#FFAA50")
+            self.tree.tag_configure("white", foreground="white")
+
+            # .........
+            if value == details["default"]:
+                self.tree.insert("", "end", text=param, values=(value, unit, description))
+            else:
+                self.tree.insert("", "end", text=param, values=(value, unit, description), tags=("different",))
+                
 
 
-    def update_tree(self,key,value):
-        for param, details in self.data.items():
-            description = details["description"]
-            value = details["value"]
-            # default = details["default"]
-            # data_type = details["type"]
-            unit = details["unit"]
+
+    # def update_tree(self,key,value):
+    #     for param, details in self.data.items():
+    #         description = details["description"].split('\n')[0]
+    #         value = details["value"]
+    #         # default = details["default"]
+    #         # data_type = details["type"]
+    #         unit = details["unit"]
             
-            # self.tree.insert("", "end", text=param, values=(description, value, default, data_type, unit))
-            self.tree.insert("", "end", text=param, values=(value, description, unit))
+    #         # self.tree.insert("", "end", text=param, values=(description, value, default, data_type, unit))
+    #         self.tree.insert("", "end", text=param, values=(value, description, unit))
 
 
     def update_details(self, event):
         selected_items = self.tree.selection()
-        print(selected_items)
         if selected_items:
             selected_item = selected_items[0]
             selected_param = self.tree.item(selected_item, "text")
@@ -124,6 +150,7 @@ class JsonViewerApp:
             self.description_label.config(text=f"Description: {details['description']}")
             self.value_entry.delete(0, tk.END)
             self.value_entry.insert(0, details['value'])
+            self.name_label.config(text=selected_param)
             self.default_label.config(text=f"Default: {details['default']}")
             self.type_label.config(text=f"Type: {details['type']}")
             self.unit_label.config(text=f"Unit: {details['unit']}")
@@ -131,6 +158,7 @@ class JsonViewerApp:
             self.description_label.config(text="Description: ")
             self.value_entry.delete(0, tk.END)
             # self.value_entry.insert(0, details['value'])
+            self.name_label.config(text=f"")
             self.default_label.config(text="Default: ")
             self.type_label.config(text="Type: ")
             self.unit_label.config(text="Unit: ")
@@ -169,13 +197,38 @@ class JsonViewerApp:
             selected_param = self.tree.item(selected_item, "text")
             valid, new_value = self.convert_data_type(self.value_entry.get(),self.data[selected_param]['type'])
             self.data[selected_param]['value'] = new_value
-            self.tree.item(selected_item, values=(new_value, self.data[selected_param]['unit'], self.data[selected_param]['description']))
 
-            
+            # .........
+            if new_value == self.data[selected_param]["default"]:
+                self.tree.item(selected_item, values=(new_value, self.data[selected_param]['unit'], self.data[selected_param]['description'].split('\n')[0]), tags=("white",))
+            else:
+                self.tree.item(selected_item, values=(new_value, self.data[selected_param]['unit'], self.data[selected_param]['description'].split('\n')[0]), tags=("different",))
+            # self.tree.item(selected_item, values=(new_value, self.data[selected_param]['unit'], self.data[selected_param]['description'].split('\n')[0]))
+
+    def set_default_value(self):
+        selected_items = self.tree.selection()
+        if selected_items:
+            selected_item = self.tree.selection()[0]
+            selected_param = self.tree.item(selected_item, "text")
+            # valid, new_value = self.convert_data_type(self.value_entry.get(),self.data[selected_param]['type'])
+            new_value = self.data[selected_param]['default']
+            self.data[selected_param]['value'] = new_value
+            self.value_entry.delete(0, tk.END)
+            self.value_entry.insert(0, new_value)
+            self.tree.item(selected_item, values=(new_value, self.data[selected_param]['unit'], self.data[selected_param]['description'].split('\n')[0]), tags=("white",))
+
+
 if __name__ == "__main__":
     root = ThemedTk(theme='black')
-    root.title("JSON Viewer")
+    root.title("Parameters Editor")
     app = JsonViewerApp(root)
+    try:
+        # Define and set a PIT icon for the GUI
+        photo = tk.PhotoImage(file = os.path.abspath(__file__).rsplit('/', 1)[0]+'/resources/params_icon.png')
+        root.iconphoto(False, photo)
+    except Exception as e:
+        print("An error occurred while creating the icon:", e)
+
     # app.tree.bind("<<TreeviewSelect>>", app.update_details)
     root.mainloop()
 

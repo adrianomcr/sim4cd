@@ -24,7 +24,7 @@ class prop_actuator:
                             Use -1 for clock wise and 1 for counter clock wise
         """
 
-        self.time_cte = 0.02 # Tie constant for the motor first order dynamics [s]
+        self.time_cte = 0.02 # Tie constant for the motor first order dynamics [s] TODO: Define as an individual parameter
         self.state = False # on or off TODO
         self.speed = 0.0 # rotation speed # [rad/s]
         self.position = 0.0 # angular position # [rad]
