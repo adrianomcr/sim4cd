@@ -11,7 +11,6 @@ import numpy as np
 from math import pi, sin, cos
 import os
 
-import sensors as SENS
 import silsim_comm as COM
 import ros_viz as VIZ
 import dynamics as DYN

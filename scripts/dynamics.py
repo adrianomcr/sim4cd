@@ -65,6 +65,9 @@ class vehicle_dynamics(object):
         self.z_land = self.p[2]*1
         self.q_land = self.q*1
 
+        # Create a sensors object
+        self.sensors = SENS.sensors(params)
+
 
     def model_step(self, cmd):
         """
@@ -299,52 +302,52 @@ class vehicle_dynamics(object):
         Return the accelerometer measurement
 
         Returns:
-            SENS.get_acc() (numpy.ndarray): Accelerometer measurement (3 axis) in meters per second square [m/s2]
+            self.sensors.get_acc() (numpy.ndarray): Accelerometer measurement (3 axis) in meters per second square [m/s2]
         """
-        return SENS.get_acc(self.q, self.total_force_w, self.m, self.vehicle_geo.get_acc_noise_combined())
+        return self.sensors.get_acc(self.q, self.total_force_w, self.m, self.vehicle_geo.get_acc_noise_combined())
 
     def get_gyro(self):
         """
         Return the gyro measurement
 
         Returns:
-            SENS.get_gyro() (numpy.ndarray): Gyro measurement (3 axis) in radians per second [rad/s]
+            self.sensors.get_gyro() (numpy.ndarray): Gyro measurement (3 axis) in radians per second [rad/s]
         """
-        return SENS.get_gyro(self.w, self.vehicle_geo.get_gyro_noise_combined())
+        return self.sensors.get_gyro(self.w, self.vehicle_geo.get_gyro_noise_combined())
 
     def get_mag(self):
         """
         Return the magnetometer measurement
 
         Returns:
-            SENS.get_mag() (numpy.ndarray): Magnetometer measurement (3 axis) Gauss [G]
+            self.sensors.get_mag() (numpy.ndarray): Magnetometer measurement (3 axis) Gauss [G]
         """
-        return SENS.get_mag(self.q, self.vehicle_geo.get_mag_noise()) #self.vehicle_geo.get_total_current()
+        return self.sensors.get_mag(self.q, self.vehicle_geo.get_mag_noise()) #self.vehicle_geo.get_total_current()
 
     def get_baro(self):
         """
         Return the barometer measurement
 
         Returns:
-            SENS.get_baro() (numpy.ndarray): Barometer measurement Hectopascal [hPa]
+            self.sensors.get_baro() (numpy.ndarray): Barometer measurement Hectopascal [hPa]
         """
-        return SENS.get_baro(self.p[2])
+        return self.sensors.get_baro(self.p[2])
 
     def get_gps(self):
         """
         Return the GPS measurement data
 
         Returns:
-            SENS.get_gps() (dict): Python dictionary with the GPS measurement data
+            self.sensors.get_gps() (dict): Python dictionary with the GPS measurement data
         """
-        return SENS.get_gps(self.p,self.v)
+        return self.sensors.get_gps(self.p,self.v)
 
     def get_ground_truth(self):
         """
         Return the ground truth data
 
         Returns:
-            SENS.get_baro() (dict): Python dictionary with the ground truth data
+            self.sensors.get_baro() (dict): Python dictionary with the ground truth data
         """
-        return SENS.get_ground_truth(self.p,self.v,self.q,self.w)
+        return self.sensors.get_ground_truth(self.p,self.v,self.q,self.w)
 

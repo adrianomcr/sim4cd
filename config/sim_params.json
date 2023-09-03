@@ -582,14 +582,14 @@
     },
     "SENS_LAT_ORIGIN": {
         "description": "Latitude coordinate of the origin of the local simulated frame in degrees.",
-        "value": 41.448985,
+        "value": 40.448985,
         "default": 40.448985,
         "type": "float",
         "unit": "[degrees]"
     },
     "SENS_LON_ORIGIN": {
         "description": "Longitude coordinate of the origin of the local simulated frame in degrees.",
-        "value": -78.898025,
+        "value": -79.898025,
         "default": -79.898025,
         "type": "float",
         "unit": "[degrees]"
