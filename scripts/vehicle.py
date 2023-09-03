@@ -38,16 +38,10 @@ class vehicle_geometry:
         # Load model parameters
         self.load_parameters(params)
 
-        # Define the four actuator objects
-        act0 = ACT.prop_actuator(self.spin[0]) # spins counter clock wise
-        act1 = ACT.prop_actuator(self.spin[1]) # spins counter clock wise
-        act2 = ACT.prop_actuator(self.spin[2]) # spins clock wise
-        act3 = ACT.prop_actuator(self.spin[3]) # spins clock wise
-        # Define the list of actuator objects
-        self.actuators = [act0,
-                          act1,
-                          act2,
-                          act3]
+        # Create the actuator objects and store them in a list
+        self.actuators = []
+        for i in range(self.act_num):
+            self.actuators.append(ACT.prop_actuator(params, i))
 
         # Initialize the last time variable for time step computation
         self.last_time = time.time()

@@ -15,26 +15,47 @@ class prop_actuator:
     It simulates the overall behavior of a set with an ESC, a motor, and a propeller
     """
 
-    def __init__(self, cw_ccw):
+    def __init__(self, params, act_id):
         """
         Constructor for the prop_actuator class
 
         Parameters:
-            cw_ccw (float): Signal unit flag (-1 or 1) indicating the direction of rotation of the actuator
-                            Use -1 for clock wise and 1 for counter clock wise
+            params (<parameter_server.parameter_server>): Parameter server object
+            act_id (int): Id of the actuator instance. Used to load the correct parameter.
         """
 
-        self.time_cte = 0.02 # Tie constant for the motor first order dynamics [s] TODO: Define as an individual parameter
+        # Load model parameters
+        self.load_parameters(params, act_id)
+
         self.state = False # on or off TODO
         self.speed = 0.0 # rotation speed # [rad/s]
         self.position = 0.0 # angular position # [rad]
         self.current = 0.0 # current being consumed by the actuator # [A]
-        self.sig = cw_ccw # direction of rotation (clock wise (-1) of counter clock wise (1))
         self.cmd = 0 # PWM command [0.0, 1.0] for the actuator
-        self.motor_kv = 320 # Kv of the actuators motor TODO: Check if implementation will use it
+        self.motor_kv = self.volt_to_speed/(2*pi)*60 # Kv of the actuators motor TODO: Not used, remove?
 
         # Initialize the last time variable for time step computation
         self.last_time = time.time()
+
+
+    def load_parameters(self, params, act_id):
+        """
+        Load parameters for the actuator with id act_id and store them in the instance variables
+
+        Parameters:
+            params (<parameter_server.parameter_server>): Parameter server object that contains the values of interest
+            act_id (int): Id of the actuator whose parameters will be loaded.
+        """
+
+        self.bat_voltage = params.get_parameter_value('VEH_BAT_VOLTAGE')
+        self.spin = params.get_parameter_value(f"VEH_ACT{act_id}_SPIN")
+        self.time_cte = params.get_parameter_value(f"ACT{act_id}_TIME_CTE")
+        self.volt_to_speed = params.get_parameter_value(f"ACT{act_id}_VOLT2SPEED_1")
+        self.speed_to_thrust = params.get_parameter_value(f"ACT{act_id}_SPEED2THRUST_1")
+        self.speed_to_torque = params.get_parameter_value(f"ACT{act_id}_SPEED2TORQUE_1")
+        self.torque_to_current = params.get_parameter_value(f"ACT{act_id}_TORQUE2AMPS_1")
+
+        return
 
 
     def actuator_sim_step(self, cmd_):
@@ -97,7 +118,7 @@ class prop_actuator:
         """
 
         # Compute the speed map
-        speed = 800*self.cmd # TODO: Improve model
+        speed = self.volt_to_speed*(self.cmd*self.bat_voltage) # TODO: Improve model
         # https://www.mad-motor.com/products/mad-components-5015-ipe-v3.html
         
         return speed # rad/s
@@ -112,7 +133,7 @@ class prop_actuator:
         """
 
         # Compute the force map
-        force = 12*self.speed/800
+        force = self.speed_to_thrust*self.speed
         
         return force # [N]
 
@@ -126,7 +147,7 @@ class prop_actuator:
         """
 
         # Compute the torque map
-        torque = -self.sig*0.72*self.speed/800
+        torque = -self.spin*self.speed_to_torque*self.speed
 
         return torque # [Nm]
 
@@ -140,7 +161,7 @@ class prop_actuator:
         """
 
         # Compute current map
-        current = abs(self.torque_map())/0.03 # TODO: Improve model
+        current = self.torque_to_current*abs(self.torque_map()) # TODO: Improve model
         # https://www.mad-motor.com/products/mad-components-5015-ipe-v3.html
 
         return current
@@ -186,6 +207,19 @@ class prop_actuator:
         """
 
         return self.speed
+
+
+    def get_spin(self):
+        """
+        Get the direction of rotation around the directions axes of the propulsion.
+        
+        Returns:
+            (int): Direction of spin
+                    (1): Rotates positively (counter-clockwise) around the vector of propulsion.
+                   (-1): Rotates negatively (clockwise) around the vector  of propulsion.
+        """
+
+        return self.spin
 
 
     def get_angular_position(self):

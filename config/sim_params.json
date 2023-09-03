@@ -580,6 +580,293 @@
         "type": "float",
         "unit": "[m]"
     },
+    "VEH_BAT_VOLTAGE": {
+        "description": "Voltage of the vehicle battery in Volts.",
+        "value": 24.3,
+        "default": 24.3,
+        "type": "float",
+        "unit": "[V]"
+    },
+    "ACT0_TIME_CTE": {
+        "description": "Time constant, in seconds, of the first order dynamics of actuator 0.",
+        "value": 0.02,
+        "default": 0.02,
+        "type": "float",
+        "unit": "[s]"
+    },
+    "ACT0_VOLT2SPEED_1": {
+        "description": "Constant of the linear part of the map from the applied voltage to the rotation speed of actuator 0 in radians per second per Volt.",
+        "value": 33.0,
+        "default": 33.0,
+        "type": "float",
+        "unit": "[rad/(s*V)]"
+    },
+    "ACT0_SPEED2THRUST_1": {
+        "description": "Constant of the linear part of the map from the rotation speed to the generated thrust of actuator 0 in Newton seconds per radian.",
+        "value": 0.015,
+        "default": 0.015,
+        "type": "float",
+        "unit": "[N*s/rad]"
+    },
+    "ACT0_SPEED2TORQUE_1": {
+        "description": "Constant of the linear part of the map from the rotation speed to the generated torque of actuator 0 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT0_SPIN.",
+        "value": 0.0009,
+        "default": 0.0009,
+        "type": "float",
+        "unit": "[N*m*s/rad]"
+    },
+    "ACT0_TORQUE2AMPS_1": {
+        "description": "Constant of the linear part of the map from the generated torque to current being consumed by the actuator 0 in Amperes per Newton per meter.",
+        "value": 30.0,
+        "default": 30.0,
+        "type": "float",
+        "unit": "[A/(N*m)]"
+    },
+    "ACT1_TIME_CTE": {
+        "description": "Time constant, in seconds, of the first order dynamics of actuator 1.",
+        "value": 0.02,
+        "default": 0.02,
+        "type": "float",
+        "unit": "[s]"
+    },
+    "ACT1_VOLT2SPEED_1": {
+        "description": "Constant of the linear part of the map from the applied voltage to the rotation speed of actuator 1 in radians per second per Volt.",
+        "value": 33.0,
+        "default": 33.0,
+        "type": "float",
+        "unit": "[rad/(s*V)]"
+    },
+    "ACT1_SPEED2THRUST_1": {
+        "description": "Constant of the linear part of the map from the rotation speed to the generated thrust of actuator 1 in Newton seconds per radian.",
+        "value": 0.015,
+        "default": 0.015,
+        "type": "float",
+        "unit": "[N*s/rad]"
+    },
+    "ACT1_SPEED2TORQUE_1": {
+        "description": "Constant of the linear part of the map from the rotation speed to the generated torque of actuator 1 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT1_SPIN.",
+        "value": 0.0009,
+        "default": 0.0009,
+        "type": "float",
+        "unit": "[N*m*s/rad]"
+    },
+    "ACT1_TORQUE2AMPS_1": {
+        "description": "Constant of the linear part of the map from the generated torque to current being consumed by the actuator 1 in Amperes per Newton per meter.",
+        "value": 30.0,
+        "default": 30.0,
+        "type": "float",
+        "unit": "[A/(N*m)]"
+    },
+    "ACT2_TIME_CTE": {
+        "description": "Time constant, in seconds, of the first order dynamics of actuator 2.",
+        "value": 0.02,
+        "default": 0.02,
+        "type": "float",
+        "unit": "[s]"
+    },
+    "ACT2_VOLT2SPEED_1": {
+        "description": "Constant of the linear part of the map from the applied voltage to the rotation speed of actuator 2 in radians per second per Volt.",
+        "value": 33.0,
+        "default": 33.0,
+        "type": "float",
+        "unit": "[rad/(s*V)]"
+    },
+    "ACT2_SPEED2THRUST_1": {
+        "description": "Constant of the linear part of the map from the rotation speed to the generated thrust of actuator 2 in Newton seconds per radian.",
+        "value": 0.015,
+        "default": 0.015,
+        "type": "float",
+        "unit": "[N*s/rad]"
+    },
+    "ACT2_SPEED2TORQUE_1": {
+        "description": "Constant of the linear part of the map from the rotation speed to the generated torque of actuator 2 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT2_SPIN.",
+        "value": 0.0009,
+        "default": 0.0009,
+        "type": "float",
+        "unit": "[N*m*s/rad]"
+    },
+    "ACT2_TORQUE2AMPS_1": {
+        "description": "Constant of the linear part of the map from the generated torque to current being consumed by the actuator 2 in Amperes per Newton per meter.",
+        "value": 30.0,
+        "default": 30.0,
+        "type": "float",
+        "unit": "[A/(N*m)]"
+    },
+    "ACT3_TIME_CTE": {
+        "description": "Time constant, in seconds, of the first order dynamics of actuator 3.",
+        "value": 0.02,
+        "default": 0.02,
+        "type": "float",
+        "unit": "[s]"
+    },
+    "ACT3_VOLT2SPEED_1": {
+        "description": "Constant of the linear part of the map from the applied voltage to the rotation speed of actuator 3 in radians per second per Volt.",
+        "value": 33.0,
+        "default": 33.0,
+        "type": "float",
+        "unit": "[rad/(s*V)]"
+    },
+    "ACT3_SPEED2THRUST_1": {
+        "description": "Constant of the linear part of the map from the rotation speed to the generated thrust of actuator 3 in Newton seconds per radian.",
+        "value": 0.015,
+        "default": 0.015,
+        "type": "float",
+        "unit": "[N*s/rad]"
+    },
+    "ACT3_SPEED2TORQUE_1": {
+        "description": "Constant of the linear part of the map from the rotation speed to the generated torque of actuator 3 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT3_SPIN.",
+        "value": 0.0009,
+        "default": 0.0009,
+        "type": "float",
+        "unit": "[N*m*s/rad]"
+    },
+    "ACT3_TORQUE2AMPS_1": {
+        "description": "Constant of the linear part of the map from the generated torque to current being consumed by the actuator 3 in Amperes per Newton per meter.",
+        "value": 30.0,
+        "default": 30.0,
+        "type": "float",
+        "unit": "[A/(N*m)]"
+    },
+    "ACT4_TIME_CTE": {
+        "description": "Time constant, in seconds, of the first order dynamics of actuator 4.",
+        "value": 0.02,
+        "default": 0.02,
+        "type": "float",
+        "unit": "[s]"
+    },
+    "ACT4_VOLT2SPEED_1": {
+        "description": "Constant of the linear part of the map from the applied voltage to the rotation speed of actuator 4 in radians per second per Volt.",
+        "value": 33.0,
+        "default": 33.0,
+        "type": "float",
+        "unit": "[rad/(s*V)]"
+    },
+    "ACT4_SPEED2THRUST_1": {
+        "description": "Constant of the linear part of the map from the rotation speed to the generated thrust of actuator 4 in Newton seconds per radian.",
+        "value": 0.015,
+        "default": 0.015,
+        "type": "float",
+        "unit": "[N*s/rad]"
+    },
+    "ACT4_SPEED2TORQUE_1": {
+        "description": "Constant of the linear part of the map from the rotation speed to the generated torque of actuator 4 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT4_SPIN.",
+        "value": 0.0009,
+        "default": 0.0009,
+        "type": "float",
+        "unit": "[N*m*s/rad]"
+    },
+    "ACT4_TORQUE2AMPS_1": {
+        "description": "Constant of the linear part of the map from the generated torque to current being consumed by the actuator 4 in Amperes per Newton per meter.",
+        "value": 30.0,
+        "default": 30.0,
+        "type": "float",
+        "unit": "[A/(N*m)]"
+    },
+    "ACT5_TIME_CTE": {
+        "description": "Time constant, in seconds, of the first order dynamics of actuator 5.",
+        "value": 0.02,
+        "default": 0.02,
+        "type": "float",
+        "unit": "[s]"
+    },
+    "ACT5_VOLT2SPEED_1": {
+        "description": "Constant of the linear part of the map from the applied voltage to the rotation speed of actuator 5 in radians per second per Volt.",
+        "value": 33.0,
+        "default": 33.0,
+        "type": "float",
+        "unit": "[rad/(s*V)]"
+    },
+    "ACT5_SPEED2THRUST_1": {
+        "description": "Constant of the linear part of the map from the rotation speed to the generated thrust of actuator 5 in Newton seconds per radian.",
+        "value": 0.015,
+        "default": 0.015,
+        "type": "float",
+        "unit": "[N*s/rad]"
+    },
+    "ACT5_SPEED2TORQUE_1": {
+        "description": "Constant of the linear part of the map from the rotation speed to the generated torque of actuator 5 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT5_SPIN.",
+        "value": 0.0009,
+        "default": 0.0009,
+        "type": "float",
+        "unit": "[N*m*s/rad]"
+    },
+    "ACT5_TORQUE2AMPS_1": {
+        "description": "Constant of the linear part of the map from the generated torque to current being consumed by the actuator 5 in Amperes per Newton per meter.",
+        "value": 30.0,
+        "default": 30.0,
+        "type": "float",
+        "unit": "[A/(N*m)]"
+    },
+    "ACT6_TIME_CTE": {
+        "description": "Time constant, in seconds, of the first order dynamics of actuator 6.",
+        "value": 0.02,
+        "default": 0.02,
+        "type": "float",
+        "unit": "[s]"
+    },
+    "ACT6_VOLT2SPEED_1": {
+        "description": "Constant of the linear part of the map from the applied voltage to the rotation speed of actuator 6 in radians per second per Volt.",
+        "value": 33.0,
+        "default": 33.0,
+        "type": "float",
+        "unit": "[rad/(s*V)]"
+    },
+    "ACT6_SPEED2THRUST_1": {
+        "description": "Constant of the linear part of the map from the rotation speed to the generated thrust of actuator 6 in Newton seconds per radian.",
+        "value": 0.015,
+        "default": 0.015,
+        "type": "float",
+        "unit": "[N*s/rad]"
+    },
+    "ACT6_SPEED2TORQUE_1": {
+        "description": "Constant of the linear part of the map from the rotation speed to the generated torque of actuator 6 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT6_SPIN.",
+        "value": 0.0009,
+        "default": 0.0009,
+        "type": "float",
+        "unit": "[N*m*s/rad]"
+    },
+    "ACT6_TORQUE2AMPS_1": {
+        "description": "Constant of the linear part of the map from the generated torque to current being consumed by the actuator 6 in Amperes per Newton per meter.",
+        "value": 30.0,
+        "default": 30.0,
+        "type": "float",
+        "unit": "[A/(N*m)]"
+    },
+    "ACT7_TIME_CTE": {
+        "description": "Time constant, in seconds, of the first order dynamics of actuator 7.",
+        "value": 0.02,
+        "default": 0.02,
+        "type": "float",
+        "unit": "[s]"
+    },
+    "ACT7_VOLT2SPEED_1": {
+        "description": "Constant of the linear part of the map from the applied voltage to the rotation speed of actuator 7 in radians per second per Volt.",
+        "value": 33.0,
+        "default": 33.0,
+        "type": "float",
+        "unit": "[rad/(s*V)]"
+    },
+    "ACT7_SPEED2THRUST_1": {
+        "description": "Constant of the linear part of the map from the rotation speed to the generated thrust of actuator 7 in Newton seconds per radian.",
+        "value": 0.015,
+        "default": 0.015,
+        "type": "float",
+        "unit": "[N*s/rad]"
+    },
+    "ACT7_SPEED2TORQUE_1": {
+        "description": "Constant of the linear part of the map from the rotation speed to the generated torque of actuator 7 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT7_SPIN.",
+        "value": 0.0009,
+        "default": 0.0009,
+        "type": "float",
+        "unit": "[N*m*s/rad]"
+    },
+    "ACT7_TORQUE2AMPS_1": {
+        "description": "Constant of the linear part of the map from the generated torque to current being consumed by the actuator 7 in Amperes per Newton per meter.",
+        "value": 30.0,
+        "default": 30.0,
+        "type": "float",
+        "unit": "[A/(N*m)]"
+    },
     "SENS_LAT_ORIGIN": {
         "description": "Latitude coordinate of the origin of the local simulated frame in degrees.",
         "value": 40.448985,
@@ -645,22 +932,22 @@
     },
     "SENS_BAR_NOISE_STD": {
         "description": "Standard deviation of the barometer noise in hectopascal.",
-        "value": 0.001,
-        "default": 0.001,
+        "value": 0.005,
+        "default": 0.005,
         "type": "float",
         "unit": "[hPa]"
     },
     "SENS_GPS_STD_XY": {
         "description": "Standard deviation on the horizontal position given by the GPS in meters.",
-        "value": 0.3,
-        "default": 0.3,
+        "value": 0.05,
+        "default": 0.05,
         "type": "float",
         "unit": "[m]"
     },
     "SENS_GPS_STD_Z": {
         "description": "Standard deviation on the vertical position given by the GPS in meters.",
-        "value": 1.0,
-        "default": 1.0,
+        "value": 0.1,
+        "default": 0.1,
         "type": "float",
         "unit": "[m]"
     }

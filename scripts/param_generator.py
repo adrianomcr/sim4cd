@@ -426,10 +426,46 @@ for n in range(8):
         "type":          "float",
         "unit":          "[m]"}
 
+data["VEH_BAT_VOLTAGE"] = {
+    "description":   "Voltage of the vehicle battery in Volts.",
+    "value":         24.3,
+    "default":       24.3,
+    "type":          "float",
+    "unit":          "[V]"}
 
 
-
-
+#Actuators
+for n in range(8):
+    data[f"ACT{n}_TIME_CTE"] = {
+        "description":   f"Time constant, in seconds, of the first order dynamics of actuator {n}.",
+        "value":         0.02,
+        "default":       0.02,
+        "type":          "float",
+        "unit":          "[s]"}
+    data[f"ACT{n}_VOLT2SPEED_1"] = {
+        "description":   f"Constant of the linear part of the map from the applied voltage to the rotation speed of actuator {n} in radians per second per Volt.",
+        "value":         33.0,
+        "default":       33.0,
+        "type":          "float",
+        "unit":          "[rad/(s*V)]"}
+    data[f"ACT{n}_SPEED2THRUST_1"] = {
+        "description":   f"Constant of the linear part of the map from the rotation speed to the generated thrust of actuator {n} in Newton seconds per radian.",
+        "value":         0.015,
+        "default":       0.015,
+        "type":          "float",
+        "unit":          "[N*s/rad]"}
+    data[f"ACT{n}_SPEED2TORQUE_1"] = {
+        "description":   f"Constant of the linear part of the map from the rotation speed to the generated torque of actuator {n} in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT{n}_SPIN.",
+        "value":         0.0009,
+        "default":       0.0009,
+        "type":          "float",
+        "unit":          "[N*m*s/rad]"}
+    data[f"ACT{n}_TORQUE2AMPS_1"] = {
+        "description":   f"Constant of the linear part of the map from the generated torque to current being consumed by the actuator {n} in Amperes per Newton per meter.",
+        "value":         30.0,
+        "default":       30.0,
+        "type":          "float",
+        "unit":          "[A/(N*m)]"}
 
 #Sensors
 data["SENS_LAT_ORIGIN"] = {
@@ -489,20 +525,20 @@ data["SENS_MAG_NOISE_STD"] = {
     "unit":          "[G]"}
 data["SENS_BAR_NOISE_STD"] = {
     "description":   "Standard deviation of the barometer noise in hectopascal.",
-    "value":         0.001,
-    "default":       0.001,
+    "value":         0.005,
+    "default":       0.005,
     "type":          "float",
     "unit":          "[hPa]"}
 data["SENS_GPS_STD_XY"] = {
     "description":   "Standard deviation on the horizontal position given by the GPS in meters.",
-    "value":         0.3,
-    "default":       0.3,
+    "value":         0.05,
+    "default":       0.05,
     "type":          "float",
     "unit":          "[m]"}
 data["SENS_GPS_STD_Z"] = {
     "description":   "Standard deviation on the vertical position given by the GPS in meters.",
-    "value":         1.0,
-    "default":       1.0,
+    "value":         0.1,
+    "default":       0.1,
     "type":          "float",
     "unit":          "[m]"}
 
