@@ -53,7 +53,7 @@ class sensors(object):
         """
 
         # Compute accelerometer measurement and add random noise
-        acc = MU.quat_apply_rot(MU.quat_conj(q),f/m) + np.random.normal(loc=0.0, scale=0.4, size=3)
+        acc = MU.quat_apply_rot(MU.quat_conj(q),f/m) + np.random.normal(loc=0.0, scale=self.acc_noise_std, size=3)
 
         # Add noise induced by the actuators
         acc = acc + induced_noises
@@ -77,7 +77,7 @@ class sensors(object):
         """
 
         # Compute gyroscope measurement and add random noise
-        gyro = w + np.random.normal(loc=0.0, scale=0.1, size=3)
+        gyro = w + np.random.normal(loc=0.0, scale=self.gyro_noise_std, size=3)
 
         # Add noise induced by the actuators
         gyro = gyro + induced_noises
@@ -103,7 +103,7 @@ class sensors(object):
         mag = np.array(self.earth_mag_field)
 
         # Compute Earth magnetic field on the body frame and add noise
-        mag =  MU.quat_apply_rot(MU.quat_conj(q),mag) + np.random.normal(loc=0.0, scale=0.2, size=3)
+        mag =  MU.quat_apply_rot(MU.quat_conj(q),mag) + np.random.normal(loc=0.0, scale=self.mag_noise_std, size=3)
 
         # Add the influence of the magnetic field generated internally on the local frame
         mag = mag + internal_field
@@ -129,7 +129,7 @@ class sensors(object):
         bar = self.pressure_sea * exp(-(z+self.h0) / self.C_bar)
 
         # Add noise to barometric pressure
-        bar = bar + np.random.normal(loc=0.0, scale=0.001, size=1)
+        bar = bar + np.random.normal(loc=0.0, scale=self.bar_noise_std, size=1)
 
         # Inverse model
         # z =  -self.C_bar*ln(bar/self.pressure_sea)-self.h0
@@ -153,16 +153,16 @@ class sensors(object):
         gps = {}
 
         # Populate dictionary
-        gps['i_lat__degE7'] = ( self.lat0+p[1]*self.meters2deg_lat + self.crandom()*5e-8 )*1e7    # Latitude (WGS84) [degE7] (type:int32_t)
-        gps['i_lon__degE7'] = ( self.lon0+p[0]*self.meters2deg_lon + self.crandom()*5e-8 )*1e7    # Longitude (WGS84) [degE7] (type:int32_t)
-        gps['i_alt__mm'] = ( self.h0 + p[2] + self.crandom()*0.05 )*1000                     # Altitude (MSL). Positive for up. [mm] (type:int32_t)
-        gps['i_eph__cm'] = ( 0 + random()*0.001 )*100                                   # GPS HDOP horizontal dilution of position (unitless). If unknown, set to: UINT16_MAX (type:uint16_t)
-        gps['i_epv__cm'] = ( 0 + random()*0.001 )*100                                   # GPS VDOP vertical dilution of position (unitless). If unknown, set to: UINT16_MAX (type:uint16_t)
-        gps['i_vel__cm/s'] = 65535                                                      # GPS ground speed. If unknown, set to: 65535 [cm/s] (type:uint16_t)
-        gps['i_vn__cm/s'] = ( vw[1] + random()*0.001 )*100                              # GPS velocity in north direction in earth-fixed NED frame [cm/s] (type:int16_t)
-        gps['i_ve__cm/s'] = ( vw[0] + random()*0.001 )*100                              # GPS velocity in east direction in earth-fixed NED frame [cm/s] (type:int16_t)
-        gps['i_vd__cm/s'] = ( -vw[2] + random()*0.001 )*100                             # GPS velocity in down direction in earth-fixed NED frame [cm/s] (type:int16_t)
-        gps['i_cog__cdeg'] = ( 0 + self.crandom()*0.001 )*100                           # Course over ground (NOT heading, but direction of movement), 0.0..359.99 degrees. If unknown, set to: 65535 [cdeg] (type:uint16_t)  
+        gps['i_lat__degE7'] = ( self.lat0+(p[1]+np.random.normal(scale=self.gps_noise_std_xy))*self.meters2deg_lat )*1e7    # Latitude (WGS84) [degE7] (type:int32_t)
+        gps['i_lon__degE7'] = ( self.lon0+(p[0]+np.random.normal(scale=self.gps_noise_std_xy))*self.meters2deg_lon )*1e7    # Longitude (WGS84) [degE7] (type:int32_t)
+        gps['i_alt__mm'] = ( self.h0 + p[2] + np.random.normal(scale=self.gps_noise_std_xy) )*1000                          # Altitude (MSL). Positive for up. [mm] (type:int32_t)
+        gps['i_eph__cm'] = ( 0 + random()*0.001 )*100                                                                       # GPS HDOP horizontal dilution of position (unitless). If unknown, set to: UINT16_MAX (type:uint16_t)
+        gps['i_epv__cm'] = ( 0 + random()*0.001 )*100                                                                       # GPS VDOP vertical dilution of position (unitless). If unknown, set to: UINT16_MAX (type:uint16_t)
+        gps['i_vel__cm/s'] = 65535                                                                                          # GPS ground speed. If unknown, set to: 65535 [cm/s] (type:uint16_t)
+        gps['i_vn__cm/s'] = ( vw[1] + random()*0.001 )*100                                                                  # GPS velocity in north direction in earth-fixed NED frame [cm/s] (type:int16_t)
+        gps['i_ve__cm/s'] = ( vw[0] + random()*0.001 )*100                                                                  # GPS velocity in east direction in earth-fixed NED frame [cm/s] (type:int16_t)
+        gps['i_vd__cm/s'] = ( -vw[2] + random()*0.001 )*100                                                                 # GPS velocity in down direction in earth-fixed NED frame [cm/s] (type:int16_t)
+        gps['i_cog__cdeg'] = ( 0 + self.crandom()*0.001 )*100                                                               # Course over ground (NOT heading, but direction of movement), 0.0..359.99 degrees. If unknown, set to: 65535 [cdeg] (type:uint16_t)  
         
         return gps
 
@@ -231,7 +231,7 @@ class sensors(object):
         R0 = params.get_parameter_value('ENV_GAS_CTE') # Universal gas constant [J/(mol*K)]
         self.C_bar = (T0*R0)/(g*M)
             
-        # Local environmental values defined for NEA parking
+        # Local environmental values
         self.lat0 = params.get_parameter_value('SENS_LAT_ORIGIN') # initial latitude (degrees)
         self.lon0 = params.get_parameter_value('SENS_LON_ORIGIN') # initial longitude (degrees)
         self.h0 = params.get_parameter_value('SENS_ALT_ORIGIN') # initial altitude (meters above average sea level)
@@ -245,3 +245,13 @@ class sensors(object):
         small_radius = earth_radius*sqrt(1 - sin(self.lat0*pi/180)**2)
         self.meters2deg_lat =  180 / ( earth_radius * pi)
         self.meters2deg_lon =  180 / ( small_radius * pi)
+
+        # Standard deviations of sensor noise
+        self.acc_noise_std = params.get_parameter_value('SENS_ACC_NOISE_STD')
+        self.gyro_noise_std = params.get_parameter_value('SENS_GYRO_NOISE_STD')
+        self.mag_noise_std = params.get_parameter_value('SENS_MAG_NOISE_STD')
+        self.bar_noise_std = params.get_parameter_value('SENS_BAR_NOISE_STD')
+        self.gps_noise_std_xy = params.get_parameter_value('SENS_GPS_STD_XY')
+        self.gps_noise_std_z = params.get_parameter_value('SENS_GPS_STD_Z')
+
+        

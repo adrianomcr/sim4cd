@@ -22,7 +22,7 @@ class JsonViewerApp:
         
         self.tree.bind("<<TreeviewSelect>>", self.update_details)
 
-        self.tree.column("#0", width=170)  # Column 1 (Value) width
+        self.tree.column("#0", width=200)  # Column 1 (Value) width
         self.tree.column("#1", width=120)  # Column 1 (Value) width
         self.tree.column("#2", width=100)  # Column 2 (Description) width
         self.tree.column("#3", width=400)   # Column 3 (Unit) width

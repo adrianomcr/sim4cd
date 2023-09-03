@@ -469,12 +469,45 @@ data["SENS_MAG_FIELD_U"] = {
     "type":          "float",
     "unit":          "[G]"}
 
+data["SENS_ACC_NOISE_STD"] = {
+    "description":   "Standard deviation of the accelerometer noise in meters per second square.",
+    "value":         0.4,
+    "default":       0.4,
+    "type":          "float",
+    "unit":          "[m/(s*s)]"}
+data["SENS_GYRO_NOISE_STD"] = {
+    "description":   "Standard deviation of the gyro noise in radians per second.",
+    "value":         0.1,
+    "default":       0.1,
+    "type":          "float",
+    "unit":          "[rad/s]"}
+data["SENS_MAG_NOISE_STD"] = {
+    "description":   "Standard deviation of the magnetometer noise in Gauss.",
+    "value":         0.15,
+    "default":       0.15,
+    "type":          "float",
+    "unit":          "[G]"}
+data["SENS_BAR_NOISE_STD"] = {
+    "description":   "Standard deviation of the barometer noise in hectopascal.",
+    "value":         0.001,
+    "default":       0.001,
+    "type":          "float",
+    "unit":          "[hPa]"}
+data["SENS_GPS_STD_XY"] = {
+    "description":   "Standard deviation on the horizontal position given by the GPS in meters.",
+    "value":         0.3,
+    "default":       0.3,
+    "type":          "float",
+    "unit":          "[m]"}
+data["SENS_GPS_STD_Z"] = {
+    "description":   "Standard deviation on the vertical position given by the GPS in meters.",
+    "value":         1.0,
+    "default":       1.0,
+    "type":          "float",
+    "unit":          "[m]"}
+
+# Save parameters to default file
 save_parameters(data)
-# pressure_sea = 1013.25 # Sea level standard atmospheric pressure [hPa]
-# g = 9.80665 # Earth-surface gravitational acceleration [m/ss]
-# M = 0.02896968 # Molar mass of dry air [kg/mol]
-# T0 = 288.16 # Sea level standard temperature [K]
-# R0 = 8.314462618 # Universal gas constant [J/(mol*K)]
-# C_bar = (T0*R0)/(g*M)
+
 
 
