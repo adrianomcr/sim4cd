@@ -36,7 +36,7 @@ data["SIM_ROS_EN"] ={
     "value":        True,
     "default":      True,
     "type":         "bool",
-    "unit":         "[]"}
+    "unit":         "[ ]"}
 data["SIM_ROS_HZ"] ={
     "description":  "Frequency of publication of sim data in ROS topics.",
     "value":        20,
@@ -60,7 +60,7 @@ data["SIM_GT_EN"] ={
     "value":        True,
     "default":      True,
     "type":         "bool",
-    "unit":         "[]"}
+    "unit":         "[ ]"}
 data["SIM_GT_HZ"] ={
     "description":  "Frequency of publication of ground truth data through MAVLINK.",
     "value":        50,
@@ -72,7 +72,7 @@ data["SIM_PRINT_EN"] ={
     "value":        True,
     "default":      True,
     "type":         "bool",
-    "unit":         "[]"}
+    "unit":         "[ ]"}
 data["SIM_PRINT_HZ"] ={
     "description":  "Frequency of printing of sim data on terminal.",
     "value":        10,
@@ -195,7 +195,7 @@ data["VEH_ACT_NUM"] = {
     "value":         4,
     "default":       4,
     "type":          "int",
-    "unit":          "[]"}
+    "unit":          "[ ]"}
 
 # TODO: Define one value for each actuator
 data["VEH_J_ROTOR"] = {
@@ -210,49 +210,49 @@ data[f"VEH_ACT0_SPIN"] = {
     "value":         1,
     "default":       1,
     "type":          "int",
-    "unit":          "[m]"}
+    "unit":          "[ ]"}
 data[f"VEH_ACT1_SPIN"] = {
     "description":   "Direction of rotation of actuator 1.\n (1): Rotates positively (counter-clockwise) around the vector VEH_ACT1_DIR\n(-1): Rotates negatively (clockwise) around the vector VEH_ACT1_DIR",
     "value":         1,
     "default":       1,
     "type":          "int",
-    "unit":          "[m]"}
+    "unit":          "[ ]"}
 data[f"VEH_ACT2_SPIN"] = {
     "description":   "Direction of rotation of actuator 2.\n (1): Rotates positively (counter-clockwise) around the vector VEH_ACT2_DIR\n(-1): Rotates negatively (clockwise) around the vector VEH_ACT2_DIR",
     "value":         -1,
     "default":       -1,
     "type":          "int",
-    "unit":          "[m]"}
+    "unit":          "[ ]"}
 data[f"VEH_ACT3_SPIN"] = {
     "description":   "Direction of rotation of actuator 3.\n (1): Rotates positively (counter-clockwise) around the vector VEH_ACT3_DIR\n(-1): Rotates negatively (clockwise) around the vector VEH_ACT3_DIR",
     "value":         -1,
     "default":       -1,
     "type":          "int",
-    "unit":          "[m]"}
+    "unit":          "[ ]"}
 data[f"VEH_ACT4_SPIN"] = {
     "description":   "Direction of rotation of actuator 4.\n (1): Rotates positively (counter-clockwise) around the vector VEH_ACT4_DIR\n(-1): Rotates negatively (clockwise) around the vector VEH_ACT4_DIR",
     "value":         1,
     "default":       1,
     "type":          "int",
-    "unit":          "[m]"}
+    "unit":          "[ ]"}
 data[f"VEH_ACT5_SPIN"] = {
     "description":   "Direction of rotation of actuator 5.\n (1): Rotates positively (counter-clockwise) around the vector VEH_ACT5_DIR\n(-1): Rotates negatively (clockwise) around the vector VEH_ACT5_DIR",
     "value":         1,
     "default":       1,
     "type":          "int",
-    "unit":          "[m]"}
+    "unit":          "[ ]"}
 data[f"VEH_ACT6_SPIN"] = {
     "description":   "Direction of rotation of actuator 6.\n (1): Rotates positively (counter-clockwise) around the vector VEH_ACT6_DIR\n(-1): Rotates negatively (clockwise) around the vector VEH_ACT6_DIR",
     "value":         1,
     "default":       1,
     "type":          "int",
-    "unit":          "[m]"}
+    "unit":          "[ ]"}
 data[f"VEH_ACT7_SPIN"] = {
     "description":   "Direction of rotation of actuator 7.\n (1): Rotates positively (counter-clockwise) around the vector VEH_ACT7_DIR\n(-1): Rotates negatively (clockwise) around the vector VEH_ACT7_DIR",
     "value":         1,
     "default":       1,
     "type":          "int",
-    "unit":          "[m]"}
+    "unit":          "[ ]"}
 
 data["VEH_ACT0_POS_X"] = {
     "description":   "X component (forward) of the position of actuator 0 in the vehicle frame. Value in meters.",
