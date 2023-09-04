@@ -98,10 +98,10 @@ class JsonViewerApp:
 
         # Add a "Set" button to save the edited value
         self.set_button = ttk.Button(self.set_buttons_frame, text="      Set", padding=(4, 4), command=self.set_value)
-        self.set_button.pack(pady=10, side=tk.LEFT)
+        self.set_button.pack(padx=5, side=tk.LEFT)
         # Add a "Restore default" button to save the edited value
         self.set_default_button = ttk.Button(self.set_buttons_frame, text="  Restore", padding=(4, 4), command=self.set_default_value)
-        self.set_default_button.pack(pady=10, side=tk.LEFT)
+        self.set_default_button.pack(padx=5, side=tk.LEFT)
 
         self.file_path = False
         
