@@ -196,8 +196,8 @@ class vehicle_dynamics(object):
                 if(w_align[0]<0):
                     w_align = -w_align
                 w_align = w_align[1:4]
-                break_force_w = - self.m*self.v*10
-                break_force_w[2] = break_force_w[2]*3 + self.m*self.g
+                break_force_w = - self.m*self.v*20
+                break_force_w[2] = break_force_w[2]*5 + self.m*self.g - self.p[2]*500
                 self.Force_b = MU.quat_apply_rot(MU.quat_conj(self.q),break_force_w)
                 self.Torque_b = -self.J@self.w*10 - w_align*20
 
