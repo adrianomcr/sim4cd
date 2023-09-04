@@ -29,10 +29,16 @@ class JsonViewerApp:
 
         self.tree.pack(side=tk.LEFT, padx=10)
 
-        
-        
+        # Create a vertical scrollbar and attach it to the Treeview
+        v_scrollbar = tk.Scrollbar(self.tree, orient="vertical", command=self.tree.yview)
+        self.tree.configure(yscrollcommand=v_scrollbar.set)
+        # Pack the Treeview and scrollbar
+        self.tree.pack(side=tk.LEFT, padx=10, fill="both", expand=True)
+        v_scrollbar.pack(side=tk.RIGHT, fill="y")
 
-        # Right pannel
+
+
+        # Right panel
         right_frame = ttk.Frame(root)
         right_frame.pack(side=tk.LEFT)
         # right_frame.geometry('500x350')
@@ -54,7 +60,7 @@ class JsonViewerApp:
 
         # Detailed info about a arameter
         self.details_frame = ttk.Frame(right_frame)
-        self.details_frame.pack(side=tk.LEFT, padx=10)
+        self.details_frame.pack(side=tk.TOP, padx=10)
         
         style = ttk.Style()
         style.configure("Bold.TLabel", font=("TkDefaultFont", 12, "bold"))
@@ -81,19 +87,26 @@ class JsonViewerApp:
         self.unit_label.pack(pady=2)
         
         # Buttons Set new values and restore default
-        buttons2 = ttk.Frame(self.details_frame)
-        buttons2.pack(side=tk.TOP, padx=10)
+        self.set_buttons_frame = ttk.Frame(right_frame)
+        self.set_buttons_frame.pack(side=tk.TOP, padx=10)
+
+        # buttons2 = ttk.Frame(self.set_buttons_frame)
+        # buttons2.pack(side=tk.TOP, padx=10)
 
         # Add a "Set" button to save the edited value
-        self.set_button = ttk.Button(buttons2, text="Set", command=self.set_value)
+        self.set_button = ttk.Button(self.set_buttons_frame, text="Set", command=self.set_value)
         self.set_button.pack(pady=10, side=tk.LEFT)
         # Add a "Restore default" button to save the edited value
-        self.set_default_button = ttk.Button(buttons2, text="Restore", command=self.set_default_value)
+        self.set_default_button = ttk.Button(self.set_buttons_frame, text="Restore", command=self.set_default_value)
         self.set_default_button.pack(pady=10, side=tk.LEFT)
 
+
+        # Buttons Set new values and restore default
+        # self.checkbox_frame = ttk.Frame(right_frame)
+        # self.set_buttons_frame.pack(side=tk.LEFT, padx=10)
         self.checkbox_state = tk.BooleanVar()
-        self.checkbox = ttk.Checkbutton(self.details_frame, text="Auto Save", variable=self.checkbox_state)#, command=on_checkbox_toggle)
-        self.checkbox.pack()
+        self.checkbox = ttk.Checkbutton(right_frame, text="Auto Save", variable=self.checkbox_state)#, command=on_checkbox_toggle)
+        self.checkbox.pack(pady=10, side=tk.TOP)
 
         self.file_path = False
         
