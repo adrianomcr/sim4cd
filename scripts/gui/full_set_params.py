@@ -27,20 +27,20 @@ class JsonViewerApp:
         self.tree.column("#2", width=100)  # Column 2 (Description) width
         self.tree.column("#3", width=400)   # Column 3 (Unit) width
 
-        self.tree.pack(side=tk.LEFT, padx=10)
+        self.tree.pack(side=tk.LEFT)
 
         # Create a vertical scrollbar and attach it to the Treeview
         v_scrollbar = tk.Scrollbar(self.tree, orient="vertical", command=self.tree.yview)
         self.tree.configure(yscrollcommand=v_scrollbar.set)
         # Pack the Treeview and scrollbar
-        self.tree.pack(side=tk.LEFT, padx=10, fill="both", expand=True)
+        self.tree.pack(side=tk.LEFT, fill="both", expand=True)
         v_scrollbar.pack(side=tk.RIGHT, fill="y")
 
 
 
         # Right panel
         right_frame = ttk.Frame(root)
-        right_frame.pack(side=tk.LEFT)
+        right_frame.pack(side=tk.LEFT, fill="both", expand=False)
         # right_frame.geometry('500x350')
 
 
