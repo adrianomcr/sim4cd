@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
-# Simulation of drone dynamics integrated with PX4
-
+# Copter simulation integrated with PX4
 
 import time
 import threading
@@ -10,6 +9,7 @@ import signal
 import numpy as np
 from math import pi, sin, cos
 import os
+import sys
 
 import silsim_comm as COM
 import ros_viz as VIZ
@@ -203,7 +203,20 @@ def sim_main(params):
 
 if __name__ == "__main__":
 
-    param_file_name = os.path.expanduser('~')+"/simulation_ws/src/px4sim/config/sim_params.json"
+    # Define the full path for the parameter file
+    if len(sys.argv) < 2:
+        # Use the default if no argument is provided
+        param_file_name = os.path.expanduser('~')+"/simulation_ws/src/px4sim/config/sim_params.json"
+        print(f"\33[94m[px4sim] Using default parameter file: {param_file_name}\33[0m")
+    elif len(sys.argv) >= 2:
+        # Use the provided argument 
+        param_file_name = str(sys.argv[1])
+        print(f"\33[94m[px4sim] Argument parameter file: {param_file_name}\33[0m")
+    if len(sys.argv) > 2:
+        # Inform that provided extra arguments were ignored
+        print("\33[93m[px4sim] Extra arguments ignored\33[0m")
+
+    # Load parameter file
     params = PRM.parameter_server(param_file_name)
 
     # Spin the simulator

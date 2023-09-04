@@ -1,6 +1,8 @@
 <?xml version="1.0"?>
 <launch>
 
+    <arg name="parameters_path" default="$(find px4sim)/config/sim_params.json"/>
+
     <!--Run PX4 sitl-->
     <node pkg = "px4sim" name = "px4_stil" type = "px4_stil.sh" args="$(find px4)" output="screen">
     </node>
@@ -10,11 +12,11 @@
     </node>
 
     <!--Run the node that will simulate the drone-->
-    <node pkg = "px4sim" name = "px4sim" type = "px4sim.py" args="" output="screen">
+    <node pkg="px4sim" name="px4sim" type="px4sim.py" args="$(arg parameters_path)" output="screen">
     </node>
 
     <!--Run the node that will generate an example path-->
-    <node pkg = "examples" name = "path_generator" type = "example_path.py" args="" output="screen">
+    <node pkg = "examples" name = "path_generator" type = "example_path.py" output="screen">
         <rosparam command="load" file="$(find px4sim)/config/pub_path.yaml" />
     </node>
 
