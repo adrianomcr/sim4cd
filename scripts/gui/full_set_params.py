@@ -11,21 +11,21 @@ import os
 
 class JsonViewerApp:
     def __init__(self, root):
-        self.root = root 
-
-        
+        self.root = root
         
         self.tree = ttk.Treeview(root, columns=("Value", "Unit", "Description"), height=20)
-        self.tree.heading("#1", text="Value")
-        self.tree.heading("#2", text="Unit")
-        self.tree.heading("#3", text="Description")
+        self.tree.heading("#0", text="    Parameter", anchor=tk.W)
+        self.tree.heading("#1", text="Value", anchor=tk.W)
+        self.tree.heading("#2", text="Unit", anchor=tk.W)
+        self.tree.heading("#3", text="Description", anchor=tk.W)
+        
         
         self.tree.bind("<<TreeviewSelect>>", self.update_details)
 
-        self.tree.column("#0", width=200)  # Column 1 (Value) width
-        self.tree.column("#1", width=120)  # Column 1 (Value) width
-        self.tree.column("#2", width=100)  # Column 2 (Description) width
-        self.tree.column("#3", width=400)   # Column 3 (Unit) width
+        self.tree.column("#0", minwidth=200, width=200, stretch=tk.NO)  # Column 0 (Name)
+        self.tree.column("#1", minwidth=120, width=120, stretch=tk.NO)  # Column 1 (Value)
+        self.tree.column("#2", minwidth=100, width=100, stretch=tk.NO)  # Column 2 (Unit)
+        self.tree.column("#3", minwidth=400)                            # Column 3 (Description)
 
         self.tree.pack(side=tk.LEFT)
 
@@ -48,7 +48,7 @@ class JsonViewerApp:
         buttons = ttk.Frame(right_frame)
         buttons.pack(side=tk.TOP, padx=10)
 
-        self.load_button = ttk.Button(buttons, text="     Load", padding=(4, 4), command=self.load_json)
+        self.load_button = ttk.Button(buttons, text="    Load", padding=(4, 4), command=self.load_json)
         self.load_button.pack(pady=10, side=tk.LEFT)
 
         self.save_button = ttk.Button(buttons, text="    Save", padding=(4, 4), command=self.save_json)
@@ -67,18 +67,18 @@ class JsonViewerApp:
         self.parameter_label = ttk.Label(self.details_frame, text="Parameter Details", style="Bold.TLabel")
         self.parameter_label.pack(pady=10)
 
-        self.name_label = ttk.Label(self.details_frame, text="")
+        self.name_label = ttk.Label(self.details_frame, text="", style="Bold.TLabel")
         self.name_label.pack(pady=2)
 
         # Create an editable Entry widget for the "Value" field
         self.value_entry = ttk.Entry(self.details_frame)
         self.value_entry.pack(pady=2)
 
-        self.default_label = ttk.Label(self.details_frame, text="Default:")
-        self.default_label.pack(pady=2)
-        
         self.description_label = ttk.Label(self.details_frame, text=f"Description:", wraplength=250)
         self.description_label.pack(pady=2)
+
+        self.default_label = ttk.Label(self.details_frame, text="Default:")
+        self.default_label.pack(pady=2)
         
         self.type_label = ttk.Label(self.details_frame, text="Type:")
         self.type_label.pack(pady=2)
