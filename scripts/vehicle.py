@@ -106,7 +106,7 @@ class vehicle_geometry:
         Tg = np.array([0, 0, 0])
         # Account for the effect of each actuator
         for i, act in enumerate(self.actuators):
-            Tg = Tg + (-1*self.spin[i]*self.Jr*np.cross(omega,self.directions[0]*act.get_omega()))
+            Tg = Tg + (-act.get_angular_momentum()*np.cross(omega,self.directions[0]))
 
         return Tg
 
@@ -120,13 +120,10 @@ class vehicle_geometry:
         """
 
         self.act_num = params.get_parameter_value('VEH_ACT_NUM')
-        self.Jr = params.get_parameter_value('VEH_J_ROTOR')
-
-        self.spin = []
+        
         self.positions = []
         self.directions = []
         for i in range(self.act_num):
-            self.spin.append( params.get_parameter_value(f'VEH_ACT{i}_SPIN') )
             self.positions.append(np.array([]))
             self.directions.append(np.array([]))
             for d in ['X','Y','Z']:

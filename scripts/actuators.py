@@ -48,12 +48,13 @@ class prop_actuator:
         """
 
         self.bat_voltage = params.get_parameter_value('VEH_BAT_VOLTAGE')
-        self.spin = params.get_parameter_value(f"VEH_ACT{act_id}_SPIN")
+        self.spin = params.get_parameter_value(f"ACT{act_id}_SPIN")
         self.time_cte = params.get_parameter_value(f"ACT{act_id}_TIME_CTE")
         self.volt_to_speed = params.get_parameter_value(f"ACT{act_id}_VOLT2SPEED_1")
         self.speed_to_thrust = params.get_parameter_value(f"ACT{act_id}_SPEED2THRUST_1")
         self.speed_to_torque = params.get_parameter_value(f"ACT{act_id}_SPEED2TORQUE_1")
         self.torque_to_current = params.get_parameter_value(f"ACT{act_id}_TORQUE2AMPS_1")
+        self.Jr = params.get_parameter_value(f"ACT{act_id}_MOI_ROTOR")
 
         return
 
@@ -207,6 +208,20 @@ class prop_actuator:
         """
 
         return self.speed
+
+
+    def get_angular_momentum(self):
+        """
+        Get the (signed) angular momentum of the actuator around the vector that points in the direction of the propulsion.
+        
+        Returns:
+            L (float): Actuator signed angular momentum in kilograms meter square per second [kg*m*m/s]. The sign indicates the if the the actuator has a positive rotation around the direction of propulsion or a negative rotation.
+        """
+
+        # Compute the signed angular momentum
+        L = self.spin*self.get_omega()*self.Jr
+
+        return L
 
 
     def get_spin(self):

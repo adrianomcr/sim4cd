@@ -197,63 +197,6 @@ data["VEH_ACT_NUM"] = {
     "type":          "int",
     "unit":          "[ ]"}
 
-# TODO: Define one value for each actuator
-data["VEH_J_ROTOR"] = {
-    "description":   "Moment of inertia of the spinning part of a single actuator in kilograms meter square.",
-    "value":         0.001,
-    "default":       0.001,
-    "type":          "float",
-    "unit":          "[kg*m*m]"}
-
-data[f"VEH_ACT0_SPIN"] = {
-    "description":   "Direction of rotation of actuator 0.\n (1): Rotates positively (counter-clockwise) around the vector VEH_ACT0_DIR\n(-1): Rotates negatively (clockwise) around the vector VEH_ACT0_DIR",
-    "value":         1,
-    "default":       1,
-    "type":          "int",
-    "unit":          "[ ]"}
-data[f"VEH_ACT1_SPIN"] = {
-    "description":   "Direction of rotation of actuator 1.\n (1): Rotates positively (counter-clockwise) around the vector VEH_ACT1_DIR\n(-1): Rotates negatively (clockwise) around the vector VEH_ACT1_DIR",
-    "value":         1,
-    "default":       1,
-    "type":          "int",
-    "unit":          "[ ]"}
-data[f"VEH_ACT2_SPIN"] = {
-    "description":   "Direction of rotation of actuator 2.\n (1): Rotates positively (counter-clockwise) around the vector VEH_ACT2_DIR\n(-1): Rotates negatively (clockwise) around the vector VEH_ACT2_DIR",
-    "value":         -1,
-    "default":       -1,
-    "type":          "int",
-    "unit":          "[ ]"}
-data[f"VEH_ACT3_SPIN"] = {
-    "description":   "Direction of rotation of actuator 3.\n (1): Rotates positively (counter-clockwise) around the vector VEH_ACT3_DIR\n(-1): Rotates negatively (clockwise) around the vector VEH_ACT3_DIR",
-    "value":         -1,
-    "default":       -1,
-    "type":          "int",
-    "unit":          "[ ]"}
-data[f"VEH_ACT4_SPIN"] = {
-    "description":   "Direction of rotation of actuator 4.\n (1): Rotates positively (counter-clockwise) around the vector VEH_ACT4_DIR\n(-1): Rotates negatively (clockwise) around the vector VEH_ACT4_DIR",
-    "value":         1,
-    "default":       1,
-    "type":          "int",
-    "unit":          "[ ]"}
-data[f"VEH_ACT5_SPIN"] = {
-    "description":   "Direction of rotation of actuator 5.\n (1): Rotates positively (counter-clockwise) around the vector VEH_ACT5_DIR\n(-1): Rotates negatively (clockwise) around the vector VEH_ACT5_DIR",
-    "value":         1,
-    "default":       1,
-    "type":          "int",
-    "unit":          "[ ]"}
-data[f"VEH_ACT6_SPIN"] = {
-    "description":   "Direction of rotation of actuator 6.\n (1): Rotates positively (counter-clockwise) around the vector VEH_ACT6_DIR\n(-1): Rotates negatively (clockwise) around the vector VEH_ACT6_DIR",
-    "value":         1,
-    "default":       1,
-    "type":          "int",
-    "unit":          "[ ]"}
-data[f"VEH_ACT7_SPIN"] = {
-    "description":   "Direction of rotation of actuator 7.\n (1): Rotates positively (counter-clockwise) around the vector VEH_ACT7_DIR\n(-1): Rotates negatively (clockwise) around the vector VEH_ACT7_DIR",
-    "value":         1,
-    "default":       1,
-    "type":          "int",
-    "unit":          "[ ]"}
-
 data["VEH_ACT0_POS_X"] = {
     "description":   "X component (forward) of the position of actuator 0 in the vehicle frame. Value in meters.",
     "value":         0.15,
@@ -466,6 +409,63 @@ for n in range(8):
         "default":       30.0,
         "type":          "float",
         "unit":          "[A/(N*m)]"}
+    data[f"ACT{n}_MOI_ROTOR"] = {
+        "description":   f"Moment of inertia of the spinning part of e actuator {n} in kilograms meter square.",
+        "value":         0.001,
+        "default":       0.001,
+        "type":          "float",
+        "unit":          "[kg*m*m]"}
+
+data[f"ACT0_SPIN"] = {
+    "description":   "Direction of rotation of actuator 0.\n (1): Rotates positively (counter-clockwise) around the vector VEH_ACT0_DIR\n(-1): Rotates negatively (clockwise) around the vector VEH_ACT0_DIR",
+    "value":         1,
+    "default":       1,
+    "type":          "int",
+    "unit":          "[ ]"}
+data[f"ACT1_SPIN"] = {
+    "description":   "Direction of rotation of actuator 1.\n (1): Rotates positively (counter-clockwise) around the vector VEH_ACT1_DIR\n(-1): Rotates negatively (clockwise) around the vector VEH_ACT1_DIR",
+    "value":         1,
+    "default":       1,
+    "type":          "int",
+    "unit":          "[ ]"}
+data[f"ACT2_SPIN"] = {
+    "description":   "Direction of rotation of actuator 2.\n (1): Rotates positively (counter-clockwise) around the vector VEH_ACT2_DIR\n(-1): Rotates negatively (clockwise) around the vector VEH_ACT2_DIR",
+    "value":         -1,
+    "default":       -1,
+    "type":          "int",
+    "unit":          "[ ]"}
+data[f"ACT3_SPIN"] = {
+    "description":   "Direction of rotation of actuator 3.\n (1): Rotates positively (counter-clockwise) around the vector VEH_ACT3_DIR\n(-1): Rotates negatively (clockwise) around the vector VEH_ACT3_DIR",
+    "value":         -1,
+    "default":       -1,
+    "type":          "int",
+    "unit":          "[ ]"}
+data[f"ACT4_SPIN"] = {
+    "description":   "Direction of rotation of actuator 4.\n (1): Rotates positively (counter-clockwise) around the vector VEH_ACT4_DIR\n(-1): Rotates negatively (clockwise) around the vector VEH_ACT4_DIR",
+    "value":         1,
+    "default":       1,
+    "type":          "int",
+    "unit":          "[ ]"}
+data[f"ACT5_SPIN"] = {
+    "description":   "Direction of rotation of actuator 5.\n (1): Rotates positively (counter-clockwise) around the vector VEH_ACT5_DIR\n(-1): Rotates negatively (clockwise) around the vector VEH_ACT5_DIR",
+    "value":         1,
+    "default":       1,
+    "type":          "int",
+    "unit":          "[ ]"}
+data[f"ACT6_SPIN"] = {
+    "description":   "Direction of rotation of actuator 6.\n (1): Rotates positively (counter-clockwise) around the vector VEH_ACT6_DIR\n(-1): Rotates negatively (clockwise) around the vector VEH_ACT6_DIR",
+    "value":         1,
+    "default":       1,
+    "type":          "int",
+    "unit":          "[ ]"}
+data[f"ACT7_SPIN"] = {
+    "description":   "Direction of rotation of actuator 7.\n (1): Rotates positively (counter-clockwise) around the vector VEH_ACT7_DIR\n(-1): Rotates negatively (clockwise) around the vector VEH_ACT7_DIR",
+    "value":         1,
+    "default":       1,
+    "type":          "int",
+    "unit":          "[ ]"}
+
+
 
 #Sensors
 data["SENS_LAT_ORIGIN"] = {
