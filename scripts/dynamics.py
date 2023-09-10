@@ -139,9 +139,9 @@ class vehicle_dynamics(object):
         self.m = params.get_parameter_value('DYN_MASS')
         self.drag_v = params.get_parameter_value('DYN_DRAG_V')
         self.drag_w = params.get_parameter_value('DYN_DRAG_W')
-        Jxx = params.get_parameter_value('DYN_J_XX')
-        Jyy = params.get_parameter_value('DYN_J_YY')
-        Jzz = params.get_parameter_value('DYN_J_ZZ')
+        Jxx = params.get_parameter_value('DYN_MOI_XX')
+        Jyy = params.get_parameter_value('DYN_MOI_YY')
+        Jzz = params.get_parameter_value('DYN_MOI_ZZ')
         self.J = np.array([[Jxx, 0, 0],[0, Jyy, 0],[0, 0, Jzz]]) # Moment of inertia matrix
         wind_vw_x = params.get_parameter_value('DYN_WIND_E')
         wind_vw_y = params.get_parameter_value('DYN_WIND_N')

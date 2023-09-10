@@ -1,24 +1,31 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
-
+# GUI to edit the parameter values
 
 import tkinter as tk
-from tkinter import filedialog, ttk
+from tkinter import filedialog, ttk, messagebox
 import json
 from ttkthemes import ThemedTk
 import os
 
+
 class JsonViewerApp:
     def __init__(self, root):
         self.root = root
+
+        try:
+            # Define and set a parameters icon for the GUI
+            photo = tk.PhotoImage(file = os.path.abspath(__file__).rsplit('/', 1)[0]+'/resources/params_icon.png')
+            root.iconphoto(False, photo)
+        except Exception as e:
+            print("An error occurred while creating the icon:", e)
         
         self.tree = ttk.Treeview(root, columns=("Value", "Unit", "Description"), height=20)
         self.tree.heading("#0", text="    Parameter", anchor=tk.W)
         self.tree.heading("#1", text="Value", anchor=tk.W)
         self.tree.heading("#2", text="Unit", anchor=tk.W)
         self.tree.heading("#3", text="Description", anchor=tk.W)
-        
         
         self.tree.bind("<<TreeviewSelect>>", self.update_details)
 
@@ -41,7 +48,6 @@ class JsonViewerApp:
         # Right panel
         right_frame = ttk.Frame(root)
         right_frame.pack(side=tk.LEFT, fill="both", expand=False)
-        # right_frame.geometry('500x350')
 
 
         # Buttons to load and save file
@@ -70,9 +76,10 @@ class JsonViewerApp:
         self.name_label = ttk.Label(self.details_frame, text="", style="Bold.TLabel")
         self.name_label.pack(pady=2)
 
-        # Create an editable Entry widget for the "Value" field
-        self.value_entry = ttk.Entry(self.details_frame)
-        self.value_entry.pack(pady=2)
+        self.combobox = ttk.Combobox(self.details_frame, values=[])
+        self.combobox.bind("<<ComboboxSelected>>", self.on_option_selected)
+        self.combobox.set("")
+        self.combobox.pack(pady=2)
 
         self.description_label = ttk.Label(self.details_frame, text=f"Description:", wraplength=250)
         self.description_label.pack(pady=2)
@@ -87,7 +94,7 @@ class JsonViewerApp:
         self.unit_label.pack(pady=2)
         
 
-        # Buttons Set new values and restore default
+        # Checkbox to automatically save to a JSON file        
         self.checkbox_state = tk.BooleanVar()
         self.checkbox = ttk.Checkbutton(right_frame, text="Auto Save", variable=self.checkbox_state)#, command=on_checkbox_toggle)
         self.checkbox.pack(pady=10, side=tk.BOTTOM)
@@ -107,6 +114,11 @@ class JsonViewerApp:
         
         self.data = {}  # Store loaded JSON data
         
+
+    def on_option_selected(self, event):
+        return
+
+
     def load_json(self):
         path = filedialog.askopenfilename(filetypes=[("JSON Files", "*.json")])
         if path:
@@ -138,20 +150,6 @@ class JsonViewerApp:
                 self.tree.insert("", "end", text=param, values=(value, unit, description), tags=("different",))
                 
 
-
-
-    # def update_tree(self,key,value):
-    #     for param, details in self.data.items():
-    #         description = details["description"].split('\n')[0]
-    #         value = details["value"]
-    #         # default = details["default"]
-    #         # data_type = details["type"]
-    #         unit = details["unit"]
-            
-    #         # self.tree.insert("", "end", text=param, values=(description, value, default, data_type, unit))
-    #         self.tree.insert("", "end", text=param, values=(value, description, unit))
-
-
     def update_details(self, event):
         selected_items = self.tree.selection()
         if selected_items:
@@ -160,16 +158,17 @@ class JsonViewerApp:
             details = self.data[selected_param]
 
             self.description_label.config(text=f"Description: {details['description']}")
-            self.value_entry.delete(0, tk.END)
-            self.value_entry.insert(0, details['value'])
+            self.combobox.delete(0, tk.END)
+            self.combobox.insert(0, str(details['value']))
+            self.combobox['values'] = details['options']
             self.name_label.config(text=selected_param)
             self.default_label.config(text=f"Default: {details['default']}")
             self.type_label.config(text=f"Type: {details['type']}")
             self.unit_label.config(text=f"Unit: {details['unit']}")
         else:
             self.description_label.config(text="Description: ")
-            self.value_entry.delete(0, tk.END)
-            # self.value_entry.insert(0, details['value'])
+            self.combobox.delete(0, tk.END)
+            self.combobox['values'] = []
             self.name_label.config(text=f"")
             self.default_label.config(text="Default: ")
             self.type_label.config(text="Type: ")
@@ -179,14 +178,40 @@ class JsonViewerApp:
     def convert_data_type(self,value_str,type_str):
 
         valid = True
-        if(type_str=="int"):
-            value = int(round(float(value_str)))
-        elif(type_str=="float"):
-            value = float(value_str)
-        elif(type_str=="bool"):
-            value = bool(int(round(float(value_str))))
-        else:
-            value = None
+        try:
+            if(type_str=="int"):
+                value = int(round(float(value_str)))
+            elif(type_str=="float"):
+                value = float(value_str)
+            elif(type_str=="bool"):
+                true_list = ['1', '+1', 'true', 't']
+                s = str(type_str).lower()
+                value = True if s in true_list else False
+            else:
+                value = None
+        except:
+            messagebox.showerror("Error", "Value not valid\nCheck if it is a " + type_str)
+            value = 0
+            valid = False
+
+        return valid, value
+
+
+    def check_value(self,value_str,type_str,options):
+
+        valid_type, value = self.convert_data_type(value_str,type_str)
+
+        valid = valid_type
+        if(valid):
+            print('valid type')
+            if(options):
+                print('has options')
+                if(not value in options):
+                    valid = False
+                    print('invalid option')
+                    messagebox.showerror("Error", "Value inserted is not a valid option")
+                else:
+                    print('valid option')
 
         return valid, value
 
@@ -207,7 +232,10 @@ class JsonViewerApp:
         if selected_items:
             selected_item = self.tree.selection()[0]
             selected_param = self.tree.item(selected_item, "text")
-            valid, new_value = self.convert_data_type(self.value_entry.get(),self.data[selected_param]['type'])
+            valid, new_value = self.check_value(self.combobox.get(),self.data[selected_param]['type'],self.data[selected_param]['options'])
+            if(not valid):
+                return
+
             self.data[selected_param]['value'] = new_value
 
             # .........
@@ -224,32 +252,36 @@ class JsonViewerApp:
 
     def set_default_value(self):
         selected_items = self.tree.selection()
-        if selected_items:
-            selected_item = self.tree.selection()[0]
+        # if selected_items:
+        for selected_item in selected_items:
+            # selected_item = self.tree.selection()[0]
             selected_param = self.tree.item(selected_item, "text")
-            # valid, new_value = self.convert_data_type(self.value_entry.get(),self.data[selected_param]['type'])
             new_value = self.data[selected_param]['default']
             self.data[selected_param]['value'] = new_value
-            self.value_entry.delete(0, tk.END)
-            self.value_entry.insert(0, new_value)
+            self.combobox.delete(0, tk.END)
+            self.combobox.insert(0, str(new_value))
+            self.combobox['values'] = self.data[selected_param]['options']
             self.tree.item(selected_item, values=(new_value, self.data[selected_param]['unit'], self.data[selected_param]['description'].split('\n')[0]), tags=("white",))
 
-            if(self.auto_save()):
-                self.save_json()
+        if(self.auto_save() and selected_items):
+            self.save_json()
 
 
 if __name__ == "__main__":
-    root = ThemedTk(theme='black')
-    root.title("Parameters Editor")
-    app = JsonViewerApp(root)
-    root.geometry('1150x450')
-    try:
-        # Define and set a PIT icon for the GUI
-        photo = tk.PhotoImage(file = os.path.abspath(__file__).rsplit('/', 1)[0]+'/resources/params_icon.png')
-        root.iconphoto(False, photo)
-    except Exception as e:
-        print("An error occurred while creating the icon:", e)
+    """
+    Main to run a detached JsonViewerApp window
+    """
 
-    # app.tree.bind("<<TreeviewSelect>>", app.update_details)
+    # Define root GUI window
+    root = ThemedTk(theme='black')
+    # Define GUI title
+    root.title("Parameters Editor")
+    # Define GUI window size
+    root.geometry('1150x450')
+
+    # Create the GUI object
+    app = JsonViewerApp(root)
+
+    # Run the tkinter event loop
     root.mainloop()
 
