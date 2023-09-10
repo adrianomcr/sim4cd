@@ -15,9 +15,12 @@ class vehicle_geometry:
     Class that represents the geometric collection of actuators of a vehicle
     """
 
-    def __init__(self):
+    def __init__(self, params):
         """
         Constructor for the vehicle_geometry class
+
+        Parameters:
+            params (<parameter_server.parameter_server>): Parameter server object
         """
 
         self.cmds = [0, 0, 0, 0] # List of the PWM commands for the actuators
@@ -25,46 +28,20 @@ class vehicle_geometry:
         self.torques = [0, 0, 0, 0] # List of torques being exercised by each actuator
         self.total_force = np.array([0, 0, 0]) # Collective force vector exercised by the actuators
         self.total_torque = np.array([0, 0, 0]) # Collective torque vector exercised by the actuators
-        self.d = 0.15 # Lateral distance between the actuators and the vehicle center
-        self.Jr = 0.001 # Moment of inertia of onde actuator TODO: Define it in a beter place
 
-        # Actuators configuration
+        # Actuators configuration TODO: Remove as it is old
         #    2       0
         #      \ ^ /
         #        |
         #    1 /   \ 3
 
-        # Define a list with the direction of spin of each actuator
-        self.spin = [ 1,  # spins counter clock wise
-                      1,  # spins counter clock wise
-                     -1,  # spins clock wise
-                     -1]  # spins clock wise
+        # Load model parameters
+        self.load_parameters(params)
 
-        # Define the four actuator objects
-        act0 = ACT.prop_actuator(self.spin[0]) # spins counter clock wise
-        act1 = ACT.prop_actuator(self.spin[1]) # spins counter clock wise
-        act2 = ACT.prop_actuator(self.spin[2]) # spins clock wise
-        act3 = ACT.prop_actuator(self.spin[3]) # spins clock wise
-        # Define the list of actuator objects
-        self.actuators = [act0,
-                          act1,
-                          act2,
-                          act3]
-
-        # Define a list with the position (with respect to the body frame) of each actuator
-        self.positions = [np.array([self.d, -self.d, 0]),
-                          np.array([-self.d, self.d, 0]),
-                          np.array([self.d, self.d, 0]),
-                          np.array([-self.d, -self.d, 0])]
-
-        # Define a list with the direction (with respect to the body frame) of each actuator
-        self.directions = [np.array([0.05, 0.05, 1]),
-                           np.array([0, 0, 1]),
-                           np.array([0, 0, 1]),
-                           np.array([0, 0, 1])]
-        # Make sure all of the directions are unit norm vectors
-        for i, act in enumerate(self.actuators):
-            self.directions[i] = MU.normalize(self.directions[i])
+        # Create the actuator objects and store them in a list
+        self.actuators = []
+        for i in range(self.act_num):
+            self.actuators.append(ACT.prop_actuator(params, i))
 
         # Initialize the last time variable for time step computation
         self.last_time = time.time()
@@ -129,9 +106,33 @@ class vehicle_geometry:
         Tg = np.array([0, 0, 0])
         # Account for the effect of each actuator
         for i, act in enumerate(self.actuators):
-            Tg = Tg + (-1*self.spin[i]*self.Jr*np.cross(omega,self.directions[0]*act.get_omega()))
+            Tg = Tg + (-act.get_angular_momentum()*np.cross(omega,self.directions[0]))
 
         return Tg
+
+
+    def load_parameters(self, params):
+        """
+        Load parameters for the vehicle geometry and store them in the instance variables
+
+        Parameters:
+            params (<parameter_server.parameter_server>): Parameter server object that contains the values of interest
+        """
+
+        self.act_num = params.get_parameter_value('VEH_ACT_NUM')
+        
+        self.positions = []
+        self.directions = []
+        for i in range(self.act_num):
+            self.positions.append(np.array([]))
+            self.directions.append(np.array([]))
+            for d in ['X','Y','Z']:
+                self.positions[i] = np.append(self.positions[i], params.get_parameter_value(f'VEH_ACT{i}_POS_{d}'))
+                self.directions[i] = np.append(self.directions[i], params.get_parameter_value(f'VEH_ACT{i}_DIR_{d}'))
+
+        # Make sure all of the directions are unit norm vectors
+        for i in range(self.act_num):
+            self.directions[i] = MU.normalize(self.directions[i])
 
 
     def reset(self):

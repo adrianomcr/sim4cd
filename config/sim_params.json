@@ -1,0 +1,1179 @@
+{
+    "SIM_ROS_EN": {
+        "description": "Flag to enable the publishing of sim data in ROS topics.",
+        "value": true,
+        "default": true,
+        "options": [
+            true,
+            false
+        ],
+        "type": "bool",
+        "unit": "[ ]"
+    },
+    "SIM_ROS_HZ": {
+        "description": "Frequency of publication of sim data in ROS topics.",
+        "value": 20,
+        "default": 20,
+        "options": [],
+        "type": "int",
+        "unit": "[Hz]"
+    },
+    "SIM_SENS_HZ": {
+        "description": "Frequency of publication of sensor data through MAVLINK. Includes IMU, magnetometer and barometer.",
+        "value": 800,
+        "default": 800,
+        "options": [],
+        "type": "int",
+        "unit": "[Hz]"
+    },
+    "SIM_GPS_HZ": {
+        "description": "Frequency of publication of GPS data through MAVLINK.",
+        "value": 50,
+        "default": 50,
+        "options": [],
+        "type": "int",
+        "unit": "[Hz]"
+    },
+    "SIM_GT_EN": {
+        "description": "Flag to enable the publishing ground truth data trough MAVLINK.",
+        "value": true,
+        "default": true,
+        "options": [
+            true,
+            false
+        ],
+        "type": "bool",
+        "unit": "[ ]"
+    },
+    "SIM_GT_HZ": {
+        "description": "Frequency of publication of ground truth data through MAVLINK.",
+        "value": 50,
+        "default": 50,
+        "options": [],
+        "type": "int",
+        "unit": "[Hz]"
+    },
+    "SIM_PRINT_EN": {
+        "description": "Flag to enable the printing of sim data on the terminal.",
+        "value": true,
+        "default": true,
+        "options": [
+            true,
+            false
+        ],
+        "type": "bool",
+        "unit": "[ ]"
+    },
+    "SIM_PRINT_HZ": {
+        "description": "Frequency of printing of sim data on terminal.",
+        "value": 10,
+        "default": 10,
+        "options": [],
+        "type": "int",
+        "unit": "[Hz]"
+    },
+    "SIM_INIT_POS_X": {
+        "description": "Initial X position of the vehicle in the local frame. The X direction points East. Value in meters.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "SIM_INIT_POS_Y": {
+        "description": "Initial Y position of the vehicle in the local frame. The Y direction points North. Value in meters.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "SIM_INIT_YAW": {
+        "description": "Initial yaw angle of the vehicle in the local frame. Angle is measured in radians from the X axes that points East.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[degrees]"
+    },
+    "ENV_PRES_SEA": {
+        "description": "Sea level standard atmospheric pressure in hectopascal.",
+        "value": 1013.25,
+        "default": 1013.25,
+        "options": [],
+        "type": "float",
+        "unit": "[hPa]"
+    },
+    "ENV_GRAVITY": {
+        "description": "Earth-surface gravitational acceleration in meters per second square.",
+        "value": 9.80665,
+        "default": 9.80665,
+        "options": [],
+        "type": "float",
+        "unit": "[m/(s*s)]"
+    },
+    "ENV_MOL_MASS": {
+        "description": "Molar mass of dry air in kilograms per mol.",
+        "value": 0.02896968,
+        "default": 0.02896968,
+        "options": [],
+        "type": "float",
+        "unit": "[kg/mol]"
+    },
+    "ENV_TMP_SEA": {
+        "description": "Sea level standard temperature in Kelvin degrees.",
+        "value": 288.16,
+        "default": 288.16,
+        "options": [],
+        "type": "float",
+        "unit": "[K]"
+    },
+    "ENV_GAS_CTE": {
+        "description": "Universal gas constant in Joules per mol Kelvin.",
+        "value": 8.314462618,
+        "default": 8.314462618,
+        "options": [],
+        "type": "float",
+        "unit": "[J/(mol*K)]"
+    },
+    "DYN_MASS": {
+        "description": "Total mass of the vehicle in kilograms.",
+        "value": 2.0,
+        "default": 2.0,
+        "options": [],
+        "type": "float",
+        "unit": "[kg]"
+    },
+    "DYN_DRAG_V": {
+        "description": "Drag coefficient for linear motion in Newtons second per meter.",
+        "value": 0.2,
+        "default": 0.2,
+        "options": [],
+        "type": "float",
+        "unit": "[N*s/m]"
+    },
+    "DYN_DRAG_W": {
+        "description": "Drag coefficient for angular motion Newtons seconds per radian.",
+        "value": 0.02,
+        "default": 0.02,
+        "options": [],
+        "type": "float",
+        "unit": "[N*s/rad]"
+    },
+    "DYN_MOI_XX": {
+        "description": "Moment of inertia around the x axis in kilograms meter square.",
+        "value": 0.07625,
+        "default": 0.07625,
+        "options": [],
+        "type": "float",
+        "unit": "[kg*m*m]"
+    },
+    "DYN_MOI_YY": {
+        "description": "Moment of inertia around the y axis in kilograms meter square.",
+        "value": 0.077812,
+        "default": 0.077812,
+        "options": [],
+        "type": "float",
+        "unit": "[kg*m*m]"
+    },
+    "DYN_MOI_ZZ": {
+        "description": "Moment of inertia around the z axis in kilograms meter square.",
+        "value": 0.1060739,
+        "default": 0.1060739,
+        "options": [],
+        "type": "float",
+        "unit": "[kg*m*m]"
+    },
+    "DYN_WIND_E": {
+        "description": "Constant air speed in the East direction in meters per second.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m/s]"
+    },
+    "DYN_WIND_N": {
+        "description": "Constant air speed in the North direction in meters per second.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m/s]"
+    },
+    "DYN_WIND_U": {
+        "description": "Constant vertical air speed pointing up in meters per second.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m/s]"
+    },
+    "VEH_ACT_NUM": {
+        "description": "Number of actuator the vehicle has. Maximum value is 8.",
+        "value": 4,
+        "default": 4,
+        "options": [],
+        "type": "int",
+        "unit": "[ ]"
+    },
+    "VEH_ACT0_POS_X": {
+        "description": "X component (forward) of the position of actuator 0 in the vehicle frame. Value in meters.",
+        "value": 0.15,
+        "default": 0.15,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT0_POS_Y": {
+        "description": "Y component (right) of the position of actuator 0 in the vehicle frame. Value in meters.",
+        "value": -0.15,
+        "default": -0.15,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT0_POS_Z": {
+        "description": "Z component (up) of the position of actuator 0 in the vehicle frame. Value in meters.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT1_POS_X": {
+        "description": "X component (forward) of the position of actuator 1 in the vehicle frame. Value in meters.",
+        "value": -0.15,
+        "default": -0.15,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT1_POS_Y": {
+        "description": "Y component (right) of the position of actuator 1 in the vehicle frame. Value in meters.",
+        "value": 0.15,
+        "default": 0.15,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT1_POS_Z": {
+        "description": "Z component (up) of the position of actuator 1 in the vehicle frame. Value in meters.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT2_POS_X": {
+        "description": "X component (forward) of the position of actuator 2 in the vehicle frame. Value in meters.",
+        "value": 0.15,
+        "default": 0.15,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT2_POS_Y": {
+        "description": "Y component (right) of the position of actuator 2 in the vehicle frame. Value in meters.",
+        "value": 0.15,
+        "default": 0.15,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT2_POS_Z": {
+        "description": "Z component (up) of the position of actuator 2 in the vehicle frame. Value in meters.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT3_POS_X": {
+        "description": "X component (forward) of the position of actuator 3 in the vehicle frame. Value in meters.",
+        "value": -0.15,
+        "default": -0.15,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT3_POS_Y": {
+        "description": "Y component (right) of the position of actuator 3 in the vehicle frame. Value in meters.",
+        "value": -0.15,
+        "default": -0.15,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT3_POS_Z": {
+        "description": "Z component (up) of the position of actuator 3 in the vehicle frame. Value in meters.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT4_POS_X": {
+        "description": "X component (forward) of the position of actuator 4 in the vehicle frame. Value in meters.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT4_POS_Y": {
+        "description": "Y component (right) of the position of actuator 4 in the vehicle frame. Value in meters.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT4_POS_Z": {
+        "description": "Z component (up) of the position of actuator 4 in the vehicle frame. Value in meters.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT5_POS_X": {
+        "description": "X component (forward) of the position of actuator 5 in the vehicle frame. Value in meters.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT5_POS_Y": {
+        "description": "Y component (right) of the position of actuator 5 in the vehicle frame. Value in meters.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT5_POS_Z": {
+        "description": "Z component (up) of the position of actuator 5 in the vehicle frame. Value in meters.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT6_POS_X": {
+        "description": "X component (forward) of the position of actuator 6 in the vehicle frame. Value in meters.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT6_POS_Y": {
+        "description": "Y component (right) of the position of actuator 6 in the vehicle frame. Value in meters.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT6_POS_Z": {
+        "description": "Z component (up) of the position of actuator 6 in the vehicle frame. Value in meters.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT7_POS_X": {
+        "description": "X component (forward) of the position of actuator 7 in the vehicle frame. Value in meters.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT7_POS_Y": {
+        "description": "Y component (right) of the position of actuator 7 in the vehicle frame. Value in meters.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT7_POS_Z": {
+        "description": "Z component (up) of the position of actuator 7 in the vehicle frame. Value in meters.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT0_DIR_X": {
+        "description": "X component (forward) of the direction of action of actuator 0 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT0_DIR_Y and VEH_ACT0_DIR_Z.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT0_DIR_Y": {
+        "description": "Y component (right) of the direction of action of actuator 0 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT0_DIR_X and VEH_ACT0_DIR_Z.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT0_DIR_Z": {
+        "description": "Z component (up) of the direction of action of actuator 0 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT0_DIR_X and VEH_ACT0_DIR_Y.",
+        "value": 1.0,
+        "default": 1.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT1_DIR_X": {
+        "description": "X component (forward) of the direction of action of actuator 1 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT1_DIR_Y and VEH_ACT1_DIR_Z.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT1_DIR_Y": {
+        "description": "Y component (right) of the direction of action of actuator 1 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT1_DIR_X and VEH_ACT1_DIR_Z.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT1_DIR_Z": {
+        "description": "Z component (up) of the direction of action of actuator 1 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT1_DIR_X and VEH_ACT1_DIR_Y.",
+        "value": 1.0,
+        "default": 1.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT2_DIR_X": {
+        "description": "X component (forward) of the direction of action of actuator 2 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT2_DIR_Y and VEH_ACT2_DIR_Z.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT2_DIR_Y": {
+        "description": "Y component (right) of the direction of action of actuator 2 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT2_DIR_X and VEH_ACT2_DIR_Z.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT2_DIR_Z": {
+        "description": "Z component (up) of the direction of action of actuator 2 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT2_DIR_X and VEH_ACT2_DIR_Y.",
+        "value": 1.0,
+        "default": 1.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT3_DIR_X": {
+        "description": "X component (forward) of the direction of action of actuator 3 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT3_DIR_Y and VEH_ACT3_DIR_Z.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT3_DIR_Y": {
+        "description": "Y component (right) of the direction of action of actuator 3 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT3_DIR_X and VEH_ACT3_DIR_Z.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT3_DIR_Z": {
+        "description": "Z component (up) of the direction of action of actuator 3 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT3_DIR_X and VEH_ACT3_DIR_Y.",
+        "value": 1.0,
+        "default": 1.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT4_DIR_X": {
+        "description": "X component (forward) of the direction of action of actuator 4 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT4_DIR_Y and VEH_ACT4_DIR_Z.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT4_DIR_Y": {
+        "description": "Y component (right) of the direction of action of actuator 4 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT4_DIR_X and VEH_ACT4_DIR_Z.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT4_DIR_Z": {
+        "description": "Z component (up) of the direction of action of actuator 4 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT4_DIR_X and VEH_ACT4_DIR_Y.",
+        "value": 1.0,
+        "default": 1.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT5_DIR_X": {
+        "description": "X component (forward) of the direction of action of actuator 5 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT5_DIR_Y and VEH_ACT5_DIR_Z.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT5_DIR_Y": {
+        "description": "Y component (right) of the direction of action of actuator 5 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT5_DIR_X and VEH_ACT5_DIR_Z.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT5_DIR_Z": {
+        "description": "Z component (up) of the direction of action of actuator 5 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT5_DIR_X and VEH_ACT5_DIR_Y.",
+        "value": 1.0,
+        "default": 1.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT6_DIR_X": {
+        "description": "X component (forward) of the direction of action of actuator 6 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT6_DIR_Y and VEH_ACT6_DIR_Z.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT6_DIR_Y": {
+        "description": "Y component (right) of the direction of action of actuator 6 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT6_DIR_X and VEH_ACT6_DIR_Z.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT6_DIR_Z": {
+        "description": "Z component (up) of the direction of action of actuator 6 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT6_DIR_X and VEH_ACT6_DIR_Y.",
+        "value": 1.0,
+        "default": 1.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT7_DIR_X": {
+        "description": "X component (forward) of the direction of action of actuator 7 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT7_DIR_Y and VEH_ACT7_DIR_Z.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT7_DIR_Y": {
+        "description": "Y component (right) of the direction of action of actuator 7 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT7_DIR_X and VEH_ACT7_DIR_Z.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_ACT7_DIR_Z": {
+        "description": "Z component (up) of the direction of action of actuator 7 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT7_DIR_X and VEH_ACT7_DIR_Y.",
+        "value": 1.0,
+        "default": 1.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VEH_BAT_VOLTAGE": {
+        "description": "Voltage of the vehicle battery in Volts.",
+        "value": 24.3,
+        "default": 24.3,
+        "options": [],
+        "type": "float",
+        "unit": "[V]"
+    },
+    "ACT0_TIME_CTE": {
+        "description": "Time constant, in seconds, of the first order dynamics of actuator 0.",
+        "value": 0.02,
+        "default": 0.02,
+        "options": [],
+        "type": "float",
+        "unit": "[s]"
+    },
+    "ACT0_VOLT2SPEED_1": {
+        "description": "Constant of the linear part of the map from the applied voltage to the rotation speed of actuator 0 in radians per second per Volt.",
+        "value": 33.0,
+        "default": 33.0,
+        "options": [],
+        "type": "float",
+        "unit": "[rad/(s*V)]"
+    },
+    "ACT0_SPEED2THRUST_1": {
+        "description": "Constant of the linear part of the map from the rotation speed to the generated thrust of actuator 0 in Newton seconds per radian.",
+        "value": 0.015,
+        "default": 0.015,
+        "options": [],
+        "type": "float",
+        "unit": "[N*s/rad]"
+    },
+    "ACT0_SPEED2TORQUE_1": {
+        "description": "Constant of the linear part of the map from the rotation speed to the generated torque of actuator 0 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT0_SPIN.",
+        "value": 0.0009,
+        "default": 0.0009,
+        "options": [],
+        "type": "float",
+        "unit": "[N*m*s/rad]"
+    },
+    "ACT0_TORQUE2AMPS_1": {
+        "description": "Constant of the linear part of the map from the generated torque to current being consumed by the actuator 0 in Amperes per Newton per meter.",
+        "value": 30.0,
+        "default": 30.0,
+        "options": [],
+        "type": "float",
+        "unit": "[A/(N*m)]"
+    },
+    "ACT0_MOI_ROTOR": {
+        "description": "Moment of inertia of the spinning part of e actuator 0 in kilograms meter square.",
+        "value": 0.001,
+        "default": 0.001,
+        "options": [],
+        "type": "float",
+        "unit": "[kg*m*m]"
+    },
+    "ACT1_TIME_CTE": {
+        "description": "Time constant, in seconds, of the first order dynamics of actuator 1.",
+        "value": 0.02,
+        "default": 0.02,
+        "options": [],
+        "type": "float",
+        "unit": "[s]"
+    },
+    "ACT1_VOLT2SPEED_1": {
+        "description": "Constant of the linear part of the map from the applied voltage to the rotation speed of actuator 1 in radians per second per Volt.",
+        "value": 33.0,
+        "default": 33.0,
+        "options": [],
+        "type": "float",
+        "unit": "[rad/(s*V)]"
+    },
+    "ACT1_SPEED2THRUST_1": {
+        "description": "Constant of the linear part of the map from the rotation speed to the generated thrust of actuator 1 in Newton seconds per radian.",
+        "value": 0.015,
+        "default": 0.015,
+        "options": [],
+        "type": "float",
+        "unit": "[N*s/rad]"
+    },
+    "ACT1_SPEED2TORQUE_1": {
+        "description": "Constant of the linear part of the map from the rotation speed to the generated torque of actuator 1 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT1_SPIN.",
+        "value": 0.0009,
+        "default": 0.0009,
+        "options": [],
+        "type": "float",
+        "unit": "[N*m*s/rad]"
+    },
+    "ACT1_TORQUE2AMPS_1": {
+        "description": "Constant of the linear part of the map from the generated torque to current being consumed by the actuator 1 in Amperes per Newton per meter.",
+        "value": 30.0,
+        "default": 30.0,
+        "options": [],
+        "type": "float",
+        "unit": "[A/(N*m)]"
+    },
+    "ACT1_MOI_ROTOR": {
+        "description": "Moment of inertia of the spinning part of e actuator 1 in kilograms meter square.",
+        "value": 0.001,
+        "default": 0.001,
+        "options": [],
+        "type": "float",
+        "unit": "[kg*m*m]"
+    },
+    "ACT2_TIME_CTE": {
+        "description": "Time constant, in seconds, of the first order dynamics of actuator 2.",
+        "value": 0.02,
+        "default": 0.02,
+        "options": [],
+        "type": "float",
+        "unit": "[s]"
+    },
+    "ACT2_VOLT2SPEED_1": {
+        "description": "Constant of the linear part of the map from the applied voltage to the rotation speed of actuator 2 in radians per second per Volt.",
+        "value": 33.0,
+        "default": 33.0,
+        "options": [],
+        "type": "float",
+        "unit": "[rad/(s*V)]"
+    },
+    "ACT2_SPEED2THRUST_1": {
+        "description": "Constant of the linear part of the map from the rotation speed to the generated thrust of actuator 2 in Newton seconds per radian.",
+        "value": 0.015,
+        "default": 0.015,
+        "options": [],
+        "type": "float",
+        "unit": "[N*s/rad]"
+    },
+    "ACT2_SPEED2TORQUE_1": {
+        "description": "Constant of the linear part of the map from the rotation speed to the generated torque of actuator 2 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT2_SPIN.",
+        "value": 0.0009,
+        "default": 0.0009,
+        "options": [],
+        "type": "float",
+        "unit": "[N*m*s/rad]"
+    },
+    "ACT2_TORQUE2AMPS_1": {
+        "description": "Constant of the linear part of the map from the generated torque to current being consumed by the actuator 2 in Amperes per Newton per meter.",
+        "value": 30.0,
+        "default": 30.0,
+        "options": [],
+        "type": "float",
+        "unit": "[A/(N*m)]"
+    },
+    "ACT2_MOI_ROTOR": {
+        "description": "Moment of inertia of the spinning part of e actuator 2 in kilograms meter square.",
+        "value": 0.001,
+        "default": 0.001,
+        "options": [],
+        "type": "float",
+        "unit": "[kg*m*m]"
+    },
+    "ACT3_TIME_CTE": {
+        "description": "Time constant, in seconds, of the first order dynamics of actuator 3.",
+        "value": 0.02,
+        "default": 0.02,
+        "options": [],
+        "type": "float",
+        "unit": "[s]"
+    },
+    "ACT3_VOLT2SPEED_1": {
+        "description": "Constant of the linear part of the map from the applied voltage to the rotation speed of actuator 3 in radians per second per Volt.",
+        "value": 33.0,
+        "default": 33.0,
+        "options": [],
+        "type": "float",
+        "unit": "[rad/(s*V)]"
+    },
+    "ACT3_SPEED2THRUST_1": {
+        "description": "Constant of the linear part of the map from the rotation speed to the generated thrust of actuator 3 in Newton seconds per radian.",
+        "value": 0.015,
+        "default": 0.015,
+        "options": [],
+        "type": "float",
+        "unit": "[N*s/rad]"
+    },
+    "ACT3_SPEED2TORQUE_1": {
+        "description": "Constant of the linear part of the map from the rotation speed to the generated torque of actuator 3 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT3_SPIN.",
+        "value": 0.0009,
+        "default": 0.0009,
+        "options": [],
+        "type": "float",
+        "unit": "[N*m*s/rad]"
+    },
+    "ACT3_TORQUE2AMPS_1": {
+        "description": "Constant of the linear part of the map from the generated torque to current being consumed by the actuator 3 in Amperes per Newton per meter.",
+        "value": 30.0,
+        "default": 30.0,
+        "options": [],
+        "type": "float",
+        "unit": "[A/(N*m)]"
+    },
+    "ACT3_MOI_ROTOR": {
+        "description": "Moment of inertia of the spinning part of e actuator 3 in kilograms meter square.",
+        "value": 0.001,
+        "default": 0.001,
+        "options": [],
+        "type": "float",
+        "unit": "[kg*m*m]"
+    },
+    "ACT4_TIME_CTE": {
+        "description": "Time constant, in seconds, of the first order dynamics of actuator 4.",
+        "value": 0.02,
+        "default": 0.02,
+        "options": [],
+        "type": "float",
+        "unit": "[s]"
+    },
+    "ACT4_VOLT2SPEED_1": {
+        "description": "Constant of the linear part of the map from the applied voltage to the rotation speed of actuator 4 in radians per second per Volt.",
+        "value": 33.0,
+        "default": 33.0,
+        "options": [],
+        "type": "float",
+        "unit": "[rad/(s*V)]"
+    },
+    "ACT4_SPEED2THRUST_1": {
+        "description": "Constant of the linear part of the map from the rotation speed to the generated thrust of actuator 4 in Newton seconds per radian.",
+        "value": 0.015,
+        "default": 0.015,
+        "options": [],
+        "type": "float",
+        "unit": "[N*s/rad]"
+    },
+    "ACT4_SPEED2TORQUE_1": {
+        "description": "Constant of the linear part of the map from the rotation speed to the generated torque of actuator 4 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT4_SPIN.",
+        "value": 0.0009,
+        "default": 0.0009,
+        "options": [],
+        "type": "float",
+        "unit": "[N*m*s/rad]"
+    },
+    "ACT4_TORQUE2AMPS_1": {
+        "description": "Constant of the linear part of the map from the generated torque to current being consumed by the actuator 4 in Amperes per Newton per meter.",
+        "value": 30.0,
+        "default": 30.0,
+        "options": [],
+        "type": "float",
+        "unit": "[A/(N*m)]"
+    },
+    "ACT4_MOI_ROTOR": {
+        "description": "Moment of inertia of the spinning part of e actuator 4 in kilograms meter square.",
+        "value": 0.001,
+        "default": 0.001,
+        "options": [],
+        "type": "float",
+        "unit": "[kg*m*m]"
+    },
+    "ACT5_TIME_CTE": {
+        "description": "Time constant, in seconds, of the first order dynamics of actuator 5.",
+        "value": 0.02,
+        "default": 0.02,
+        "options": [],
+        "type": "float",
+        "unit": "[s]"
+    },
+    "ACT5_VOLT2SPEED_1": {
+        "description": "Constant of the linear part of the map from the applied voltage to the rotation speed of actuator 5 in radians per second per Volt.",
+        "value": 33.0,
+        "default": 33.0,
+        "options": [],
+        "type": "float",
+        "unit": "[rad/(s*V)]"
+    },
+    "ACT5_SPEED2THRUST_1": {
+        "description": "Constant of the linear part of the map from the rotation speed to the generated thrust of actuator 5 in Newton seconds per radian.",
+        "value": 0.015,
+        "default": 0.015,
+        "options": [],
+        "type": "float",
+        "unit": "[N*s/rad]"
+    },
+    "ACT5_SPEED2TORQUE_1": {
+        "description": "Constant of the linear part of the map from the rotation speed to the generated torque of actuator 5 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT5_SPIN.",
+        "value": 0.0009,
+        "default": 0.0009,
+        "options": [],
+        "type": "float",
+        "unit": "[N*m*s/rad]"
+    },
+    "ACT5_TORQUE2AMPS_1": {
+        "description": "Constant of the linear part of the map from the generated torque to current being consumed by the actuator 5 in Amperes per Newton per meter.",
+        "value": 30.0,
+        "default": 30.0,
+        "options": [],
+        "type": "float",
+        "unit": "[A/(N*m)]"
+    },
+    "ACT5_MOI_ROTOR": {
+        "description": "Moment of inertia of the spinning part of e actuator 5 in kilograms meter square.",
+        "value": 0.001,
+        "default": 0.001,
+        "options": [],
+        "type": "float",
+        "unit": "[kg*m*m]"
+    },
+    "ACT6_TIME_CTE": {
+        "description": "Time constant, in seconds, of the first order dynamics of actuator 6.",
+        "value": 0.02,
+        "default": 0.02,
+        "options": [],
+        "type": "float",
+        "unit": "[s]"
+    },
+    "ACT6_VOLT2SPEED_1": {
+        "description": "Constant of the linear part of the map from the applied voltage to the rotation speed of actuator 6 in radians per second per Volt.",
+        "value": 33.0,
+        "default": 33.0,
+        "options": [],
+        "type": "float",
+        "unit": "[rad/(s*V)]"
+    },
+    "ACT6_SPEED2THRUST_1": {
+        "description": "Constant of the linear part of the map from the rotation speed to the generated thrust of actuator 6 in Newton seconds per radian.",
+        "value": 0.015,
+        "default": 0.015,
+        "options": [],
+        "type": "float",
+        "unit": "[N*s/rad]"
+    },
+    "ACT6_SPEED2TORQUE_1": {
+        "description": "Constant of the linear part of the map from the rotation speed to the generated torque of actuator 6 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT6_SPIN.",
+        "value": 0.0009,
+        "default": 0.0009,
+        "options": [],
+        "type": "float",
+        "unit": "[N*m*s/rad]"
+    },
+    "ACT6_TORQUE2AMPS_1": {
+        "description": "Constant of the linear part of the map from the generated torque to current being consumed by the actuator 6 in Amperes per Newton per meter.",
+        "value": 30.0,
+        "default": 30.0,
+        "options": [],
+        "type": "float",
+        "unit": "[A/(N*m)]"
+    },
+    "ACT6_MOI_ROTOR": {
+        "description": "Moment of inertia of the spinning part of e actuator 6 in kilograms meter square.",
+        "value": 0.001,
+        "default": 0.001,
+        "options": [],
+        "type": "float",
+        "unit": "[kg*m*m]"
+    },
+    "ACT7_TIME_CTE": {
+        "description": "Time constant, in seconds, of the first order dynamics of actuator 7.",
+        "value": 0.02,
+        "default": 0.02,
+        "options": [],
+        "type": "float",
+        "unit": "[s]"
+    },
+    "ACT7_VOLT2SPEED_1": {
+        "description": "Constant of the linear part of the map from the applied voltage to the rotation speed of actuator 7 in radians per second per Volt.",
+        "value": 33.0,
+        "default": 33.0,
+        "options": [],
+        "type": "float",
+        "unit": "[rad/(s*V)]"
+    },
+    "ACT7_SPEED2THRUST_1": {
+        "description": "Constant of the linear part of the map from the rotation speed to the generated thrust of actuator 7 in Newton seconds per radian.",
+        "value": 0.015,
+        "default": 0.015,
+        "options": [],
+        "type": "float",
+        "unit": "[N*s/rad]"
+    },
+    "ACT7_SPEED2TORQUE_1": {
+        "description": "Constant of the linear part of the map from the rotation speed to the generated torque of actuator 7 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT7_SPIN.",
+        "value": 0.0009,
+        "default": 0.0009,
+        "options": [],
+        "type": "float",
+        "unit": "[N*m*s/rad]"
+    },
+    "ACT7_TORQUE2AMPS_1": {
+        "description": "Constant of the linear part of the map from the generated torque to current being consumed by the actuator 7 in Amperes per Newton per meter.",
+        "value": 30.0,
+        "default": 30.0,
+        "options": [],
+        "type": "float",
+        "unit": "[A/(N*m)]"
+    },
+    "ACT7_MOI_ROTOR": {
+        "description": "Moment of inertia of the spinning part of e actuator 7 in kilograms meter square.",
+        "value": 0.001,
+        "default": 0.001,
+        "options": [],
+        "type": "float",
+        "unit": "[kg*m*m]"
+    },
+    "ACT0_SPIN": {
+        "description": "Direction of rotation of actuator 0.\n (1): Rotates positively (counter-clockwise) around the vector VEH_ACT0_DIR\n(-1): Rotates negatively (clockwise) around the vector VEH_ACT0_DIR",
+        "value": 1,
+        "default": 1,
+        "options": [
+            -1,
+            1
+        ],
+        "type": "int",
+        "unit": "[ ]"
+    },
+    "ACT1_SPIN": {
+        "description": "Direction of rotation of actuator 1.\n (1): Rotates positively (counter-clockwise) around the vector VEH_ACT1_DIR\n(-1): Rotates negatively (clockwise) around the vector VEH_ACT1_DIR",
+        "value": 1,
+        "default": 1,
+        "options": [
+            -1,
+            1
+        ],
+        "type": "int",
+        "unit": "[ ]"
+    },
+    "ACT2_SPIN": {
+        "description": "Direction of rotation of actuator 2.\n (1): Rotates positively (counter-clockwise) around the vector VEH_ACT2_DIR\n(-1): Rotates negatively (clockwise) around the vector VEH_ACT2_DIR",
+        "value": -1,
+        "default": -1,
+        "options": [
+            -1,
+            1
+        ],
+        "type": "int",
+        "unit": "[ ]"
+    },
+    "ACT3_SPIN": {
+        "description": "Direction of rotation of actuator 3.\n (1): Rotates positively (counter-clockwise) around the vector VEH_ACT3_DIR\n(-1): Rotates negatively (clockwise) around the vector VEH_ACT3_DIR",
+        "value": -1,
+        "default": -1,
+        "options": [
+            -1,
+            1
+        ],
+        "type": "int",
+        "unit": "[ ]"
+    },
+    "ACT4_SPIN": {
+        "description": "Direction of rotation of actuator 4.\n (1): Rotates positively (counter-clockwise) around the vector VEH_ACT4_DIR\n(-1): Rotates negatively (clockwise) around the vector VEH_ACT4_DIR",
+        "value": 1,
+        "default": 1,
+        "options": [
+            -1,
+            1
+        ],
+        "type": "int",
+        "unit": "[ ]"
+    },
+    "ACT5_SPIN": {
+        "description": "Direction of rotation of actuator 5.\n (1): Rotates positively (counter-clockwise) around the vector VEH_ACT5_DIR\n(-1): Rotates negatively (clockwise) around the vector VEH_ACT5_DIR",
+        "value": 1,
+        "default": 1,
+        "options": [
+            -1,
+            1
+        ],
+        "type": "int",
+        "unit": "[ ]"
+    },
+    "ACT6_SPIN": {
+        "description": "Direction of rotation of actuator 6.\n (1): Rotates positively (counter-clockwise) around the vector VEH_ACT6_DIR\n(-1): Rotates negatively (clockwise) around the vector VEH_ACT6_DIR",
+        "value": 1,
+        "default": 1,
+        "options": [
+            -1,
+            1
+        ],
+        "type": "int",
+        "unit": "[ ]"
+    },
+    "ACT7_SPIN": {
+        "description": "Direction of rotation of actuator 7.\n (1): Rotates positively (counter-clockwise) around the vector VEH_ACT7_DIR\n(-1): Rotates negatively (clockwise) around the vector VEH_ACT7_DIR",
+        "value": 1,
+        "default": 1,
+        "options": [
+            -1,
+            1
+        ],
+        "type": "int",
+        "unit": "[ ]"
+    },
+    "SENS_LAT_ORIGIN": {
+        "description": "Latitude coordinate of the origin of the local simulated frame in degrees.",
+        "value": 40.448985,
+        "default": 40.448985,
+        "options": [],
+        "type": "float",
+        "unit": "[degrees]"
+    },
+    "SENS_LON_ORIGIN": {
+        "description": "Longitude coordinate of the origin of the local simulated frame in degrees.",
+        "value": -79.898025,
+        "default": -79.898025,
+        "options": [],
+        "type": "float",
+        "unit": "[degrees]"
+    },
+    "SENS_ALT_ORIGIN": {
+        "description": "Altitude above average sea level, in meters, of the origin of the local simulated frame.",
+        "value": 372.0,
+        "default": 372.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "SENS_MAG_FIELD_E": {
+        "description": "Local magnetic field in the East direction in Gauss.",
+        "value": -0.02559,
+        "default": -0.02559,
+        "options": [],
+        "type": "float",
+        "unit": "[G]"
+    },
+    "SENS_MAG_FIELD_N": {
+        "description": "Local magnetic field in the North direction in Gauss.",
+        "value": 0.16928,
+        "default": 0.16928,
+        "options": [],
+        "type": "float",
+        "unit": "[G]"
+    },
+    "SENS_MAG_FIELD_U": {
+        "description": "Local magnetic field in the up direction in Gauss.",
+        "value": -0.3955,
+        "default": -0.3955,
+        "options": [],
+        "type": "float",
+        "unit": "[G]"
+    },
+    "SENS_ACC_NOISE_STD": {
+        "description": "Standard deviation of the accelerometer noise in meters per second square.",
+        "value": 0.4,
+        "default": 0.4,
+        "options": [],
+        "type": "float",
+        "unit": "[m/(s*s)]"
+    },
+    "SENS_GYRO_NOISE_STD": {
+        "description": "Standard deviation of the gyro noise in radians per second.",
+        "value": 0.1,
+        "default": 0.1,
+        "options": [],
+        "type": "float",
+        "unit": "[rad/s]"
+    },
+    "SENS_MAG_NOISE_STD": {
+        "description": "Standard deviation of the magnetometer noise in Gauss.",
+        "value": 0.15,
+        "default": 0.15,
+        "options": [],
+        "type": "float",
+        "unit": "[G]"
+    },
+    "SENS_BAR_NOISE_STD": {
+        "description": "Standard deviation of the barometer noise in hectopascal.",
+        "value": 0.005,
+        "default": 0.005,
+        "options": [],
+        "type": "float",
+        "unit": "[hPa]"
+    },
+    "SENS_GPS_STD_XY": {
+        "description": "Standard deviation on the horizontal position given by the GPS in meters.",
+        "value": 0.05,
+        "default": 0.05,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "SENS_GPS_STD_Z": {
+        "description": "Standard deviation on the vertical position given by the GPS in meters.",
+        "value": 0.1,
+        "default": 0.1,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    }
+}

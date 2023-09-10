@@ -1,31 +1,30 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
-# Rigid body dynamics of 
+# Rigid body dynamics
 
 import numpy as np
 import time
+from math import pi, sin, cos
 
 import vehicle as VEH
 import sensors as SENS
 import math_utils as MU
+# import parameter_server as PRM
 
 
-class quad_dynamics(object):
+class vehicle_dynamics(object):
     """
-    Drone dynamics class
+    Vehicle dynamics class based on a rigid body
     """
 
-    def __init__(self, dt_max_, p0_,v0_,q0_,w0_):
+    def __init__(self, dt_max_, params):
         """
         Constructor for the dynamics class
 
         Parameters:
-            dt_max_ (float): Maximum
-            p0_ (numpy.ndarray): Vehicle initial position [m]
-            v0_ (numpy.ndarray): Vehicle initial world velocity [m/s]
-            q0_ (numpy.ndarray): Vehicle initial orientation (qw, qx, qy, qz)
-            w0_ (numpy.ndarray): Vehicle initial angular velocity [rad/s]
+            dt_max_ (float): Maximum desirable value for the time step
+            params (<parameter_server.parameter_server>): Parameter server object
         """
 
         # integer representing the vehicle status
@@ -34,23 +33,14 @@ class quad_dynamics(object):
             # 1: Flying
             # 2: Landing
 
-        # Model constants
-        self.g = 9.81
-        self.m = 2.0
-        self.drag_v = 0.2
-        self.drag_w = 0.02
-        self.Jxx = 0.07625
-        self.Jyy = 0.077812
-        self.Jzz = 0.1060739
-        self.J = np.array([[self.Jxx, 0, 0],[0, self.Jyy, 0],[0, 0, self.Jzz]])
-        self.Jinv = MU.inv(self.J)
-        self.wind_vw = np.array([0,0,0]) # wind speed
+        # Load model parameters
+        self.load_parameters(params)
 
         # Initialize states
-        self.p = p0_ # position in the world frame
-        self.v = v0_ # velocity in the world frame
-        self.q = q0_ # orientation (as a quaternion) in the world frame
-        self.w = w0_ # angular velocity in the body frame
+        self.p = self.p0 # position in the world frame
+        self.v = self.v0 # velocity in the world frame
+        self.q = self.q0 # orientation (as a quaternion) in the world frame
+        self.w = self.w0 # angular velocity in the body frame
 
         # Important variables
         self.Force_b = np.array([0, 0, 0])
@@ -61,7 +51,7 @@ class quad_dynamics(object):
         self.dt_max = dt_max_
 
         # Define the vehicle geometry
-        self.vehicle_geo = VEH.vehicle_geometry()
+        self.vehicle_geo = VEH.vehicle_geometry(params)
         # Initialize the commands variable
         self.cmds = self.vehicle_geo.get_cmds()
 
@@ -72,8 +62,11 @@ class quad_dynamics(object):
         self.last_time = time.time()
 
         # Initialize the current landing pose information
-        self.p_land = self.p[2]
-        self.q_land = self.q
+        self.z_land = self.p[2]*1
+        self.q_land = self.q*1
+
+        # Create a sensors object
+        self.sensors = SENS.sensors(params)
 
 
     def model_step(self, cmd):
@@ -119,7 +112,7 @@ class quad_dynamics(object):
         p_dot = self.v
         v_dot = acc_w
         q_dot = MU.quaternion_derivative(self.q,self.w)
-        w_dot = self.Jinv@(-np.cross(self.w,self.J@self.w) + self.Torque_b + T_drag + Tg)
+        w_dot = self.Jinv@(-np.cross(self.w,self.J@self.w) + self.Torque_b + T_drag + Tg) # TODO: check if .dot() works as @
 
         # Model integration (variable time step)
         self.p = self.p + p_dot*dt
@@ -132,6 +125,39 @@ class quad_dynamics(object):
 
         # Quaternion renormalization
         self.q = MU.normalize(self.q)
+
+
+    def load_parameters(self, params):
+        """
+        Load parameters for the vehicle dynamics and store them in the instance variables
+
+        Parameters:
+            params (<parameter_server.parameter_server>): Parameter server object that contains the values of interest
+        """
+
+        self.g = params.get_parameter_value('ENV_GRAVITY')
+        self.m = params.get_parameter_value('DYN_MASS')
+        self.drag_v = params.get_parameter_value('DYN_DRAG_V')
+        self.drag_w = params.get_parameter_value('DYN_DRAG_W')
+        Jxx = params.get_parameter_value('DYN_MOI_XX')
+        Jyy = params.get_parameter_value('DYN_MOI_YY')
+        Jzz = params.get_parameter_value('DYN_MOI_ZZ')
+        self.J = np.array([[Jxx, 0, 0],[0, Jyy, 0],[0, 0, Jzz]]) # Moment of inertia matrix
+        wind_vw_x = params.get_parameter_value('DYN_WIND_E')
+        wind_vw_y = params.get_parameter_value('DYN_WIND_N')
+        wind_vw_z = params.get_parameter_value('DYN_WIND_U')
+        self.wind_vw = np.array([wind_vw_x, wind_vw_y, wind_vw_z]) # Wind speed vector
+
+        init_pos_x = params.get_parameter_value('SIM_INIT_POS_X')
+        init_pos_y = params.get_parameter_value('SIM_INIT_POS_Y')
+        init_yaw = (pi/180)*params.get_parameter_value('SIM_INIT_YAW') # Converted to radians
+        self.p0 = np.array([init_pos_x,init_pos_y,0])
+        self.v0 = np.array([0,0,0])
+        self.q0 = np.array([cos(init_yaw/2),0,0,sin(init_yaw/2)])
+        self.w0 = np.array([0,0,0])
+
+        # Pre-compute inverse of the moment of inertia matrix
+        self.Jinv = MU.inv(self.J)
 
 
     def check_ground_interaction(self):
@@ -149,7 +175,7 @@ class quad_dynamics(object):
                 self.Force_b = np.array([0, 0, self.m*self.g])
 
         elif(self.status == 1): # flying stage
-            if(self.p[2]<self.p_land): # go to landing
+            if(self.p[2]<self.z_land): # go to landing
                 self.status = 2
                 self.q_land = self.q
                 self.q_land[1], self.q_land[2] = 0, 0
@@ -160,7 +186,7 @@ class quad_dynamics(object):
                 self.status = 0
                 self.v = self.v*0
                 self.w = self.w*0
-                self.p_land = self.p[2]
+                self.z_land = self.p[2]
                 self.q[1], self.q[2] = 0, 0
                 self.q = MU.normalize(self.q)
                 self.Force_b = np.array([0,0,self.m*self.g])
@@ -170,8 +196,8 @@ class quad_dynamics(object):
                 if(w_align[0]<0):
                     w_align = -w_align
                 w_align = w_align[1:4]
-                break_force_w = - self.m*self.v*10
-                break_force_w[2] = break_force_w[2]*3 + self.m*self.g
+                break_force_w = - self.m*self.v*20
+                break_force_w[2] = break_force_w[2]*5 + self.m*self.g - self.p[2]*500
                 self.Force_b = MU.quat_apply_rot(MU.quat_conj(self.q),break_force_w)
                 self.Torque_b = -self.J@self.w*10 - w_align*20
 
@@ -276,52 +302,52 @@ class quad_dynamics(object):
         Return the accelerometer measurement
 
         Returns:
-            SENS.get_acc() (numpy.ndarray): Accelerometer measurement (3 axis) in meters per second square [m/s2]
+            self.sensors.get_acc() (numpy.ndarray): Accelerometer measurement (3 axis) in meters per second square [m/s2]
         """
-        return SENS.get_acc(self.q, self.total_force_w, self.m, self.vehicle_geo.get_acc_noise_combined())
+        return self.sensors.get_acc(self.q, self.total_force_w, self.m, self.vehicle_geo.get_acc_noise_combined())
 
     def get_gyro(self):
         """
         Return the gyro measurement
 
         Returns:
-            SENS.get_gyro() (numpy.ndarray): Gyro measurement (3 axis) in radians per second [rad/s]
+            self.sensors.get_gyro() (numpy.ndarray): Gyro measurement (3 axis) in radians per second [rad/s]
         """
-        return SENS.get_gyro(self.w, self.vehicle_geo.get_gyro_noise_combined())
+        return self.sensors.get_gyro(self.w, self.vehicle_geo.get_gyro_noise_combined())
 
     def get_mag(self):
         """
         Return the magnetometer measurement
 
         Returns:
-            SENS.get_mag() (numpy.ndarray): Magnetometer measurement (3 axis) Gauss [G]
+            self.sensors.get_mag() (numpy.ndarray): Magnetometer measurement (3 axis) Gauss [G]
         """
-        return SENS.get_mag(self.q, self.vehicle_geo.get_mag_noise()) #self.vehicle_geo.get_total_current()
+        return self.sensors.get_mag(self.q, self.vehicle_geo.get_mag_noise()) #self.vehicle_geo.get_total_current()
 
     def get_baro(self):
         """
         Return the barometer measurement
 
         Returns:
-            SENS.get_baro() (numpy.ndarray): Barometer measurement Hectopascal [hPa]
+            self.sensors.get_baro() (numpy.ndarray): Barometer measurement Hectopascal [hPa]
         """
-        return SENS.get_baro(self.p[2])
+        return self.sensors.get_baro(self.p[2])
 
     def get_gps(self):
         """
         Return the GPS measurement data
 
         Returns:
-            SENS.get_gps() (dict): Python dictionary with the GPS measurement data
+            self.sensors.get_gps() (dict): Python dictionary with the GPS measurement data
         """
-        return SENS.get_gps(self.p,self.v)
+        return self.sensors.get_gps(self.p,self.v)
 
     def get_ground_truth(self):
         """
         Return the ground truth data
 
         Returns:
-            SENS.get_baro() (dict): Python dictionary with the ground truth data
+            self.sensors.get_baro() (dict): Python dictionary with the ground truth data
         """
-        return SENS.get_ground_truth(self.p,self.v,self.q,self.w)
+        return self.sensors.get_ground_truth(self.p,self.v,self.q,self.w)
 

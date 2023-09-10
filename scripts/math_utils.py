@@ -92,6 +92,46 @@ def quat_apply_rot(q_in,u_in):
     return v
 
 
+def inv_pose_pq(p1,q1):
+    """
+    Inverse the pose represented by a position and a quaternion. As if a homogeneous matrix H_1^0 is computed from inv(H_0^1).
+
+    Parameters:
+        p1 (numpy.ndarray): Position (z, y, z) of the input pose to be inverted.
+        q1 (numpy.ndarray): Quaternion (qw, qz, qy, qz) of the input pose to be inverted.
+
+    Returns:
+        p2 (numpy.ndarray): Position (z, y, z) of the inverse of the input pose.
+        q2 (numpy.ndarray): Quaternion (qw, qz, qy, qz) of the inverse of the input pose.
+    """
+
+    q2 = quat_conj(q1)
+    p2 = -quat_apply_rot(q2,p1)
+
+    return p2, q2
+
+
+def mult_pose_pq(p1,q1,p2,q2):
+    """
+    Pose resulted by the "addition" of two poses. As in the homogeneous matrix operation H_2^0 = H_1^0 * H_2^1.
+
+    Parameters:
+        p1 (numpy.ndarray): First position (z, y, z).
+        q1 (numpy.ndarray): First quaternion (qw, qz, qy, qz).
+        p2 (numpy.ndarray): Second position (z, y, z).
+        q2 (numpy.ndarray): Second quaternion (qw, qz, qy, qz).
+
+    Returns:
+        p3 (numpy.ndarray): Resultant position (z, y, z).
+        q3 (numpy.ndarray): Resultant quaternion (qw, qz, qy, qz).
+    """
+
+    q3 = quat_mult(q1,q2)
+    p3 = quat_apply_rot(q1,p2) + p1
+
+    return p3, q3
+
+
 def normalize(u, abs_value=1.0):
     """
     Normalize a vector

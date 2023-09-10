@@ -91,12 +91,10 @@ class drone_show(object):
             p_odom (numpy.ndarray): Current position ([x, y, z]) odometry with respect to the initial pose
             q_odom (numpy.ndarray): Current orientation ([qw, qx, qy, qz]) odometry with respect to the initial pose
         """
-
-        q_odom = MU.quat_mult(MU.quat_conj(q0),q)
-
-        p_w_d0 = - MU.quat_apply_rot(MU.quat_conj(q), p0)
-
-        p_odom = MU.quat_apply_rot(MU.quat_conj(q0),p) + p_w_d0
+        
+        # Compute the current pose with respect to the initial pose
+        p0_inv, q0_inv = MU.inv_pose_pq(p0,q0)
+        p_odom, q_odom = MU.mult_pose_pq(p0_inv, q0_inv, p, q)
 
         return p_odom, q_odom 
 
