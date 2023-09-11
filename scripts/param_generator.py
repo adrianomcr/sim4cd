@@ -422,14 +422,6 @@ for n in range(8):
         "type":          "float",
         "unit":          "[m]"}
 
-data["VEH_BAT_VOLTAGE"] = {
-    "description":   "Voltage of the vehicle battery in Volts.",
-    "value":         24.3,
-    "default":       24.3,
-    "options":       [],
-    "type":          "float",
-    "unit":          "[V]"}
-
 
 #Actuators
 for n in range(8):
@@ -621,6 +613,57 @@ data["SENS_GPS_STD_Z"] = {
     "options":       [],
     "type":          "float",
     "unit":          "[m]"}
+
+
+# Battery
+data["BAT_FULL_CHARGE"] = {
+    "description":   "Battery charge in Milliampere hour at full charge.",
+    "value":         16000,
+    "default":       16000,
+    "options":       [],
+    "type":          "int",
+    "unit":          "[mAh]"}
+
+data["BAT_INIT_CHARGE"] = {
+    "description":   "Battery initial charge percentage.",
+    "value":         100,
+    "default":       100,
+    "options":       [(i+1)*10 for i in range(10)],
+    "type":          "int",
+    "unit":          "[%]"}
+
+data["BAT_N_CELLS"] = {
+    "description":   "Battery number of cells in series.",
+    "value":         6,
+    "default":       6,
+    "options":       [ ],
+    "type":          "int",
+    "unit":          "[ ]"}
+
+data["BAT_IDLE_CURRENT"] = {
+    "description":   "Current that is constantly drowning from the battery even if no actuator is on.",
+    "value":         1,
+    "default":       1,
+    "options":       [ ],
+    "type":          "float",
+    "unit":          "[A]"}
+
+data["BAT_INTERNAL_RES"] = {
+    "description":   "Internal resistance of the battery in Ohms.",
+    "value":         1,
+    "default":       1,
+    "options":       [ ],
+    "type":          "float",
+    "unit":          "[Ω]"}
+
+data["BAT_DISCHARGE_RATE"] = {
+    "description":   "Battery discharge rate.",
+    "value":         30,
+    "default":       30,
+    "options":       [(i+1)*10 for i in range(10)],
+    "type":          "int",
+    "unit":          "['C']"}
+
 
 # Save parameters to default file
 save_parameters(data)
