@@ -650,8 +650,8 @@ data["BAT_IDLE_CURRENT"] = {
 
 data["BAT_INTERNAL_RES"] = {
     "description":   "Internal resistance of the battery in Ohms.",
-    "value":         1,
-    "default":       1,
+    "value":         0.05,
+    "default":       0.05,
     "options":       [ ],
     "type":          "float",
     "unit":          "[Ω]"}
