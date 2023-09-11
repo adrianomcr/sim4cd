@@ -21,12 +21,13 @@ class prop_actuator:
 
         Parameters:
             params (<parameter_server.parameter_server>): Parameter server object
-            act_id (int): Id of the actuator instance. Used to load the correct parameter.
+            act_id (int): Id of the actuator instance that is used to load the correct parameters
         """
 
         # Load model parameters
         self.load_parameters(params, act_id)
 
+        self.id = act_id # store the id of the actuator
         self.state = False # on or off TODO
         self.speed = 0.0 # rotation speed # [rad/s]
         self.position = 0.0 # angular position # [rad]
@@ -44,10 +45,9 @@ class prop_actuator:
 
         Parameters:
             params (<parameter_server.parameter_server>): Parameter server object that contains the values of interest
-            act_id (int): Id of the actuator whose parameters will be loaded.
+            act_id (int): Id of the actuator whose parameters will be loaded
         """
 
-        self.bat_voltage = params.get_parameter_value('VEH_BAT_VOLTAGE')
         self.spin = params.get_parameter_value(f"ACT{act_id}_SPIN")
         self.time_cte = params.get_parameter_value(f"ACT{act_id}_TIME_CTE")
         self.volt_to_speed = params.get_parameter_value(f"ACT{act_id}_VOLT2SPEED_1")
@@ -59,20 +59,23 @@ class prop_actuator:
         return
 
 
-    def actuator_sim_step(self, cmd_):
+    def actuator_sim_step(self, cmd_, V_):
         """
         Perform the dynamic integration step for the actuator
 
         Parameters:
             cmd_ (float): PWM value (from 0 to 1) for the actuator
+            V_ (float): Voltage in the output of the battery [V]
 
         Returns:
-            self.force_map() (float): Force the actuator is producing on the vehicle
-            self.torque_map() (float): Torque the actuator is producing on the vehicle
+            self.force_map() (float): Force the actuator is producing on the vehicle [N]
+            self.torque_map() (float): Torque the actuator is producing on the vehicle [M*m]
         """
 
         # Set the received command
         self.cmd = cmd_
+        # Set the received battery voltage
+        self.bat_voltage = V_
 
         # Compute the simulation time step
         time_now = time.time()
@@ -120,7 +123,6 @@ class prop_actuator:
 
         # Compute the speed map
         speed = self.volt_to_speed*(self.cmd*self.bat_voltage) # TODO: Improve model
-        # https://www.mad-motor.com/products/mad-components-5015-ipe-v3.html
         
         return speed # rad/s
 

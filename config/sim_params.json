@@ -600,14 +600,6 @@
         "type": "float",
         "unit": "[m]"
     },
-    "VEH_BAT_VOLTAGE": {
-        "description": "Voltage of the vehicle battery in Volts.",
-        "value": 24.3,
-        "default": 24.3,
-        "options": [],
-        "type": "float",
-        "unit": "[V]"
-    },
     "ACT0_TIME_CTE": {
         "description": "Time constant, in seconds, of the first order dynamics of actuator 0.",
         "value": 0.02,
@@ -1175,5 +1167,75 @@
         "options": [],
         "type": "float",
         "unit": "[m]"
+    },
+    "BAT_FULL_CHARGE": {
+        "description": "Battery charge in Milliampere hour at full charge.",
+        "value": 16000,
+        "default": 16000,
+        "options": [],
+        "type": "int",
+        "unit": "[mAh]"
+    },
+    "BAT_INIT_CHARGE": {
+        "description": "Battery initial charge percentage.",
+        "value": 100,
+        "default": 100,
+        "options": [
+            10,
+            20,
+            30,
+            40,
+            50,
+            60,
+            70,
+            80,
+            90,
+            100
+        ],
+        "type": "int",
+        "unit": "[%]"
+    },
+    "BAT_N_CELLS": {
+        "description": "Battery number of cells in series.",
+        "value": 6,
+        "default": 6,
+        "options": [],
+        "type": "int",
+        "unit": "[ ]"
+    },
+    "BAT_IDLE_CURRENT": {
+        "description": "Current that is constantly drowning from the battery even if no actuator is on.",
+        "value": 1,
+        "default": 1,
+        "options": [],
+        "type": "float",
+        "unit": "[A]"
+    },
+    "BAT_INTERNAL_RES": {
+        "description": "Internal resistance of the battery in Ohms.",
+        "value": 0.05,
+        "default": 0.05,
+        "options": [],
+        "type": "float",
+        "unit": "[\u03a9]"
+    },
+    "BAT_DISCHARGE_RATE": {
+        "description": "Battery discharge rate.",
+        "value": 30,
+        "default": 30,
+        "options": [
+            10,
+            20,
+            30,
+            40,
+            50,
+            60,
+            70,
+            80,
+            90,
+            100
+        ],
+        "type": "int",
+        "unit": "['C']"
     }
 }
