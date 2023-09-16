@@ -7,6 +7,7 @@ from math import pi, sin
 import time
 import numpy as np
 # import math_utils as MU
+import polynomial as POLY
 
 
 class battery:
@@ -51,7 +52,9 @@ class battery:
 
         # Parameter of the polynomial that maps the SOC (State Of Charge) to a single LiPo cell voltage
         # Based on data available at: Gandolfo, Daniel, et al. "Dynamic model of lithium polymer battery–load resistor method for electric parameters identification." Journal of the Energy Institute 88.4 (2015): 470-479.
-        self.volt_constants = [2.5881836050934073, 19.977045504620776, -140.6535733701412, 515.4239704625197, -1057.4258331010678, 1226.7602703659068, -750.1861137479827, 187.73276915201495]
+        volt_constants = [2.5881836050934073, 19.977045504620776, -140.6535733701412, 515.4239704625197, -1057.4258331010678, 1226.7602703659068, -750.1861137479827, 187.73276915201495]
+        # Define a polynomial to compute the LiPo cell voltage
+        self.poly_cell_voltage = POLY.polynomial(volt_constants)
 
 
     def battery_sim_step(self, I_):
@@ -94,14 +97,10 @@ class battery:
         """
 
         # Compute the battery internal voltage based on the polynomial fit for a LiPo cell
-        power_soc = 1/self.soc
-        E_ = 0
-        for i in range(len(self.volt_constants)):
-            power_soc = power_soc*self.soc
-            E_ = E_ + self.volt_constants[i]*power_soc
+        E_per_cell = self.poly_cell_voltage.eval(self.soc)
 
         # Account for the number of cells
-        self.E = E_*self.n_cells
+        self.E = E_per_cell*self.n_cells
 
         return self.E
 

@@ -87,7 +87,7 @@ class px4sim(object):
         """
         Simulation main loop function
         """
-        c=0
+ 
         t0 = time.time()
         # Start the loop
         iteration = 0

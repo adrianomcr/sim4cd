@@ -3,10 +3,7 @@
 
 # Simple timer class
 
-from math import pi, sin
 import time
-import numpy as np
-
 
 class timer:
     """
@@ -15,7 +12,7 @@ class timer:
 
     def __init__(self, frequency=None, period=None, slip_correction=False, enabled=True):
         """
-        Constructor for the battery class
+        Constructor for the timer class
 
         Parameters:
             frequency (float): Frequency of the timer
