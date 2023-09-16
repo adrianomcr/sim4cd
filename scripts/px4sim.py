@@ -15,6 +15,7 @@ import silsim_comm as COM
 import ros_viz as VIZ
 import dynamics as DYN
 import parameter_server as PRM
+import timer as TIM
 # import joystick as JOY
 
 
@@ -54,17 +55,16 @@ class px4sim(object):
         # Create an object to simulate the vehicle dynamics
         self.quad = DYN.vehicle_dynamics(max_sim_interval, params)
 
-        # Flags to control the frequency of communication with px4
-        self.last_time_sys_time = -1
-        self.last_time_heart_beat = -1
-        self.last_time_sensors = -1
-        self.last_time_gps = -1
-        self.last_time_gt = -1
-        self.last_time_rc = -1
-        self.last_time_ros_viz = -1
-        self.last_time_print = -1
-        #TODO: Create a timer class to control these stuff
-        
+        # Timers to control the frequency of communication with px4
+        self.timer_sys_time = TIM.timer(period=4)
+        self.timer_heart_beat = TIM.timer( period=1)
+        self.timer_sensors = TIM.timer(frequency=self.sens_hz)
+        self.timer_gps = TIM.timer(frequency=self.gps_hz)
+        self.timer_gt = TIM.timer(frequency=self.gt_hz, enabled=self.gt_en)
+        # self.timer_rc = TIM.timer(frequency=self.rc_hz)
+        self.timer_ros_viz = TIM.timer(frequency=self.ros_hz, enabled=self.ros_en)
+        self.timer_print = TIM.timer(frequency=self.print_hz, enabled=self.print_en)
+
         # Variable that stores the actuator PWMs
         self.actuator_commands = [0]*8
 
@@ -87,7 +87,7 @@ class px4sim(object):
         """
         Simulation main loop function
         """
-
+ 
         t0 = time.time()
         # Start the loop
         iteration = 0
@@ -106,85 +106,64 @@ class px4sim(object):
             self.quad.model_step(self.actuator_commands)
 
             # Send system time to PX4
-            t = time.time()
-            if (t-self.last_time_sys_time > 4):
+            if(self.timer_sys_time.tick()):
                 self.PX4.send_system_time()
-                self.last_time_sys_time = t
 
-            # Send system heart beat to PX4
-            t = time.time()
-            if (t-self.last_time_heart_beat > 1):
+            # Send heart beat to PX4
+            if (self.timer_heart_beat.tick()):
                 self.PX4.send_heart_beat()
-                self.last_time_heart_beat = t
 
-            # Send system sensors data to PX4
-            t = time.time()
-            if (t-self.last_time_sensors > 1/self.sens_hz):
+            # Send sensors data to PX4
+            if(self.timer_sensors.tick()):
                 # Get the current sensor values
                 acc = self.quad.get_acc()
                 gyro = self.quad.get_gyro()
                 mag = self.quad.get_mag()
                 bar = self.quad.get_baro()
                 self.PX4.send_sensors(acc,gyro,mag,bar)
-                self.last_time_sensors = t
 
-            # Send system GPS data to PX4
-            t = time.time()
-            if (t-self.last_time_gps > 1/self.gps_hz): # 50Hz
+            # Send GPS data to PX4
+            if (self.timer_gps.tick()):
                 gps = self.quad.get_gps()
                 self.PX4.send_gps(gps)
-                # self.PX4.send_battery()
-                self.last_time_gps = t
 
-            # Send system Ground Truth data to PX4 (for logging and comparison purposes)
-            if(self.gt_en):
-                t = time.time()
-                if (t-self.last_time_gt > 1/self.gt_hz): # 50Hz
-                    gt = self.quad.get_ground_truth()
-                    self.PX4.send_ground_truth(gt)
-                    self.last_time_gt = t
+            # Send Ground Truth data to PX4 (for logging and comparison purposes)
+            if (self.timer_gt.tick()):
+                gt = self.quad.get_ground_truth()
+                self.PX4.send_ground_truth(gt)
 
-            # Send RC data to PX4
-            # t = time.time()
-            # if (t-self.last_time_rc > 0.02): # 50Hz
-            #     #self.PX4.send_rc_commands(1500,1500,1500,1500)
+            # # Send RC data to PX4
+            # if (self.timer_rc.tick()):
             #     self.PX4.send_rc_commands(channels)
-            #     self.last_time_rc = t
             
             # Update ROS visualization
-            if(self.ros_en):
-                t = time.time()
-                if (t-self.last_time_ros_viz > 1/self.ros_hz): # 20Hz
-                    p, v, q, w = self.quad.get_states()
-                    self.ros_aux.update_ros_info(p,v,q,w,self.p0,self.q0)
-                    self.last_time_ros_viz = t
+            if (self.timer_ros_viz.tick()):
+                p, v, q, w = self.quad.get_states()
+                self.ros_aux.update_ros_info(p,v,q,w,self.p0,self.q0)
 
             # Print info
-            if(self.print_en):
-                t = time.time()
-                if (t-self.last_time_print > 1/self.print_hz): # 10Hz
-                    # Get some state variables for sensor simulation
-                    p, v, q, w = self.quad.get_states()
-                    tau = self.quad.get_tau()
-                    total_force = self.quad.get_total_force()
-                    m = self.quad.m
-                    print("\33[1mIteration:", iteration, "\33[0m")
-                    print("\33[0m\33[40mAverage freq:", iteration/(time.time()-t0), "\33[0m")
-                    print("\33[0m\33[97m  pos: ", p, "\33[0m")
-                    print("\33[0m\33[40m  vel: ", v, "\33[0m")
-                    print("\33[0m\33[97m quat: ", q, "\33[0m")
-                    print("\33[0m\33[40momega: ", w, "\33[0m")
-                    print("\33[0m\33[97mtau:   ", tau, "\33[0m")
-                    # print("\33[0m\33[40macc:   ", acc, "\33[0m")
-                    # print("\33[0m\33[97mgyro:  ", gyro, "\33[0m")
-                    # print("\33[0m\33[40mmag:   ", mag, "\33[0m")
-                    # print("\33[0m\33[97mbar:   ", bar, "\33[0m")
-                    print("\33[0m\33[40mactuator_commands: %f  %f  %f  %f\33[0m" % (self.actuator_commands[0], self.actuator_commands[1], self.actuator_commands[2], self.actuator_commands[3]))
-                    color = ['\33[92m','\33[91m','\33[93m']
-                    status = self.quad.get_status()
-                    print(color[status]+"status: ", status,'\33[0m')
-                    print("\33[0m")
-                    self.last_time_print = t
+            if (self.timer_print.tick()):
+                # Get some state variables for sensor simulation
+                p, v, q, w = self.quad.get_states()
+                tau = self.quad.get_tau()
+                total_force = self.quad.get_total_force()
+                m = self.quad.m
+                print("\33[1mIteration:", iteration, "\33[0m")
+                print("\33[0m\33[40mAverage freq:", iteration/(time.time()-t0), "\33[0m")
+                print("\33[0m\33[97m  pos: ", p, "\33[0m")
+                print("\33[0m\33[40m  vel: ", v, "\33[0m")
+                print("\33[0m\33[97m quat: ", q, "\33[0m")
+                print("\33[0m\33[40momega: ", w, "\33[0m")
+                print("\33[0m\33[97mtau:   ", tau, "\33[0m")
+                # print("\33[0m\33[40macc:   ", acc, "\33[0m")
+                # print("\33[0m\33[97mgyro:  ", gyro, "\33[0m")
+                # print("\33[0m\33[40mmag:   ", mag, "\33[0m")
+                # print("\33[0m\33[97mbar:   ", bar, "\33[0m")
+                print("\33[0m\33[40mactuator_commands: %f  %f  %f  %f\33[0m" % (self.actuator_commands[0], self.actuator_commands[1], self.actuator_commands[2], self.actuator_commands[3]))
+                color = ['\33[92m','\33[91m','\33[93m']
+                status = self.quad.get_status()
+                print(color[status]+"status: ", status,'\33[0m')
+                print("\33[0m")
 
 
     def load_parameters(self, params):
