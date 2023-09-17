@@ -8,6 +8,7 @@ from tkinter import filedialog, ttk, messagebox
 import json
 from ttkthemes import ThemedTk
 import os
+from fnmatch import fnmatch
 
 
 class JsonEditorGUI:
@@ -45,7 +46,7 @@ class JsonEditorGUI:
         # Configure the sizes of each column
         self.tree.column("#0", minwidth=200, width=200, stretch=tk.NO)  # Column 0 (Name)
         self.tree.column("#1", minwidth=120, width=120, stretch=tk.NO)  # Column 1 (Value)
-        self.tree.column("#2", minwidth=100, width=100, stretch=tk.NO)  # Column 2 (Unit)
+        self.tree.column("#2", minwidth=150, width=150, stretch=tk.NO)  # Column 2 (Unit)
         self.tree.column("#3", minwidth=400)                            # Column 3 (Description)
         # Pack the treeview
         self.tree.pack(side=tk.LEFT, fill="both", expand=True)
@@ -91,6 +92,7 @@ class JsonEditorGUI:
         # Create an entry to set new parameter values and a dropdown to display options
         self.combobox = ttk.Combobox(details_frame, values=[])
         self.combobox.bind("<<ComboboxSelected>>", self.on_option_selected)
+        self.combobox.bind("<Return>", lambda event=None: self.set_value())
         self.combobox.set("")
         self.combobox.pack(pady=2)
         # Display the description of the parameter
@@ -121,6 +123,18 @@ class JsonEditorGUI:
         self.set_default_button = ttk.Button(set_buttons_frame, text="  Restore", padding=(4, 4), command=self.set_default_value)
         self.set_default_button.pack(padx=5, side=tk.LEFT)
 
+        # Create a subframe for filter entry and button
+        filter_frame = ttk.Frame(right_frame)
+        filter_frame.pack(side=tk.BOTTOM, pady=10)
+        # Create an entry to filter the parameters displayed on the tree
+        self.filter_entry = tk.Entry(filter_frame, width=15)
+        self.filter_entry.pack(padx=5, side=tk.LEFT)
+        # Bind an enter press to the function that repopulates the tree
+        self.filter_entry.bind("<Return>", lambda event=None: self.populate_tree_filtered())
+        # Create a button to repopulate the tree according to the filter value
+        self.set_button = ttk.Button(filter_frame, text="    Filter", padding=(3, 3), command=self.populate_tree_filtered)
+        self.set_button.pack(padx=5, side=tk.LEFT)
+
         # Initialize the variable to store the json path
         self.file_path = False
         
@@ -150,10 +164,27 @@ class JsonEditorGUI:
             
             self.populate_tree()
     
-    
-    def populate_tree(self):
+
+    def populate_tree_filtered(self):
+        """
+        Function to insert the parameter values on the treeview according to the filter value on the entrybox for the filter
+        """
+
+        # Get the filter pattern
+        self.pattern = self.filter_entry.get()
+        # If the filter is not specific (contains '*'), generalize it by adding '*' before and after
+        if(not '*' in self.pattern):
+            self.pattern = '*'+self.pattern+'*'
+        # Populate the treeview according with the filter pattern
+        self.populate_tree(filter_pattern=self.pattern)
+
+
+    def populate_tree(self, filter_pattern='*'):
         """
         Function to insert the parameter values on the treeview
+
+        Parameters:
+            filter_pattern (str): pattern the parameter name needs to fit in in order to be displayed on the treeview
         """
 
         # Reset the treeview
@@ -161,6 +192,11 @@ class JsonEditorGUI:
 
         # For every parameter
         for param_name, param_values in self.data.items():
+
+            # Ignore parameter if it does not match the pattern
+            if(not fnmatch(param_name.lower(),filter_pattern.lower())):
+                continue
+
             # Insert the parameter data on the tree
             value = param_values["value"] # Insert current value
             unit = param_values["unit"] # Insert 
@@ -409,7 +445,7 @@ if __name__ == "__main__":
     # Define GUI title
     root.title("Parameters Editor")
     # Define GUI window size
-    root.geometry('1150x450')
+    root.geometry('1150x500')
 
     # Create the GUI object
     app = JsonEditorGUI(root)
