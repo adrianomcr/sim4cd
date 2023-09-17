@@ -432,34 +432,6 @@ for n in range(8):
         "options":       [],
         "type":          "float",
         "unit":          "[s]"}
-    data[f"ACT{n}_VOLT2SPEED_1"] = {
-        "description":   f"Constant of the linear part of the map from the applied voltage to the rotation speed of actuator {n} in radians per second per Volt.",
-        "value":         33.0,
-        "default":       33.0,
-        "options":       [],
-        "type":          "float",
-        "unit":          "[rad/(s*V)]"}
-    data[f"ACT{n}_SPEED2THRUST_1"] = {
-        "description":   f"Constant of the linear part of the map from the rotation speed to the generated thrust of actuator {n} in Newton seconds per radian.",
-        "value":         0.015,
-        "default":       0.015,
-        "options":       [],
-        "type":          "float",
-        "unit":          "[N*s/rad]"}
-    data[f"ACT{n}_SPEED2TORQUE_1"] = {
-        "description":   f"Constant of the linear part of the map from the rotation speed to the generated torque of actuator {n} in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT{n}_SPIN.",
-        "value":         0.0009,
-        "default":       0.0009,
-        "options":       [],
-        "type":          "float",
-        "unit":          "[N*m*s/rad]"}
-    data[f"ACT{n}_TORQUE2AMPS_1"] = {
-        "description":   f"Constant of the linear part of the map from the generated torque to current being consumed by the actuator {n} in Amperes per Newton per meter.",
-        "value":         30.0,
-        "default":       30.0,
-        "options":       [],
-        "type":          "float",
-        "unit":          "[A/(N*m)]"}
     data[f"ACT{n}_MOI_ROTOR"] = {
         "description":   f"Moment of inertia of the spinning part of e actuator {n} in kilograms meter square.",
         "value":         0.001,
@@ -467,6 +439,41 @@ for n in range(8):
         "options":       [],
         "type":          "float",
         "unit":          "[kg*m*m]"}
+    VOLT2SPEED = [0.0, 33.0, 0.0]
+    SPEED2THRUST = [0.0, 0.015, 0.0]
+    SPEED2TORQUE = [0.0, 0.0009, 0.0]
+    TORQUE2AMPS = [0.0, 30.0, 0.0]
+    # TODO: Correct unit for order different than 1
+    for i in range(3):
+        data[f"ACT{n}_VOLT2SPEED_{i}"] = {
+            "description":   f"Polynomial constant for order {i} of the map from the applied voltage to the rotation speed of actuator {n} in radians per second per Volt.",
+            "value":         VOLT2SPEED[i],
+            "default":       VOLT2SPEED[i],
+            "options":       [],
+            "type":          "float",
+            "unit":          f"[rad/(s*V^{i})]"}
+        data[f"ACT{n}_SPEED2THRUST_{i}"] = {
+            "description":   f"Polynomial constant for order {i} of the map from the rotation speed to the generated thrust of actuator {n} in Newton seconds per radian.",
+            "value":         SPEED2THRUST[i],
+            "default":       SPEED2THRUST[i],
+            "options":       [],
+            "type":          "float",
+            "unit":          f"[(N*s^{i})/(rad^{i})]"}
+        data[f"ACT{n}_SPEED2TORQUE_{i}"] = {
+            "description":   f"Polynomial constant for order {i} of the map from the rotation speed to the generated torque of actuator {n} in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT{n}_SPIN.",
+            "value":         SPEED2TORQUE[i],
+            "default":       SPEED2TORQUE[i],
+            "options":       [],
+            "type":          "float",
+            "unit":          f"[(N*m*s^{i})/(rad^{i})]"}
+        data[f"ACT{n}_TORQUE2AMPS_{i}"] = {
+            "description":   f"Polynomial constant for order {i} of the map from the generated torque to current being consumed by the actuator {n} in Amperes per Newton per meter.",
+            "value":         TORQUE2AMPS[i],
+            "default":       TORQUE2AMPS[i],
+            "options":       [],
+            "type":          "float",
+            "unit":          f"[A/(N*m)^{i}]"}
+
 
 data[f"ACT0_SPIN"] = {
     "description":   "Direction of rotation of actuator 0.\n (1): Rotates positively (counter-clockwise) around the vector VEH_ACT0_DIR\n(-1): Rotates negatively (clockwise) around the vector VEH_ACT0_DIR",

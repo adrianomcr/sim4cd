@@ -160,6 +160,7 @@ class px4sim(object):
                 # print("\33[0m\33[40mmag:   ", mag, "\33[0m")
                 # print("\33[0m\33[97mbar:   ", bar, "\33[0m")
                 print("\33[0m\33[40mactuator_commands: %f  %f  %f  %f\33[0m" % (self.actuator_commands[0], self.actuator_commands[1], self.actuator_commands[2], self.actuator_commands[3]))
+                print("\33[0m\33[97mBattery: ", self.quad.vehicle_geo.battery.output_voltage(), "   ", self.quad.vehicle_geo.battery.soc, "\33[0m")
                 color = ['\33[92m','\33[91m','\33[93m']
                 status = self.quad.get_status()
                 print(color[status]+"status: ", status,'\33[0m')

@@ -608,38 +608,6 @@
         "type": "float",
         "unit": "[s]"
     },
-    "ACT0_VOLT2SPEED_1": {
-        "description": "Constant of the linear part of the map from the applied voltage to the rotation speed of actuator 0 in radians per second per Volt.",
-        "value": 33.0,
-        "default": 33.0,
-        "options": [],
-        "type": "float",
-        "unit": "[rad/(s*V)]"
-    },
-    "ACT0_SPEED2THRUST_1": {
-        "description": "Constant of the linear part of the map from the rotation speed to the generated thrust of actuator 0 in Newton seconds per radian.",
-        "value": 0.015,
-        "default": 0.015,
-        "options": [],
-        "type": "float",
-        "unit": "[N*s/rad]"
-    },
-    "ACT0_SPEED2TORQUE_1": {
-        "description": "Constant of the linear part of the map from the rotation speed to the generated torque of actuator 0 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT0_SPIN.",
-        "value": 0.0009,
-        "default": 0.0009,
-        "options": [],
-        "type": "float",
-        "unit": "[N*m*s/rad]"
-    },
-    "ACT0_TORQUE2AMPS_1": {
-        "description": "Constant of the linear part of the map from the generated torque to current being consumed by the actuator 0 in Amperes per Newton per meter.",
-        "value": 30.0,
-        "default": 30.0,
-        "options": [],
-        "type": "float",
-        "unit": "[A/(N*m)]"
-    },
     "ACT0_MOI_ROTOR": {
         "description": "Moment of inertia of the spinning part of e actuator 0 in kilograms meter square.",
         "value": 0.001,
@@ -647,6 +615,102 @@
         "options": [],
         "type": "float",
         "unit": "[kg*m*m]"
+    },
+    "ACT0_VOLT2SPEED_0": {
+        "description": "Polynomial constant for order 0 of the map from the applied voltage to the rotation speed of actuator 0 in radians per second per Volt.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[rad/(s*V^0)]"
+    },
+    "ACT0_SPEED2THRUST_0": {
+        "description": "Polynomial constant for order 0 of the map from the rotation speed to the generated thrust of actuator 0 in Newton seconds per radian.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*s^0)/(rad^0)]"
+    },
+    "ACT0_SPEED2TORQUE_0": {
+        "description": "Polynomial constant for order 0 of the map from the rotation speed to the generated torque of actuator 0 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT0_SPIN.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*m*s^0)/(rad^0)]"
+    },
+    "ACT0_TORQUE2AMPS_0": {
+        "description": "Polynomial constant for order 0 of the map from the generated torque to current being consumed by the actuator 0 in Amperes per Newton per meter.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[A/(N*m)^0]"
+    },
+    "ACT0_VOLT2SPEED_1": {
+        "description": "Polynomial constant for order 1 of the map from the applied voltage to the rotation speed of actuator 0 in radians per second per Volt.",
+        "value": 33.0,
+        "default": 33.0,
+        "options": [],
+        "type": "float",
+        "unit": "[rad/(s*V^1)]"
+    },
+    "ACT0_SPEED2THRUST_1": {
+        "description": "Polynomial constant for order 1 of the map from the rotation speed to the generated thrust of actuator 0 in Newton seconds per radian.",
+        "value": 0.015,
+        "default": 0.015,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*s^1)/(rad^1)]"
+    },
+    "ACT0_SPEED2TORQUE_1": {
+        "description": "Polynomial constant for order 1 of the map from the rotation speed to the generated torque of actuator 0 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT0_SPIN.",
+        "value": 0.0009,
+        "default": 0.0009,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*m*s^1)/(rad^1)]"
+    },
+    "ACT0_TORQUE2AMPS_1": {
+        "description": "Polynomial constant for order 1 of the map from the generated torque to current being consumed by the actuator 0 in Amperes per Newton per meter.",
+        "value": 30.0,
+        "default": 30.0,
+        "options": [],
+        "type": "float",
+        "unit": "[A/(N*m)^1]"
+    },
+    "ACT0_VOLT2SPEED_2": {
+        "description": "Polynomial constant for order 2 of the map from the applied voltage to the rotation speed of actuator 0 in radians per second per Volt.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[rad/(s*V^2)]"
+    },
+    "ACT0_SPEED2THRUST_2": {
+        "description": "Polynomial constant for order 2 of the map from the rotation speed to the generated thrust of actuator 0 in Newton seconds per radian.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*s^2)/(rad^2)]"
+    },
+    "ACT0_SPEED2TORQUE_2": {
+        "description": "Polynomial constant for order 2 of the map from the rotation speed to the generated torque of actuator 0 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT0_SPIN.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*m*s^2)/(rad^2)]"
+    },
+    "ACT0_TORQUE2AMPS_2": {
+        "description": "Polynomial constant for order 2 of the map from the generated torque to current being consumed by the actuator 0 in Amperes per Newton per meter.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[A/(N*m)^2]"
     },
     "ACT1_TIME_CTE": {
         "description": "Time constant, in seconds, of the first order dynamics of actuator 1.",
@@ -656,38 +720,6 @@
         "type": "float",
         "unit": "[s]"
     },
-    "ACT1_VOLT2SPEED_1": {
-        "description": "Constant of the linear part of the map from the applied voltage to the rotation speed of actuator 1 in radians per second per Volt.",
-        "value": 33.0,
-        "default": 33.0,
-        "options": [],
-        "type": "float",
-        "unit": "[rad/(s*V)]"
-    },
-    "ACT1_SPEED2THRUST_1": {
-        "description": "Constant of the linear part of the map from the rotation speed to the generated thrust of actuator 1 in Newton seconds per radian.",
-        "value": 0.015,
-        "default": 0.015,
-        "options": [],
-        "type": "float",
-        "unit": "[N*s/rad]"
-    },
-    "ACT1_SPEED2TORQUE_1": {
-        "description": "Constant of the linear part of the map from the rotation speed to the generated torque of actuator 1 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT1_SPIN.",
-        "value": 0.0009,
-        "default": 0.0009,
-        "options": [],
-        "type": "float",
-        "unit": "[N*m*s/rad]"
-    },
-    "ACT1_TORQUE2AMPS_1": {
-        "description": "Constant of the linear part of the map from the generated torque to current being consumed by the actuator 1 in Amperes per Newton per meter.",
-        "value": 30.0,
-        "default": 30.0,
-        "options": [],
-        "type": "float",
-        "unit": "[A/(N*m)]"
-    },
     "ACT1_MOI_ROTOR": {
         "description": "Moment of inertia of the spinning part of e actuator 1 in kilograms meter square.",
         "value": 0.001,
@@ -695,6 +727,102 @@
         "options": [],
         "type": "float",
         "unit": "[kg*m*m]"
+    },
+    "ACT1_VOLT2SPEED_0": {
+        "description": "Polynomial constant for order 0 of the map from the applied voltage to the rotation speed of actuator 1 in radians per second per Volt.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[rad/(s*V^0)]"
+    },
+    "ACT1_SPEED2THRUST_0": {
+        "description": "Polynomial constant for order 0 of the map from the rotation speed to the generated thrust of actuator 1 in Newton seconds per radian.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*s^0)/(rad^0)]"
+    },
+    "ACT1_SPEED2TORQUE_0": {
+        "description": "Polynomial constant for order 0 of the map from the rotation speed to the generated torque of actuator 1 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT1_SPIN.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*m*s^0)/(rad^0)]"
+    },
+    "ACT1_TORQUE2AMPS_0": {
+        "description": "Polynomial constant for order 0 of the map from the generated torque to current being consumed by the actuator 1 in Amperes per Newton per meter.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[A/(N*m)^0]"
+    },
+    "ACT1_VOLT2SPEED_1": {
+        "description": "Polynomial constant for order 1 of the map from the applied voltage to the rotation speed of actuator 1 in radians per second per Volt.",
+        "value": 33.0,
+        "default": 33.0,
+        "options": [],
+        "type": "float",
+        "unit": "[rad/(s*V^1)]"
+    },
+    "ACT1_SPEED2THRUST_1": {
+        "description": "Polynomial constant for order 1 of the map from the rotation speed to the generated thrust of actuator 1 in Newton seconds per radian.",
+        "value": 0.015,
+        "default": 0.015,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*s^1)/(rad^1)]"
+    },
+    "ACT1_SPEED2TORQUE_1": {
+        "description": "Polynomial constant for order 1 of the map from the rotation speed to the generated torque of actuator 1 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT1_SPIN.",
+        "value": 0.0009,
+        "default": 0.0009,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*m*s^1)/(rad^1)]"
+    },
+    "ACT1_TORQUE2AMPS_1": {
+        "description": "Polynomial constant for order 1 of the map from the generated torque to current being consumed by the actuator 1 in Amperes per Newton per meter.",
+        "value": 30.0,
+        "default": 30.0,
+        "options": [],
+        "type": "float",
+        "unit": "[A/(N*m)^1]"
+    },
+    "ACT1_VOLT2SPEED_2": {
+        "description": "Polynomial constant for order 2 of the map from the applied voltage to the rotation speed of actuator 1 in radians per second per Volt.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[rad/(s*V^2)]"
+    },
+    "ACT1_SPEED2THRUST_2": {
+        "description": "Polynomial constant for order 2 of the map from the rotation speed to the generated thrust of actuator 1 in Newton seconds per radian.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*s^2)/(rad^2)]"
+    },
+    "ACT1_SPEED2TORQUE_2": {
+        "description": "Polynomial constant for order 2 of the map from the rotation speed to the generated torque of actuator 1 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT1_SPIN.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*m*s^2)/(rad^2)]"
+    },
+    "ACT1_TORQUE2AMPS_2": {
+        "description": "Polynomial constant for order 2 of the map from the generated torque to current being consumed by the actuator 1 in Amperes per Newton per meter.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[A/(N*m)^2]"
     },
     "ACT2_TIME_CTE": {
         "description": "Time constant, in seconds, of the first order dynamics of actuator 2.",
@@ -704,38 +832,6 @@
         "type": "float",
         "unit": "[s]"
     },
-    "ACT2_VOLT2SPEED_1": {
-        "description": "Constant of the linear part of the map from the applied voltage to the rotation speed of actuator 2 in radians per second per Volt.",
-        "value": 33.0,
-        "default": 33.0,
-        "options": [],
-        "type": "float",
-        "unit": "[rad/(s*V)]"
-    },
-    "ACT2_SPEED2THRUST_1": {
-        "description": "Constant of the linear part of the map from the rotation speed to the generated thrust of actuator 2 in Newton seconds per radian.",
-        "value": 0.015,
-        "default": 0.015,
-        "options": [],
-        "type": "float",
-        "unit": "[N*s/rad]"
-    },
-    "ACT2_SPEED2TORQUE_1": {
-        "description": "Constant of the linear part of the map from the rotation speed to the generated torque of actuator 2 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT2_SPIN.",
-        "value": 0.0009,
-        "default": 0.0009,
-        "options": [],
-        "type": "float",
-        "unit": "[N*m*s/rad]"
-    },
-    "ACT2_TORQUE2AMPS_1": {
-        "description": "Constant of the linear part of the map from the generated torque to current being consumed by the actuator 2 in Amperes per Newton per meter.",
-        "value": 30.0,
-        "default": 30.0,
-        "options": [],
-        "type": "float",
-        "unit": "[A/(N*m)]"
-    },
     "ACT2_MOI_ROTOR": {
         "description": "Moment of inertia of the spinning part of e actuator 2 in kilograms meter square.",
         "value": 0.001,
@@ -743,6 +839,102 @@
         "options": [],
         "type": "float",
         "unit": "[kg*m*m]"
+    },
+    "ACT2_VOLT2SPEED_0": {
+        "description": "Polynomial constant for order 0 of the map from the applied voltage to the rotation speed of actuator 2 in radians per second per Volt.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[rad/(s*V^0)]"
+    },
+    "ACT2_SPEED2THRUST_0": {
+        "description": "Polynomial constant for order 0 of the map from the rotation speed to the generated thrust of actuator 2 in Newton seconds per radian.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*s^0)/(rad^0)]"
+    },
+    "ACT2_SPEED2TORQUE_0": {
+        "description": "Polynomial constant for order 0 of the map from the rotation speed to the generated torque of actuator 2 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT2_SPIN.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*m*s^0)/(rad^0)]"
+    },
+    "ACT2_TORQUE2AMPS_0": {
+        "description": "Polynomial constant for order 0 of the map from the generated torque to current being consumed by the actuator 2 in Amperes per Newton per meter.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[A/(N*m)^0]"
+    },
+    "ACT2_VOLT2SPEED_1": {
+        "description": "Polynomial constant for order 1 of the map from the applied voltage to the rotation speed of actuator 2 in radians per second per Volt.",
+        "value": 33.0,
+        "default": 33.0,
+        "options": [],
+        "type": "float",
+        "unit": "[rad/(s*V^1)]"
+    },
+    "ACT2_SPEED2THRUST_1": {
+        "description": "Polynomial constant for order 1 of the map from the rotation speed to the generated thrust of actuator 2 in Newton seconds per radian.",
+        "value": 0.015,
+        "default": 0.015,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*s^1)/(rad^1)]"
+    },
+    "ACT2_SPEED2TORQUE_1": {
+        "description": "Polynomial constant for order 1 of the map from the rotation speed to the generated torque of actuator 2 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT2_SPIN.",
+        "value": 0.0009,
+        "default": 0.0009,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*m*s^1)/(rad^1)]"
+    },
+    "ACT2_TORQUE2AMPS_1": {
+        "description": "Polynomial constant for order 1 of the map from the generated torque to current being consumed by the actuator 2 in Amperes per Newton per meter.",
+        "value": 30.0,
+        "default": 30.0,
+        "options": [],
+        "type": "float",
+        "unit": "[A/(N*m)^1]"
+    },
+    "ACT2_VOLT2SPEED_2": {
+        "description": "Polynomial constant for order 2 of the map from the applied voltage to the rotation speed of actuator 2 in radians per second per Volt.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[rad/(s*V^2)]"
+    },
+    "ACT2_SPEED2THRUST_2": {
+        "description": "Polynomial constant for order 2 of the map from the rotation speed to the generated thrust of actuator 2 in Newton seconds per radian.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*s^2)/(rad^2)]"
+    },
+    "ACT2_SPEED2TORQUE_2": {
+        "description": "Polynomial constant for order 2 of the map from the rotation speed to the generated torque of actuator 2 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT2_SPIN.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*m*s^2)/(rad^2)]"
+    },
+    "ACT2_TORQUE2AMPS_2": {
+        "description": "Polynomial constant for order 2 of the map from the generated torque to current being consumed by the actuator 2 in Amperes per Newton per meter.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[A/(N*m)^2]"
     },
     "ACT3_TIME_CTE": {
         "description": "Time constant, in seconds, of the first order dynamics of actuator 3.",
@@ -752,38 +944,6 @@
         "type": "float",
         "unit": "[s]"
     },
-    "ACT3_VOLT2SPEED_1": {
-        "description": "Constant of the linear part of the map from the applied voltage to the rotation speed of actuator 3 in radians per second per Volt.",
-        "value": 33.0,
-        "default": 33.0,
-        "options": [],
-        "type": "float",
-        "unit": "[rad/(s*V)]"
-    },
-    "ACT3_SPEED2THRUST_1": {
-        "description": "Constant of the linear part of the map from the rotation speed to the generated thrust of actuator 3 in Newton seconds per radian.",
-        "value": 0.015,
-        "default": 0.015,
-        "options": [],
-        "type": "float",
-        "unit": "[N*s/rad]"
-    },
-    "ACT3_SPEED2TORQUE_1": {
-        "description": "Constant of the linear part of the map from the rotation speed to the generated torque of actuator 3 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT3_SPIN.",
-        "value": 0.0009,
-        "default": 0.0009,
-        "options": [],
-        "type": "float",
-        "unit": "[N*m*s/rad]"
-    },
-    "ACT3_TORQUE2AMPS_1": {
-        "description": "Constant of the linear part of the map from the generated torque to current being consumed by the actuator 3 in Amperes per Newton per meter.",
-        "value": 30.0,
-        "default": 30.0,
-        "options": [],
-        "type": "float",
-        "unit": "[A/(N*m)]"
-    },
     "ACT3_MOI_ROTOR": {
         "description": "Moment of inertia of the spinning part of e actuator 3 in kilograms meter square.",
         "value": 0.001,
@@ -791,6 +951,102 @@
         "options": [],
         "type": "float",
         "unit": "[kg*m*m]"
+    },
+    "ACT3_VOLT2SPEED_0": {
+        "description": "Polynomial constant for order 0 of the map from the applied voltage to the rotation speed of actuator 3 in radians per second per Volt.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[rad/(s*V^0)]"
+    },
+    "ACT3_SPEED2THRUST_0": {
+        "description": "Polynomial constant for order 0 of the map from the rotation speed to the generated thrust of actuator 3 in Newton seconds per radian.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*s^0)/(rad^0)]"
+    },
+    "ACT3_SPEED2TORQUE_0": {
+        "description": "Polynomial constant for order 0 of the map from the rotation speed to the generated torque of actuator 3 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT3_SPIN.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*m*s^0)/(rad^0)]"
+    },
+    "ACT3_TORQUE2AMPS_0": {
+        "description": "Polynomial constant for order 0 of the map from the generated torque to current being consumed by the actuator 3 in Amperes per Newton per meter.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[A/(N*m)^0]"
+    },
+    "ACT3_VOLT2SPEED_1": {
+        "description": "Polynomial constant for order 1 of the map from the applied voltage to the rotation speed of actuator 3 in radians per second per Volt.",
+        "value": 33.0,
+        "default": 33.0,
+        "options": [],
+        "type": "float",
+        "unit": "[rad/(s*V^1)]"
+    },
+    "ACT3_SPEED2THRUST_1": {
+        "description": "Polynomial constant for order 1 of the map from the rotation speed to the generated thrust of actuator 3 in Newton seconds per radian.",
+        "value": 0.015,
+        "default": 0.015,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*s^1)/(rad^1)]"
+    },
+    "ACT3_SPEED2TORQUE_1": {
+        "description": "Polynomial constant for order 1 of the map from the rotation speed to the generated torque of actuator 3 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT3_SPIN.",
+        "value": 0.0009,
+        "default": 0.0009,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*m*s^1)/(rad^1)]"
+    },
+    "ACT3_TORQUE2AMPS_1": {
+        "description": "Polynomial constant for order 1 of the map from the generated torque to current being consumed by the actuator 3 in Amperes per Newton per meter.",
+        "value": 30.0,
+        "default": 30.0,
+        "options": [],
+        "type": "float",
+        "unit": "[A/(N*m)^1]"
+    },
+    "ACT3_VOLT2SPEED_2": {
+        "description": "Polynomial constant for order 2 of the map from the applied voltage to the rotation speed of actuator 3 in radians per second per Volt.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[rad/(s*V^2)]"
+    },
+    "ACT3_SPEED2THRUST_2": {
+        "description": "Polynomial constant for order 2 of the map from the rotation speed to the generated thrust of actuator 3 in Newton seconds per radian.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*s^2)/(rad^2)]"
+    },
+    "ACT3_SPEED2TORQUE_2": {
+        "description": "Polynomial constant for order 2 of the map from the rotation speed to the generated torque of actuator 3 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT3_SPIN.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*m*s^2)/(rad^2)]"
+    },
+    "ACT3_TORQUE2AMPS_2": {
+        "description": "Polynomial constant for order 2 of the map from the generated torque to current being consumed by the actuator 3 in Amperes per Newton per meter.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[A/(N*m)^2]"
     },
     "ACT4_TIME_CTE": {
         "description": "Time constant, in seconds, of the first order dynamics of actuator 4.",
@@ -800,38 +1056,6 @@
         "type": "float",
         "unit": "[s]"
     },
-    "ACT4_VOLT2SPEED_1": {
-        "description": "Constant of the linear part of the map from the applied voltage to the rotation speed of actuator 4 in radians per second per Volt.",
-        "value": 33.0,
-        "default": 33.0,
-        "options": [],
-        "type": "float",
-        "unit": "[rad/(s*V)]"
-    },
-    "ACT4_SPEED2THRUST_1": {
-        "description": "Constant of the linear part of the map from the rotation speed to the generated thrust of actuator 4 in Newton seconds per radian.",
-        "value": 0.015,
-        "default": 0.015,
-        "options": [],
-        "type": "float",
-        "unit": "[N*s/rad]"
-    },
-    "ACT4_SPEED2TORQUE_1": {
-        "description": "Constant of the linear part of the map from the rotation speed to the generated torque of actuator 4 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT4_SPIN.",
-        "value": 0.0009,
-        "default": 0.0009,
-        "options": [],
-        "type": "float",
-        "unit": "[N*m*s/rad]"
-    },
-    "ACT4_TORQUE2AMPS_1": {
-        "description": "Constant of the linear part of the map from the generated torque to current being consumed by the actuator 4 in Amperes per Newton per meter.",
-        "value": 30.0,
-        "default": 30.0,
-        "options": [],
-        "type": "float",
-        "unit": "[A/(N*m)]"
-    },
     "ACT4_MOI_ROTOR": {
         "description": "Moment of inertia of the spinning part of e actuator 4 in kilograms meter square.",
         "value": 0.001,
@@ -839,6 +1063,102 @@
         "options": [],
         "type": "float",
         "unit": "[kg*m*m]"
+    },
+    "ACT4_VOLT2SPEED_0": {
+        "description": "Polynomial constant for order 0 of the map from the applied voltage to the rotation speed of actuator 4 in radians per second per Volt.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[rad/(s*V^0)]"
+    },
+    "ACT4_SPEED2THRUST_0": {
+        "description": "Polynomial constant for order 0 of the map from the rotation speed to the generated thrust of actuator 4 in Newton seconds per radian.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*s^0)/(rad^0)]"
+    },
+    "ACT4_SPEED2TORQUE_0": {
+        "description": "Polynomial constant for order 0 of the map from the rotation speed to the generated torque of actuator 4 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT4_SPIN.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*m*s^0)/(rad^0)]"
+    },
+    "ACT4_TORQUE2AMPS_0": {
+        "description": "Polynomial constant for order 0 of the map from the generated torque to current being consumed by the actuator 4 in Amperes per Newton per meter.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[A/(N*m)^0]"
+    },
+    "ACT4_VOLT2SPEED_1": {
+        "description": "Polynomial constant for order 1 of the map from the applied voltage to the rotation speed of actuator 4 in radians per second per Volt.",
+        "value": 33.0,
+        "default": 33.0,
+        "options": [],
+        "type": "float",
+        "unit": "[rad/(s*V^1)]"
+    },
+    "ACT4_SPEED2THRUST_1": {
+        "description": "Polynomial constant for order 1 of the map from the rotation speed to the generated thrust of actuator 4 in Newton seconds per radian.",
+        "value": 0.015,
+        "default": 0.015,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*s^1)/(rad^1)]"
+    },
+    "ACT4_SPEED2TORQUE_1": {
+        "description": "Polynomial constant for order 1 of the map from the rotation speed to the generated torque of actuator 4 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT4_SPIN.",
+        "value": 0.0009,
+        "default": 0.0009,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*m*s^1)/(rad^1)]"
+    },
+    "ACT4_TORQUE2AMPS_1": {
+        "description": "Polynomial constant for order 1 of the map from the generated torque to current being consumed by the actuator 4 in Amperes per Newton per meter.",
+        "value": 30.0,
+        "default": 30.0,
+        "options": [],
+        "type": "float",
+        "unit": "[A/(N*m)^1]"
+    },
+    "ACT4_VOLT2SPEED_2": {
+        "description": "Polynomial constant for order 2 of the map from the applied voltage to the rotation speed of actuator 4 in radians per second per Volt.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[rad/(s*V^2)]"
+    },
+    "ACT4_SPEED2THRUST_2": {
+        "description": "Polynomial constant for order 2 of the map from the rotation speed to the generated thrust of actuator 4 in Newton seconds per radian.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*s^2)/(rad^2)]"
+    },
+    "ACT4_SPEED2TORQUE_2": {
+        "description": "Polynomial constant for order 2 of the map from the rotation speed to the generated torque of actuator 4 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT4_SPIN.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*m*s^2)/(rad^2)]"
+    },
+    "ACT4_TORQUE2AMPS_2": {
+        "description": "Polynomial constant for order 2 of the map from the generated torque to current being consumed by the actuator 4 in Amperes per Newton per meter.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[A/(N*m)^2]"
     },
     "ACT5_TIME_CTE": {
         "description": "Time constant, in seconds, of the first order dynamics of actuator 5.",
@@ -848,38 +1168,6 @@
         "type": "float",
         "unit": "[s]"
     },
-    "ACT5_VOLT2SPEED_1": {
-        "description": "Constant of the linear part of the map from the applied voltage to the rotation speed of actuator 5 in radians per second per Volt.",
-        "value": 33.0,
-        "default": 33.0,
-        "options": [],
-        "type": "float",
-        "unit": "[rad/(s*V)]"
-    },
-    "ACT5_SPEED2THRUST_1": {
-        "description": "Constant of the linear part of the map from the rotation speed to the generated thrust of actuator 5 in Newton seconds per radian.",
-        "value": 0.015,
-        "default": 0.015,
-        "options": [],
-        "type": "float",
-        "unit": "[N*s/rad]"
-    },
-    "ACT5_SPEED2TORQUE_1": {
-        "description": "Constant of the linear part of the map from the rotation speed to the generated torque of actuator 5 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT5_SPIN.",
-        "value": 0.0009,
-        "default": 0.0009,
-        "options": [],
-        "type": "float",
-        "unit": "[N*m*s/rad]"
-    },
-    "ACT5_TORQUE2AMPS_1": {
-        "description": "Constant of the linear part of the map from the generated torque to current being consumed by the actuator 5 in Amperes per Newton per meter.",
-        "value": 30.0,
-        "default": 30.0,
-        "options": [],
-        "type": "float",
-        "unit": "[A/(N*m)]"
-    },
     "ACT5_MOI_ROTOR": {
         "description": "Moment of inertia of the spinning part of e actuator 5 in kilograms meter square.",
         "value": 0.001,
@@ -887,6 +1175,102 @@
         "options": [],
         "type": "float",
         "unit": "[kg*m*m]"
+    },
+    "ACT5_VOLT2SPEED_0": {
+        "description": "Polynomial constant for order 0 of the map from the applied voltage to the rotation speed of actuator 5 in radians per second per Volt.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[rad/(s*V^0)]"
+    },
+    "ACT5_SPEED2THRUST_0": {
+        "description": "Polynomial constant for order 0 of the map from the rotation speed to the generated thrust of actuator 5 in Newton seconds per radian.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*s^0)/(rad^0)]"
+    },
+    "ACT5_SPEED2TORQUE_0": {
+        "description": "Polynomial constant for order 0 of the map from the rotation speed to the generated torque of actuator 5 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT5_SPIN.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*m*s^0)/(rad^0)]"
+    },
+    "ACT5_TORQUE2AMPS_0": {
+        "description": "Polynomial constant for order 0 of the map from the generated torque to current being consumed by the actuator 5 in Amperes per Newton per meter.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[A/(N*m)^0]"
+    },
+    "ACT5_VOLT2SPEED_1": {
+        "description": "Polynomial constant for order 1 of the map from the applied voltage to the rotation speed of actuator 5 in radians per second per Volt.",
+        "value": 33.0,
+        "default": 33.0,
+        "options": [],
+        "type": "float",
+        "unit": "[rad/(s*V^1)]"
+    },
+    "ACT5_SPEED2THRUST_1": {
+        "description": "Polynomial constant for order 1 of the map from the rotation speed to the generated thrust of actuator 5 in Newton seconds per radian.",
+        "value": 0.015,
+        "default": 0.015,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*s^1)/(rad^1)]"
+    },
+    "ACT5_SPEED2TORQUE_1": {
+        "description": "Polynomial constant for order 1 of the map from the rotation speed to the generated torque of actuator 5 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT5_SPIN.",
+        "value": 0.0009,
+        "default": 0.0009,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*m*s^1)/(rad^1)]"
+    },
+    "ACT5_TORQUE2AMPS_1": {
+        "description": "Polynomial constant for order 1 of the map from the generated torque to current being consumed by the actuator 5 in Amperes per Newton per meter.",
+        "value": 30.0,
+        "default": 30.0,
+        "options": [],
+        "type": "float",
+        "unit": "[A/(N*m)^1]"
+    },
+    "ACT5_VOLT2SPEED_2": {
+        "description": "Polynomial constant for order 2 of the map from the applied voltage to the rotation speed of actuator 5 in radians per second per Volt.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[rad/(s*V^2)]"
+    },
+    "ACT5_SPEED2THRUST_2": {
+        "description": "Polynomial constant for order 2 of the map from the rotation speed to the generated thrust of actuator 5 in Newton seconds per radian.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*s^2)/(rad^2)]"
+    },
+    "ACT5_SPEED2TORQUE_2": {
+        "description": "Polynomial constant for order 2 of the map from the rotation speed to the generated torque of actuator 5 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT5_SPIN.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*m*s^2)/(rad^2)]"
+    },
+    "ACT5_TORQUE2AMPS_2": {
+        "description": "Polynomial constant for order 2 of the map from the generated torque to current being consumed by the actuator 5 in Amperes per Newton per meter.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[A/(N*m)^2]"
     },
     "ACT6_TIME_CTE": {
         "description": "Time constant, in seconds, of the first order dynamics of actuator 6.",
@@ -896,38 +1280,6 @@
         "type": "float",
         "unit": "[s]"
     },
-    "ACT6_VOLT2SPEED_1": {
-        "description": "Constant of the linear part of the map from the applied voltage to the rotation speed of actuator 6 in radians per second per Volt.",
-        "value": 33.0,
-        "default": 33.0,
-        "options": [],
-        "type": "float",
-        "unit": "[rad/(s*V)]"
-    },
-    "ACT6_SPEED2THRUST_1": {
-        "description": "Constant of the linear part of the map from the rotation speed to the generated thrust of actuator 6 in Newton seconds per radian.",
-        "value": 0.015,
-        "default": 0.015,
-        "options": [],
-        "type": "float",
-        "unit": "[N*s/rad]"
-    },
-    "ACT6_SPEED2TORQUE_1": {
-        "description": "Constant of the linear part of the map from the rotation speed to the generated torque of actuator 6 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT6_SPIN.",
-        "value": 0.0009,
-        "default": 0.0009,
-        "options": [],
-        "type": "float",
-        "unit": "[N*m*s/rad]"
-    },
-    "ACT6_TORQUE2AMPS_1": {
-        "description": "Constant of the linear part of the map from the generated torque to current being consumed by the actuator 6 in Amperes per Newton per meter.",
-        "value": 30.0,
-        "default": 30.0,
-        "options": [],
-        "type": "float",
-        "unit": "[A/(N*m)]"
-    },
     "ACT6_MOI_ROTOR": {
         "description": "Moment of inertia of the spinning part of e actuator 6 in kilograms meter square.",
         "value": 0.001,
@@ -935,6 +1287,102 @@
         "options": [],
         "type": "float",
         "unit": "[kg*m*m]"
+    },
+    "ACT6_VOLT2SPEED_0": {
+        "description": "Polynomial constant for order 0 of the map from the applied voltage to the rotation speed of actuator 6 in radians per second per Volt.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[rad/(s*V^0)]"
+    },
+    "ACT6_SPEED2THRUST_0": {
+        "description": "Polynomial constant for order 0 of the map from the rotation speed to the generated thrust of actuator 6 in Newton seconds per radian.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*s^0)/(rad^0)]"
+    },
+    "ACT6_SPEED2TORQUE_0": {
+        "description": "Polynomial constant for order 0 of the map from the rotation speed to the generated torque of actuator 6 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT6_SPIN.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*m*s^0)/(rad^0)]"
+    },
+    "ACT6_TORQUE2AMPS_0": {
+        "description": "Polynomial constant for order 0 of the map from the generated torque to current being consumed by the actuator 6 in Amperes per Newton per meter.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[A/(N*m)^0]"
+    },
+    "ACT6_VOLT2SPEED_1": {
+        "description": "Polynomial constant for order 1 of the map from the applied voltage to the rotation speed of actuator 6 in radians per second per Volt.",
+        "value": 33.0,
+        "default": 33.0,
+        "options": [],
+        "type": "float",
+        "unit": "[rad/(s*V^1)]"
+    },
+    "ACT6_SPEED2THRUST_1": {
+        "description": "Polynomial constant for order 1 of the map from the rotation speed to the generated thrust of actuator 6 in Newton seconds per radian.",
+        "value": 0.015,
+        "default": 0.015,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*s^1)/(rad^1)]"
+    },
+    "ACT6_SPEED2TORQUE_1": {
+        "description": "Polynomial constant for order 1 of the map from the rotation speed to the generated torque of actuator 6 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT6_SPIN.",
+        "value": 0.0009,
+        "default": 0.0009,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*m*s^1)/(rad^1)]"
+    },
+    "ACT6_TORQUE2AMPS_1": {
+        "description": "Polynomial constant for order 1 of the map from the generated torque to current being consumed by the actuator 6 in Amperes per Newton per meter.",
+        "value": 30.0,
+        "default": 30.0,
+        "options": [],
+        "type": "float",
+        "unit": "[A/(N*m)^1]"
+    },
+    "ACT6_VOLT2SPEED_2": {
+        "description": "Polynomial constant for order 2 of the map from the applied voltage to the rotation speed of actuator 6 in radians per second per Volt.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[rad/(s*V^2)]"
+    },
+    "ACT6_SPEED2THRUST_2": {
+        "description": "Polynomial constant for order 2 of the map from the rotation speed to the generated thrust of actuator 6 in Newton seconds per radian.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*s^2)/(rad^2)]"
+    },
+    "ACT6_SPEED2TORQUE_2": {
+        "description": "Polynomial constant for order 2 of the map from the rotation speed to the generated torque of actuator 6 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT6_SPIN.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*m*s^2)/(rad^2)]"
+    },
+    "ACT6_TORQUE2AMPS_2": {
+        "description": "Polynomial constant for order 2 of the map from the generated torque to current being consumed by the actuator 6 in Amperes per Newton per meter.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[A/(N*m)^2]"
     },
     "ACT7_TIME_CTE": {
         "description": "Time constant, in seconds, of the first order dynamics of actuator 7.",
@@ -944,38 +1392,6 @@
         "type": "float",
         "unit": "[s]"
     },
-    "ACT7_VOLT2SPEED_1": {
-        "description": "Constant of the linear part of the map from the applied voltage to the rotation speed of actuator 7 in radians per second per Volt.",
-        "value": 33.0,
-        "default": 33.0,
-        "options": [],
-        "type": "float",
-        "unit": "[rad/(s*V)]"
-    },
-    "ACT7_SPEED2THRUST_1": {
-        "description": "Constant of the linear part of the map from the rotation speed to the generated thrust of actuator 7 in Newton seconds per radian.",
-        "value": 0.015,
-        "default": 0.015,
-        "options": [],
-        "type": "float",
-        "unit": "[N*s/rad]"
-    },
-    "ACT7_SPEED2TORQUE_1": {
-        "description": "Constant of the linear part of the map from the rotation speed to the generated torque of actuator 7 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT7_SPIN.",
-        "value": 0.0009,
-        "default": 0.0009,
-        "options": [],
-        "type": "float",
-        "unit": "[N*m*s/rad]"
-    },
-    "ACT7_TORQUE2AMPS_1": {
-        "description": "Constant of the linear part of the map from the generated torque to current being consumed by the actuator 7 in Amperes per Newton per meter.",
-        "value": 30.0,
-        "default": 30.0,
-        "options": [],
-        "type": "float",
-        "unit": "[A/(N*m)]"
-    },
     "ACT7_MOI_ROTOR": {
         "description": "Moment of inertia of the spinning part of e actuator 7 in kilograms meter square.",
         "value": 0.001,
@@ -983,6 +1399,102 @@
         "options": [],
         "type": "float",
         "unit": "[kg*m*m]"
+    },
+    "ACT7_VOLT2SPEED_0": {
+        "description": "Polynomial constant for order 0 of the map from the applied voltage to the rotation speed of actuator 7 in radians per second per Volt.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[rad/(s*V^0)]"
+    },
+    "ACT7_SPEED2THRUST_0": {
+        "description": "Polynomial constant for order 0 of the map from the rotation speed to the generated thrust of actuator 7 in Newton seconds per radian.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*s^0)/(rad^0)]"
+    },
+    "ACT7_SPEED2TORQUE_0": {
+        "description": "Polynomial constant for order 0 of the map from the rotation speed to the generated torque of actuator 7 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT7_SPIN.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*m*s^0)/(rad^0)]"
+    },
+    "ACT7_TORQUE2AMPS_0": {
+        "description": "Polynomial constant for order 0 of the map from the generated torque to current being consumed by the actuator 7 in Amperes per Newton per meter.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[A/(N*m)^0]"
+    },
+    "ACT7_VOLT2SPEED_1": {
+        "description": "Polynomial constant for order 1 of the map from the applied voltage to the rotation speed of actuator 7 in radians per second per Volt.",
+        "value": 33.0,
+        "default": 33.0,
+        "options": [],
+        "type": "float",
+        "unit": "[rad/(s*V^1)]"
+    },
+    "ACT7_SPEED2THRUST_1": {
+        "description": "Polynomial constant for order 1 of the map from the rotation speed to the generated thrust of actuator 7 in Newton seconds per radian.",
+        "value": 0.015,
+        "default": 0.015,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*s^1)/(rad^1)]"
+    },
+    "ACT7_SPEED2TORQUE_1": {
+        "description": "Polynomial constant for order 1 of the map from the rotation speed to the generated torque of actuator 7 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT7_SPIN.",
+        "value": 0.0009,
+        "default": 0.0009,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*m*s^1)/(rad^1)]"
+    },
+    "ACT7_TORQUE2AMPS_1": {
+        "description": "Polynomial constant for order 1 of the map from the generated torque to current being consumed by the actuator 7 in Amperes per Newton per meter.",
+        "value": 30.0,
+        "default": 30.0,
+        "options": [],
+        "type": "float",
+        "unit": "[A/(N*m)^1]"
+    },
+    "ACT7_VOLT2SPEED_2": {
+        "description": "Polynomial constant for order 2 of the map from the applied voltage to the rotation speed of actuator 7 in radians per second per Volt.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[rad/(s*V^2)]"
+    },
+    "ACT7_SPEED2THRUST_2": {
+        "description": "Polynomial constant for order 2 of the map from the rotation speed to the generated thrust of actuator 7 in Newton seconds per radian.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*s^2)/(rad^2)]"
+    },
+    "ACT7_SPEED2TORQUE_2": {
+        "description": "Polynomial constant for order 2 of the map from the rotation speed to the generated torque of actuator 7 in Newton meter seconds per radian. The signal of the torque is defined by VEH_ACT7_SPIN.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[(N*m*s^2)/(rad^2)]"
+    },
+    "ACT7_TORQUE2AMPS_2": {
+        "description": "Polynomial constant for order 2 of the map from the generated torque to current being consumed by the actuator 7 in Amperes per Newton per meter.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[A/(N*m)^2]"
     },
     "ACT0_SPIN": {
         "description": "Direction of rotation of actuator 0.\n (1): Rotates positively (counter-clockwise) around the vector VEH_ACT0_DIR\n(-1): Rotates negatively (clockwise) around the vector VEH_ACT0_DIR",
