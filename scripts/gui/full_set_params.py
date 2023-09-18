@@ -10,13 +10,15 @@ from ttkthemes import ThemedTk
 import os
 from fnmatch import fnmatch
 
+# import io_json as IO
+
 
 class JsonEditorGUI:
     """
     Class that defines a GUI for editing the parameters
     """
 
-    def __init__(self, root_):
+    def __init__(self, root_, enable_io_=True):
         """
         Constructor for the dynamics class
 
@@ -26,13 +28,12 @@ class JsonEditorGUI:
 
         # Set the root variable
         self.root = root_
+        
+        # Set the io_enabled variable
+        self.io_enabled = enable_io_
 
-        try:
-            # Define and set a parameters icon for the GUI
-            photo = tk.PhotoImage(file = os.path.abspath(__file__).rsplit('/', 1)[0]+'/resources/params_icon.png')
-            root.iconphoto(False, photo)
-        except Exception as e:
-            print("An error occurred while creating the icon:", e)
+        # Initialize the variable to store the json data
+        self.data = {}  
         
         # Create a treeview to display the parameters attributes
         self.tree = ttk.Treeview(self.root, columns=("Value", "Unit", "Description"), height=20)
@@ -64,18 +65,25 @@ class JsonEditorGUI:
         right_frame = ttk.Frame(self.root)
         right_frame.pack(side=tk.LEFT, fill="both", expand=False)
 
-        # Create buttons to load and save file
-        buttons_frame = ttk.Frame(right_frame)
-        buttons_frame.pack(side=tk.TOP, padx=10)
-        # Button to load file
-        self.load_button = ttk.Button(buttons_frame, text="    Load", padding=(4, 4), command=self.load_json)
-        self.load_button.pack(pady=10, side=tk.LEFT)
-        # Button to save file
-        self.save_button = ttk.Button(buttons_frame, text="    Save", padding=(4, 4), command=self.save_json)
-        self.save_button.pack(pady=10, side=tk.LEFT)
-        # Button to save file as
-        self.saveas_button = ttk.Button(buttons_frame, text="  Save As", padding=(4, 4), command=self.saveas_json)
-        self.saveas_button.pack(pady=10, side=tk.LEFT)
+        if(self.io_enabled):
+
+            # self.io = IO.ioJsonrGUI(right_frame, self.data, self.load_json)
+
+            # Create buttons to load and save file
+            buttons_frame = ttk.Frame(right_frame)
+            buttons_frame.pack(side=tk.TOP, padx=10)
+            # Button to load file
+            self.load_button = ttk.Button(buttons_frame, text="    Load", padding=(4, 4), command=self.load_json)
+            self.load_button.pack(pady=10, side=tk.LEFT)
+            # Button to save file
+            self.save_button = ttk.Button(buttons_frame, text="    Save", padding=(4, 4), command=self.save_json)
+            self.save_button.pack(pady=10, side=tk.LEFT)
+            # Button to save file as
+            self.saveas_button = ttk.Button(buttons_frame, text="  Save As", padding=(4, 4), command=self.saveas_json)
+            self.saveas_button.pack(pady=10, side=tk.LEFT)
+        # else:
+        #     self.populate_button = ttk.Button(right_frame, text=" Populate", padding=(4, 4), command=self.populate_tree)
+        #     self.populate_button.pack(pady=10, side=tk.TOP)
         
         # Create a subframe for detailed info about a parameter
         details_frame = ttk.Frame(right_frame)
@@ -138,9 +146,15 @@ class JsonEditorGUI:
         # Initialize the variable to store the json path
         self.file_path = False
         
-        # Initialize the variable to store the json data
-        self.data = {}  
-        
+
+    def set_data(self, d, path):
+        self.data = d
+        self.populate_tree()
+        self.file_path = path
+
+    def get_data(self):
+        return self.data
+
 
     def on_option_selected(self, event):
         """
@@ -447,8 +461,15 @@ if __name__ == "__main__":
     # Define GUI window size
     root.geometry('1150x500')
 
+    try:
+        # Define and set a parameters icon for the GUI
+        photo = tk.PhotoImage(file = os.path.abspath(__file__).rsplit('/', 1)[0]+'/resources/params_icon.png')
+        root.iconphoto(False, photo)
+    except Exception as e:
+        print("An error occurred while creating the icon:", e)
+
     # Create the GUI object
-    app = JsonEditorGUI(root)
+    app = JsonEditorGUI(root, True)
 
     # Run the tkinter event loop
     root.mainloop()

@@ -219,9 +219,9 @@ data["VEH_ACT_NUM"] = {
     "description":   "Number of actuator the vehicle has. Maximum value is 8.",
     "value":         4,
     "default":       4,
-    "options":       [],
+    "options":       [1,2,3,4,5,6,7,8],
     "type":          "int",
-    "unit":          "[ ]"}
+     "unit":         "[ ]"}
 
 data["VEH_ACT0_POS_X"] = {
     "description":   "X component (forward) of the position of actuator 0 in the vehicle frame. Value in meters.",

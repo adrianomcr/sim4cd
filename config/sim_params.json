@@ -212,7 +212,16 @@
         "description": "Number of actuator the vehicle has. Maximum value is 8.",
         "value": 4,
         "default": 4,
-        "options": [],
+        "options": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+        ],
         "type": "int",
         "unit": "[ ]"
     },
