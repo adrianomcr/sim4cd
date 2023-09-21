@@ -82,9 +82,10 @@ class ActuatorsEditorGUI:
         # Initialize the variable to store the json data
         self.data = {}
 
-        # path = "/home/NEA.com_adriano.rezende/simulation_ws/src/px4sim/config/sim_params.json"
-        # with open(path, "r") as json_file:
-        #         self.data = json.load(json_file)
+        #path = "/home/NEA.com_adriano.rezende/simulation_ws/src/px4sim/config/sim_params.json"
+        path = "/home/adrianomcr/simulation_ws/src/px4sim/config/sim_params.json"
+        with open(path, "r") as json_file:
+                self.data = json.load(json_file)
 
         # print(self.data)
 
@@ -92,6 +93,48 @@ class ActuatorsEditorGUI:
         self.right_panel()
 
         # self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+
+
+
+
+    def plot_curve(self, *args):
+
+
+
+        print(args)
+        print("act_n: ", self.act_n_var.get())
+        print("curce_type: ", self.act_feature_var.get())
+        print('')
+        act_n = self.act_n_var.get()
+        act_n = int(act_n[-1])
+
+        self.axs.clear()
+
+        # Data for the line plot
+        x_data = [0, 0.2, 0.4, 0.6, 0.8, 1]
+        y_data = [0, 2, 4, 1, 3, 7]
+        y_data = [i**act_n for i in y_data]
+
+        self.axs.set_xlim(0, 1)
+
+        # Plot the line
+        self.axs.plot(x_data, y_data)
+        self.axs.grid(True)
+
+        # Optionally, add labels and a title
+        self.axs.set_xlabel('X-axis Label')
+        self.axs.set_ylabel('Y-axis Label')
+        self.axs.set_title(self.act_n_var.get())
+
+        # Show the plot
+        plt.ion()
+        #plt.show()
+
+
+        
+
+
+        return
 
 
 
@@ -115,6 +158,7 @@ class ActuatorsEditorGUI:
     def update(self):
         if (self.data):
             options = [f'Actuator {i}' for i in range(self.data['VEH_ACT_NUM']['value'])]
+
             # self.actuator_menu['values'] = options
 
             self.actuator_menu['menu'].delete(0, 'end')
@@ -126,7 +170,7 @@ class ActuatorsEditorGUI:
 
     def right_panel(self):
 
-        self.fig, axs = plt.subplots(1,1)
+        self.fig, self.axs = plt.subplots(1,1)
 
         canvas = FigureCanvasTkAgg(self.fig, master=self.right_frame)
         canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
@@ -155,6 +199,7 @@ class ActuatorsEditorGUI:
         self.actuator_menu = ttk.OptionMenu(act_select_frame, self.act_n_var, None, *actuator_options)
         self.actuator_menu.pack(side=tk.LEFT, padx=10)
         # self.act_n_var.trace('w', self.on_select)
+        self.act_n_var.trace("w", self.plot_curve) 
 
         act_features_frame = ttk.Frame(self.left_frame)
         act_features_frame.pack(side=tk.TOP, pady=5)
