@@ -10,8 +10,6 @@ from ttkthemes import ThemedTk
 import os
 from fnmatch import fnmatch
 
-# import io_json as IO
-
 
 class JsonEditorGUI:
     """
@@ -455,7 +453,7 @@ if __name__ == "__main__":
     """
 
     # Define root GUI window
-    root = ThemedTk(theme='black') #https://ttkthemes.readthedocs.io/en/latest/themes.html
+    root = ThemedTk(theme='radiance') #https://ttkthemes.readthedocs.io/en/latest/themes.html
     # Define GUI title
     root.title("Parameters Editor")
     # Define GUI window size

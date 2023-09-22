@@ -10,6 +10,8 @@ from ttkthemes import ThemedTk
 import os
 from fnmatch import fnmatch
 
+import poly_estimator as PEST
+
 
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
@@ -73,6 +75,7 @@ class ActuatorsEditorGUI:
 
         self.editor_frame = ttk.Frame(self.left_frame)
         self.editor_frame.pack(side=tk.TOP, padx=10)
+
 
 
 
@@ -242,7 +245,9 @@ class ActuatorsEditorGUI:
 
 
 
-
+        estimator_frame = ttk.Frame(self.left_frame)
+        estimator_frame.pack(side=tk.TOP)
+        poly_est = PEST.PolyEstimatorGUI(estimator_frame)
 
 
 
