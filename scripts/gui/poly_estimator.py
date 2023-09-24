@@ -1,191 +1,229 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
-# GUI to edit the parameter values
+# GUI to perform polynomial identification
 
 import tkinter as tk
 from tkinter import filedialog, ttk, messagebox
-# import json
 from ttkthemes import ThemedTk
 import os
-#from fnmatch import fnmatch
 import numpy as np
-
-# import matplotlib.pyplot as plt
-# from mpl_toolkits import mplot3d
-# from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-
-
 
 class PolyEstimatorGUI:
     """
-    Class that defines a GUI for editing the parameters
+    Class that defines a GUI to perform polynomial identification
     """
 
     def __init__(self, root_):
         """
-        Constructor for the dynamics class
+        Constructor for the PolyEstimatorGUI class
 
         Parameters:
             root_ (tkinter.Tk): Object of the tkinter.Tk class where the TopazConfig gui will be built into
         """
 
 
-
-
         # Set the root variable
         self.root = root_
+        # Initialize the coefficients variable and a existence flag
+        self.C = None
+        self.coefs_computed = False
 
-        # # Set the io_enabled variable
-        # self.io_enabled = enable_io_
+        # Build the gui
+        self.build_gui()
 
+
+    def build_gui(self):
+        """
+        Function to build the widgets into the gui
+        """
+
+        # Create a main frame
         self.main_frame = ttk.Frame(self.root)
         self.main_frame.pack(side=tk.TOP, fill="both", expand=True)
-        self.name_r_label = ttk.Label(self.main_frame, text="Polynomial estimator")
-        self.name_r_label.pack(pady=2)
+        # Create a label with a title for the gui
+        self.name_label = ttk.Label(self.main_frame, text="Polynomial estimator")
+        self.name_label.pack(pady=2)
 
-
-
-        # if(self.io_enabled):
-        #     # Create buttons to load and save file
-        #     buttons_frame = ttk.Frame(self.main_frame)
-        #     buttons_frame.pack(side=tk.TOP, padx=10)
-        #     # Button to load file
-        #     self.load_button = ttk.Button(buttons_frame, text="    Load", padding=(4, 4), command=self.load_json)
-        #     self.load_button.pack(pady=10, side=tk.LEFT)
-        #     # Button to save file
-        #     self.save_button = ttk.Button(buttons_frame, text="    Save", padding=(4, 4), command=self.save_json)
-        #     self.save_button.pack(pady=10, side=tk.LEFT)
-        #     # Button to save file as
-        #     self.saveas_button = ttk.Button(buttons_frame, text="  Save As", padding=(4, 4), command=self.saveas_json)
-        #     self.saveas_button.pack(pady=10, side=tk.LEFT)
-
-
-
-        # Create a treeview to display the parameters attributes
-        self.tree = ttk.Treeview(self.main_frame, columns=("X", "Y"), height=5)
+        # Create a treeview to display the points
+        tree_scroll_frame = ttk.Frame(self.main_frame)
+        tree_scroll_frame.pack(side=tk.TOP)
+        self.tree = ttk.Treeview(tree_scroll_frame, columns=("X", "Y"), height=5)
         # Set the headers of each column
         self.tree.heading("#0", text="", anchor=tk.W)
         self.tree.heading("#1", text=" X", anchor=tk.CENTER)
-        self.tree.heading("#2", text=" Y", anchor=tk.CENTER)
-        # # Attach the function update_details to the act of selecting a value on the treeview
-        # self.tree.bind("<<TreeviewSelect>>", self.update_details)
+        self.tree.heading("#2", text="Y", anchor=tk.CENTER)
         # Configure the sizes of each column
         self.tree.column("#0", minwidth=1, width=1, stretch=tk.NO, anchor=tk.W)  # Column 0 (Name)
-        self.tree.column("#1", minwidth=150, width=150, stretch=tk.YES, anchor=tk.CENTER)  # Column 1 (Value)
-        self.tree.column("#2", minwidth=150, width=150, stretch=tk.YES, anchor=tk.CENTER)  # Column 1 (Value)
+        self.tree.column("#1", minwidth=140, width=140, stretch=tk.YES, anchor=tk.CENTER)  # Column 1 (Value)
+        self.tree.column("#2", minwidth=140, width=140, stretch=tk.YES, anchor=tk.CENTER)  # Column 1 (Value)
         # Pack the treeview
-        self.tree.pack(side=tk.TOP, fill="both", expand=True)
+        self.tree.pack(side=tk.LEFT, fill="both", expand=True)
         # Define possible colors for the treeview lines
-        self.tree.tag_configure("orange", foreground="#FFAA50")
         self.tree.tag_configure("white", foreground="white")
 
+        # Create a vertical scrollbar and attach it to the Treeview
+        self.v_scrollbar = tk.Scrollbar(tree_scroll_frame, orient="vertical", command=self.tree.yview)
+        self.tree.configure(yscrollcommand=self.v_scrollbar.set)
+        # Pack the scrollbar
+        self.v_scrollbar.pack(side=tk.LEFT, fill="y")
 
+        # Create a subframe for the entry boxes to intert the points
         self.point_entry_frame = ttk.Frame(self.main_frame)
         self.point_entry_frame.pack(side=tk.TOP, pady=5)
+        # Create entry box for x
         self.x_entry = tk.Entry(self.point_entry_frame , width=15)
         self.x_entry.pack(padx=5, side=tk.LEFT, fill="x")
+        # Create entry box for y
         self.y_entry = tk.Entry(self.point_entry_frame , width=15)
         self.y_entry.pack(padx=5, side=tk.LEFT, fill="x")
 
+        # Create a subframe for buttons
         self.buttons_frame = ttk.Frame(self.main_frame)
         self.buttons_frame.pack(side=tk.TOP, pady=5)
+        # Create a button to add a point to the treeview
         self.add_button = ttk.Button(self.buttons_frame, text="Add", padding=(3, 3), command=self.add_point)
         self.add_button.pack(padx=5, side=tk.LEFT)
-        self.del_button = ttk.Button(self.buttons_frame, text="Delete", padding=(3, 3), command=self.del_point)
+        # Create a button to delete points from the treeview
+        self.del_button = ttk.Button(self.buttons_frame, text="Delete", padding=(3, 3), command=self.del_points)
         self.del_button.pack(padx=5, side=tk.LEFT)
-        self.compute_button = ttk.Button(self.buttons_frame, text="Compute", padding=(3, 3), command=self.poly_stimate)
+        # Create a button to compute the coefficients
+        self.compute_button = ttk.Button(self.buttons_frame, text="Compute", padding=(3, 3), command=self.poly_identification)
         self.compute_button.pack(padx=5, side=tk.LEFT)
 
-
-        # Initialize the variable to store the json path
-        self.file_path = False
-        
-        # Initialize the variable to store the json data
-        self.data = {}
-
-
+        # Add label to display the results
         self.coefs_label = ttk.Label(self.main_frame, text="")
         self.coefs_label.pack(pady=2, side=tk.TOP)
 
 
-        # self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+    def get_coefs(self):
+        """
+        Function to get the latest estimated coefficients
 
+        Return:
+            self.C (list of floats): List with the estimated coefficients
+        """
+        return self.C
+
+
+    def has_coefs(self):
+        """
+        Function to return if there is an estimation available
+
+        Return:
+            self.coefs_computed (bool): True if there is a estimation available and False otherwise.
+        """
+
+        return self.coefs_computed
 
 
     def add_point(self):
+        """
+        Function to add the point in the entry boxes to the treeview
+        """
 
+        # Get the values in the entry boxes
         vx = self.x_entry.get()
         vy = self.y_entry.get()
-        #self.tree.insert("", "end", text=vx, values=(vy), tags=("white",))
-        self.tree.insert("", "end", text='', values=(vx,vy), tags=("white",))
-        # self.tree.insert("", "end", values=(vx,vy), tags=("white",))
 
-        return
+        # Check if the entry boxes are not empty
+        if (not (vx and vy)):
+            messagebox.showerror("Error", "No number pair to add.")
+            return
 
-    def del_point(self):
+        try:
+            # Add the values to the tree if they are numbers
+            float(vx)
+            float(vy)
+            self.tree.insert("", "end", text='', values=(vx,vy), tags=("white",))
+        except:
+            # Display a error message if the values are not valid numbers
+            messagebox.showerror("Error", "Invalid entry.\nMust be a number.")
+
+
+    def del_points(self):
+        """
+        Function to delete selected points from the treeview
+        """
+
         # Get the selected item(s)
         selected_items = self.tree.selection()
 
-        # Ensure an item is selected before attempting deletion
+        # Ensure at leas one item is selected before attempting deletion
         if selected_items:
             # Delete the selected item(s)
             self.tree.delete(*selected_items)
 
-    def poly_stimate(self):
 
+    def poly_identification(self):
+        """
+        Function to estimate the polynomial based on the data in the treeview
+        """
+
+        # Initialize the data vectors
         xv = []
         yv = []
 
+        # Inerate over the lines of the treeview and get the data
         count = 0
         for item in self.tree.get_children():
             count = count+1
+            # Get the treeview line
             item_text = self.tree.item(item, "values")
-            #x = float(self.tree.item(item, "text"))
-            #y = float(self.tree.item(item, "value")[0])
 
-            print(self.tree.item(item, "value"))
+            # Extract values of x and y ("y = poly(x)")
             x = float(self.tree.item(item, "value")[0])
             y = float(self.tree.item(item, "value")[1])
+            # Store values in the vector
             xv.append(x)
             yv.append(y)
+
+
         if(count<3):
+            # Do not execute the identification if there is not at least 3 points
             messagebox.showerror("Error", "Add at least 3 points")
             return
         else:
+            # Define the matrices to compute the coefficients that the residual least squares
             A = []
             B = []
             for i in range(count):
                 A.append([1.0, xv[i], xv[i]**2])
                 B.append(yv[i])
 
+            # Convert python lists to np.array
             A = np.array(A)
             B = np.array(B)
 
             try:
-                C = ( np.linalg.inv(A.transpose().dot(A)).dot(A.transpose()) ).dot(B)
-                # A*c = B
-                # A'*A*c = A'*B
-                # c = inv(A'*A) * A'*B
+                # Try to compute the coefficients
+                self.C = ( np.linalg.inv(A.transpose().dot(A)).dot(A.transpose()) ).dot(B) # C = inv(A'*A) * A'*B
+
+                # Save that there is a estimation available
+                self.coefs_computed = True
+                # Display the result
+                self.set_poly_text(self.C)
             except:
+                # Display a error message if there was a problem in the computation of the polynomial coefficients
+                # Likely caused by rank(A'*A) < 3
                 messagebox.showerror("Error", "Error computing coefficients.\nCheck the input values.")
-                return
-
-
-            # print("C: ", C)
-            self.set_poly_text(C)
-
 
 
     def set_poly_text(self, c):
+        """
+        Function to create a string and display them written as a polynomial function
 
-        #s = f'p(u) = '
+        Parameters:
+            c (list of floats): List with the coefficients of the polynomial
+        """
 
         rv = []
         sig = []
         for i, v in enumerate(c):
+            # Round the value for display
             r = round(v*1000)/1000
             
+            # Get the absolute values and the signals of each coefficient
             if r>=0:
                 rv.append(str(abs(r)))
                 if i>0:
@@ -196,101 +234,12 @@ class PolyEstimatorGUI:
                 rv.append(str(-r))
                 sig.append(' - ')
 
-        s = 'p(u) ='+sig[0]+rv[0]+sig[1]+rv[1]+'*u'+sig[2]+rv[2]+'*u^2'
-
+        # Costruct the string
+        s = 'p(u) ='+sig[0]+rv[0]+sig[1]+rv[1]+'*u'+sig[2]+rv[2]+'*u²'
+        # Set the abel
         self.coefs_label.config(text=s)
 
 
-
-            
-
-
-
-    def on_closing(self):
-        # Close the matplotlib figure
-        # self.fig.clf()
-        # self.right_frame.destroy()
-        plt.close()
-
-    def set_data(self, d, path):
-        self.data = d
-        self.file_path = path
-
-        self.update()
-
-
-    def get_data(self):
-        return self.data
-
-
-    def update(self):
-        if (self.data):
-            options = [f'Actuator {i}' for i in range(self.data['VEH_ACT_NUM']['value'])]
-            # self.actuator_menu['values'] = options
-
-            self.actuator_menu['menu'].delete(0, 'end')
-            for o in options:
-                self.actuator_menu['menu'].add_command(label=o, command=tk._setit(self.act_n_var, o))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    def saveas_json(self):
-        """
-        Function to save the current set os parameters as a new file
-        """
-
-        # Open a file dialog to select a path ans set a name for the new file to be saved
-        path = filedialog.asksaveasfilename(defaultextension=".json", filetypes=[("JSON Files", "*.json")])
-        # If a path and a name were provided
-        if path:
-            # Set the new path
-            self.file_path = path
-            # Save current set of parameters as a JSON file
-            self.save_json()
-
-
-    def save_json(self):
-        """
-        Function to dump the current set os parameters to the origin JSON file
-        """
-
-        try:
-            # If path is set
-            if self.file_path:
-                # Open the file
-                with open(self.file_path, "w") as json_file:
-                    # Dump the parameters data to the file
-                    json.dump(self.data, json_file, indent=4)
-        except:
-            # Throw an error message there was a problem in saving the file
-            messagebox.showerror("Error", "A problem ocurred when saving the file")
-
-
-    def load_json(self):
-        #TODO: Use parameter server?????
-        path = filedialog.askopenfilename(filetypes=[("JSON Files", "*.json")])
-        if path:
-            self.file_path = path
-            with open(self.file_path, "r") as json_file:
-                self.data = json.load(json_file)
-            
-            # self.populate_tree()
-            self.left_panel()
-
- 
 if __name__ == "__main__":
     """
     Main to run a detached JsonEditorGUI window
@@ -301,7 +250,7 @@ if __name__ == "__main__":
     # Define GUI title
     root.title("Polynomial estimation")
     # Define GUI window size
-    root.geometry('300x350')
+    root.geometry('300x250')
 
     try:
         # Define and set a parameters icon for the GUI
@@ -311,10 +260,7 @@ if __name__ == "__main__":
         print("An error occurred while creating the icon:", e)
 
     # Create the GUI object
-    # app = PolyEstimatorGUI(root, True)
     app = PolyEstimatorGUI(root)
-
-    # root.protocol("WM_DELETE_WINDOW", app.on_closing)
 
     # Run the tkinter event loop
     root.mainloop()
