@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
-# GUI to edit the parameter values
+# GUI to configure the actuator properties
 
 import tkinter as tk
 from tkinter import filedialog, ttk, messagebox
@@ -9,31 +9,28 @@ import json
 from ttkthemes import ThemedTk
 import os
 from fnmatch import fnmatch
-
-import poly_estimator as PEST
-
-
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-
+import poly_estimator as PEST
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import polynomial as POLY
 
 class ActuatorsEditorGUI:
     """
-    Class that defines a GUI for editing the parameters
+    Class that defines a GUI for configuring the actuators properties
     """
 
     def __init__(self, root_, enable_io_=True):
         """
-        Constructor for the dynamics class
+        Constructor for the ActuatorsEditorGUI class
 
         Parameters:
             root_ (tkinter.Tk): Object of the tkinter.Tk class where the TopazConfig gui will be built into
+            enable_io_ (bool): Flag to enable the creation of input/output buttons to the gui
         """
-
-
-
 
         # Set the root variable
         self.root = root_
@@ -43,17 +40,17 @@ class ActuatorsEditorGUI:
 
         # Define a left panel
         self.left_frame = ttk.Frame(self.root)
-        self.left_frame.pack(side=tk.LEFT, fill="both", expand=True)
+        self.left_frame.pack(side=tk.LEFT, fill="both", expand=False)
+        # Add a title for the left panel
         self.name_l_label = ttk.Label(self.left_frame, text="Actuator configuration")
-        self.name_l_label.pack(pady=2)
+        self.name_l_label.pack(padx=5)
 
         # Define a right panel
         self.right_frame = ttk.Frame(self.root)
         self.right_frame.pack(side=tk.LEFT, fill="both", expand=True)
+        # Add a title for the right panel
         self.name_r_label = ttk.Label(self.right_frame, text="Curve model")
-        self.name_r_label.pack(pady=2)
-
-
+        self.name_r_label.pack(padx=5)
 
         if(self.io_enabled):
             # Create buttons to load and save file
@@ -69,212 +66,348 @@ class ActuatorsEditorGUI:
             self.saveas_button = ttk.Button(buttons_frame, text="  Save As", padding=(4, 4), command=self.saveas_json)
             self.saveas_button.pack(pady=10, side=tk.LEFT)
 
-
-        # self.selector_frame = ttk.Frame(self.left_frame)
-        # self.selector_frame.pack(side=tk.TOP, padx=10)
-
-        self.editor_frame = ttk.Frame(self.left_frame)
-        self.editor_frame.pack(side=tk.TOP, padx=10)
-
-
-
-
         # Initialize the variable to store the json path
         self.file_path = False
         
         # Initialize the variable to store the json data
         self.data = {}
 
-        #path = "/home/NEA.com_adriano.rezende/simulation_ws/src/px4sim/config/sim_params.json"
-        path = "/home/adrianomcr/simulation_ws/src/px4sim/config/sim_params.json"
-        with open(path, "r") as json_file:
-                self.data = json.load(json_file)
+        # Define a dictionarry with generic information to build the gui
+        self.poly_param_names = {
+            'Voltage to speed'  : { 'name':'VOLT2SPEED'  , 'xdata':'voltage', 'xl':'Voltage [V]'  , 'yl':'Speed [rad/s]'},
+            'Speed to thrust'   : { 'name':'SPEED2THRUST', 'xdata':'speed'  , 'xl':'Speed [rad/s]', 'yl':'Force [N]'    },
+            'Speed to torque'   : { 'name':'SPEED2TORQUE', 'xdata':'speed'  , 'xl':'Speed [rad/s]', 'yl':'Torque [Nm]'  },
+            'Torque to current' : { 'name':'TORQUE2AMPS' , 'xdata':'torque' , 'xl':'Torque [Nm]'  , 'yl':'Current [A]'  }
+        }
 
-        # print(self.data)
-
-        self.left_panel()
-        self.right_panel()
-
-        # self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
-
-
+        # Builf the left and right panels
+        self.build_left_panel()
+        self.build_right_panel()
 
 
-    def plot_curve(self, *args):
+    def build_left_panel(self):
+        """
+        Function to build the widgets into the left panel
+        """
 
-
-
-        print(args)
-        print("act_n: ", self.act_n_var.get())
-        print("curce_type: ", self.act_feature_var.get())
-        print('')
-        act_n = self.act_n_var.get()
-        act_n = int(act_n[-1])
-
-        self.axs.clear()
-
-        # Data for the line plot
-        x_data = [0, 0.2, 0.4, 0.6, 0.8, 1]
-        y_data = [0, 2, 4, 1, 3, 7]
-        y_data = [i**act_n for i in y_data]
-
-        self.axs.set_xlim(0, 1)
-
-        # Plot the line
-        self.axs.plot(x_data, y_data)
-        self.axs.grid(True)
-
-        # Optionally, add labels and a title
-        self.axs.set_xlabel('X-axis Label')
-        self.axs.set_ylabel('Y-axis Label')
-        self.axs.set_title(self.act_n_var.get())
-
-        # Show the plot
-        plt.ion()
-        #plt.show()
-
-
-        
-
-
-        return
-
-
-
-    def on_closing(self):
-        # Close the matplotlib figure
-        # self.fig.clf()
-        # self.right_frame.destroy()
-        plt.close()
-
-    def set_data(self, d, path):
-        self.data = d
-        self.file_path = path
-
-        self.update()
-
-
-    def get_data(self):
-        return self.data
-
-
-    def update(self):
-        if (self.data):
-            options = [f'Actuator {i}' for i in range(self.data['VEH_ACT_NUM']['value'])]
-
-            # self.actuator_menu['values'] = options
-
-            self.actuator_menu['menu'].delete(0, 'end')
-            for o in options:
-                self.actuator_menu['menu'].add_command(label=o, command=tk._setit(self.act_n_var, o))
-
-
-
-
-    def right_panel(self):
-
-        self.fig, self.axs = plt.subplots(1,1)
-
-        canvas = FigureCanvasTkAgg(self.fig, master=self.right_frame)
-        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        canvas.draw()
-        canvas.get_tk_widget().pack()
-        return
-
-
-    def left_panel(self):
-
-
-
+        # Define the options for the actuators ids if this information is available
         if (self.data):
             actuator_options = [f'Actuator {i}' for i in range(self.data['VEH_ACT_NUM']['value'])]
         else:
             actuator_options = []
 
+        # Create a subframe to select the id of the actuator to be configured
         act_select_frame = ttk.Frame(self.left_frame)
         act_select_frame.pack(side=tk.TOP, pady=5)
-        #
+        # Add a label for the actuator id selector
         act_select_label = ttk.Label(act_select_frame, text="Actuator number")
         act_select_label.pack(side=tk.LEFT,padx=5)
-        #
-        self.act_n_var = tk.StringVar()
-        # Create an OptionMenu widget
-        self.actuator_menu = ttk.OptionMenu(act_select_frame, self.act_n_var, None, *actuator_options)
+        # Add a dropdown to select among the possible actuator ids
+        self.act_id_var = tk.StringVar()
+        self.actuator_menu = ttk.OptionMenu(act_select_frame, self.act_id_var, None, *actuator_options)
         self.actuator_menu.pack(side=tk.LEFT, padx=10)
-        # self.act_n_var.trace('w', self.on_select)
-        self.act_n_var.trace("w", self.plot_curve) 
+        # Bind the function to update the data displayed in the gui
+        self.act_id_var.trace("w", self.update_displayed_data)
 
+        # Create a subframe for some actuators simple properties
         act_features_frame = ttk.Frame(self.left_frame)
         act_features_frame.pack(side=tk.TOP, pady=5)
-
+        # Add label and entry box for actuators time constant
         act_tcte_label = ttk.Label(act_features_frame, text="Time constant")
         act_tcte_label.grid(row=0, column=0)
-        # act_tcte_label.pack(side=tk.TOP,padx=5, anchor="w")
-        combo_tcte = ttk.Combobox(act_features_frame, values=[])
-        # combo_tcte.bind("<<ComboboxSelected>>", self.on_option_selected)
-        # combo_tcte.bind("<Return>", lambda event=None: self.set_value())
-        # combo_tcte.set("")
-        combo_tcte.grid(row=0, column=1)
-
+        self.combo_tcte = ttk.Combobox(act_features_frame, values=[])
+        self.combo_tcte.grid(row=0, column=1)
+        # Add label and entry box for actuators moment of inertia
         act_moi_label = ttk.Label(act_features_frame, text="Moment of inertia")
-        # act_moi_label.pack(side=tk.TOP,padx=5, anchor="w")
-        act_moi_label.grid(row=2, column=0)
-        combo_moi = ttk.Combobox(act_features_frame, values=[])
-        combo_moi.grid(row=2, column=1)
-
+        act_moi_label.grid(row=1, column=0)
+        self.combo_moi = ttk.Combobox(act_features_frame, values=[])
+        self.combo_moi.grid(row=1, column=1)
+        # Add label and entry box for actuators spin directions
         act_spin_label = ttk.Label(act_features_frame, text="Spin direction")
-        # act_spin_label.pack(side=tk.TOP,padx=5, anchor="w")
-        act_spin_label.grid(row=1, column=0)
-        combo_spin = ttk.Combobox(act_features_frame, values=[])
-        combo_spin.grid(row=1, column=1)
+        act_spin_label.grid(row=2, column=0)
+        self.combo_spin = ttk.Combobox(act_features_frame, values=[])
+        self.combo_spin.grid(row=2, column=1)
 
-
-
+        # Create a subframe to select the curve displayed in the plot
         act_curve_frame = ttk.Frame(self.left_frame)
-        act_curve_frame.pack(side=tk.TOP, pady=(30,5))
-        #
+        act_curve_frame.pack(side=tk.TOP, pady=(15,3))
+        # Add a label for the curve selector
         act_curve_label = ttk.Label(act_curve_frame, text="Curve")
         act_curve_label.pack(side=tk.LEFT,padx=5)
-        curve_options = ['Voltage to speed','Speed to thrust','Speed to torque','Torque to current']
+        # Add a dropdown to select among the possible actuator ids
+        curve_options = self.poly_param_names.keys()
         self.act_feature_var = tk.StringVar()
-        # Create an OptionMenu widget
         self.curve_menu = ttk.OptionMenu(act_curve_frame, self.act_feature_var, None, *curve_options)
         self.curve_menu.pack(side=tk.TOP, padx=10)
-        # self.act_feature_var.trace('w', self.on_select)
+        # Bind the function to update the data displayed in the gui
+        self.act_feature_var.trace("w", self.update_displayed_data)
 
+        # Subframe for actuator simple configurations
+        act_poly_frame = ttk.Frame(self.left_frame)
+        act_poly_frame.pack(side=tk.TOP, pady=5)
+        poly_label = ttk.Label(act_poly_frame, text="p(u) = ")
+        poly_label.grid(row=0, column=0)
+        # Actuator polynomial coefficient for order 0
+        self.entry_poly_0 = ttk.Entry(act_poly_frame,width=11)
+        self.entry_poly_0.grid(row=0, column=1)
+        poly_label_0 = ttk.Label(act_poly_frame, text="  ")
+        poly_label_0.grid(row=0, column=2)
+        # Actuator polynomial coefficient for order 0
+        self.entry_poly_1 = ttk.Entry(act_poly_frame,width=11)
+        self.entry_poly_1.grid(row=0, column=3)
+        poly_label_1 = ttk.Label(act_poly_frame, text="u ")
+        poly_label_1.grid(row=0, column=4)
+        # Actuator polynomial coefficient for order 0
+        self.entry_poly_2 = ttk.Entry(act_poly_frame,width=11)
+        self.entry_poly_2.grid(row=0, column=5)
+        poly_label_2 = ttk.Label(act_poly_frame, text="u²")
+        poly_label_2.grid(row=0, column=6)
 
+        # Add button to apply the estimated coefficients to the current actuator
+        self.set_button = ttk.Button(self.left_frame, text="Set values", padding=(4, 4), command=self.set_values)
+        self.set_button.pack(pady=2, side=tk.TOP)
 
+        # Add button to apply the estimated coefficients to the current actuator
+        self.apply_est_button = ttk.Button(self.left_frame, text="Apply estimated coefficients", padding=(4, 4), command=self.apply_coefs)
+        self.apply_est_button.pack(pady=5, side=tk.BOTTOM)
 
+        # Add polynomial estimator GUI
         estimator_frame = ttk.Frame(self.left_frame)
-        estimator_frame.pack(side=tk.TOP)
-        poly_est = PEST.PolyEstimatorGUI(estimator_frame)
+        estimator_frame.pack(side=tk.BOTTOM)
+        self.poly_est_gui = PEST.PolyEstimatorGUI(estimator_frame)
 
 
+    def build_right_panel(self):
+        """
+        Function to build the widgets into the right panel
+        """
 
-    def on_select(self, name, index, mode):
-        # print(name)
-        # print(index)
-        # print(mode)
+        # Create a pyplot figure
+        self.fig, self.axs = plt.subplots(1,1)
 
-        for widget in self.editor_frame.winfo_children():
-            widget.destroy()
+        # Attach the plot to the right_frame
+        canvas = FigureCanvasTkAgg(self.fig, master=self.right_frame)
+        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        canvas.draw()
+        canvas.get_tk_widget().pack()
 
-        self.label = ttk.Label(self.editor_frame, text="aaaaaaaaaaaaa")
-        self.label.pack(pady=2)
-        
 
+    def set_values(self):
+        """
+        Function to set the values in the gui to the data dictionary
+        """
+
+        # Get the actuator id
+        act_id = self.act_id_var.get().split()[-1]
+
+        # Return if there is no actuator selected
+        if(not self.act_id_var.get()):
+            messagebox.showerror("Error", "Select an actuator id")
+            return
+
+        # Set simple properties
+        self.data[f"ACT{act_id}_TIME_CTE"]['value'] = float(self.combo_tcte.get())
+        self.data[f"ACT{act_id}_MOI_ROTOR"]['value'] = float(self.combo_moi.get())
+        self.data[f"ACT{act_id}_SPIN"]['value'] = int(self.combo_spin.get())
+
+        # Return if there not curve selected
+        if(not self.act_feature_var.get()):
+            return
+
+        # Get the selected curve
+        poly_param_name_ = self.poly_param_names[self.act_feature_var.get()]['name']
+        # Compute the full name of the coefficient parameters
+        poly_coef_names_ = [f"ACT{act_id}_"+poly_param_name_+f"_{i}" for i in range(3)]
+
+        # Set coefficient parameters
+        self.data[poly_coef_names_[0]]['value'] = float(self.entry_poly_0.get())
+        self.data[poly_coef_names_[1]]['value'] = float(self.entry_poly_1.get())
+        self.data[poly_coef_names_[2]]['value'] = float(self.entry_poly_2.get())
+
+        # Update displayed data
+        self.update_displayed_data()
+
+
+    def format_as_scientific(self,value):
+        """
+        Function to define a string equivalent to a float in the scientific notation
+
+        Parameters:
+            value (float): Float value to be converted to a string
+
+        Return:
+            formatted_value (string): String with the input float in the scientific notation
+        """
+        formatted_value = "{:.5e}".format(value)
+        formatted_value = formatted_value.replace('+0','+')
+        formatted_value = formatted_value.replace('-0','-')
+        formatted_value = formatted_value.replace('e+0','')
+        return formatted_value
+
+
+    def apply_coefs(self):
+        """
+        Function to apply the estimated coefficients to the coefficient entry boxes
+        """
+
+        if (not self.poly_est_gui.has_coefs()):
+            # Display a message and return if there is not polynomial estimation
+            messagebox.showerror("Error", "There is no available estimation")
+            return
+        elif(not self.act_id_var.get() and not self.act_feature_var.get()):
+            # Display a message and return if actuator id and curve are not selected
+            messagebox.showerror("Error", "Select an actuator id and a curve")
+            return
+        elif(not self.act_id_var.get()):
+            # Display a message and return if actuator id is not selected
+            messagebox.showerror("Error", "Select an actuator id")
+            return
+        elif(not self.act_feature_var.get()):
+            # Display a message and return if curve is not selected
+            messagebox.showerror("Error", "Select a curve")
+            return
+
+        # Get coefficients from the polynomial estimation gui
+        C_ = self.poly_est_gui.get_coefs()
+
+        # Set the coefficient for order 0
+        self.entry_poly_0.delete(0, tk.END)
+        self.entry_poly_0.insert(0, self.format_as_scientific(C_[0]))
+        # Set the coefficient for order 1
+        self.entry_poly_1.delete(0, tk.END)
+        self.entry_poly_1.insert(0, self.format_as_scientific(C_[1]))
+        # Set the coefficient for order 2
+        self.entry_poly_2.delete(0, tk.END)
+        self.entry_poly_2.insert(0, self.format_as_scientific(C_[2]))
+
+        # Update the plot with the new polynomial
+        self.plot_poly()
+
+
+    def replicate_config(self):
+        """
+        Function to replicate the configuration of the selected actuator to the other actuators
+        """
+        # TODO
         return
 
 
+    def update_displayed_data(self, *args):
+        """
+        Function to replicate the configuration of the selected actuator to the other actuators
+
+        Parameters:
+            *args (list): Unused arguments passed by the function when it is binded to a widget action.
+        """
+
+        # Update the possible ids of the actuators
+        self.update_actuator_options()
+
+        # Return it there is no actuator selected
+        if(not self.act_id_var.get()):
+            return
+
+        # Get selected actuator id
+        act_id = self.act_id_var.get().split()[-1]
+
+        # Update the value of actuator time constant
+        self.combo_tcte.delete(0, tk.END)
+        self.combo_tcte.insert(0, str(self.data[f"ACT{act_id}_TIME_CTE"]['value']))
+        self.combo_tcte['values'] = self.data[f"ACT{act_id}_TIME_CTE"]['options']
+        # Update the value of actuator moment of inertia
+        self.combo_moi.delete(0, tk.END)
+        self.combo_moi.insert(0, str(self.data[f"ACT{act_id}_MOI_ROTOR"]['value']))
+        self.combo_moi['values'] = self.data[f"ACT{act_id}_MOI_ROTOR"]['options']
+        # Update the value of actuator spin
+        self.combo_spin.delete(0, tk.END)
+        self.combo_spin.insert(0, str(int(self.data[f"ACT{act_id}_SPIN"]['value'])))
+        self.combo_spin['values'] = self.data[f"ACT{act_id}_SPIN"]['options']
+
+        # Return it there is no curve selected
+        if(not self.act_feature_var.get()):
+            return
+        
+        # Get the selected curve
+        poly_param_name_ = self.poly_param_names[self.act_feature_var.get()]['name']
+        # Compute the full name of the coefficient parameters
+        poly_coef_names_ = [f"ACT{act_id}_"+poly_param_name_+f"_{i}" for i in range(3)]
+        # Cet the coefficient parameters
+        poly_coefs_ = [self.data[s]['value'] for s in poly_coef_names_]
+
+        # Get the selected curve
+        poly_param_name_ = self.poly_param_names[self.act_feature_var.get()]['name']
+        # Compute the full name of the coefficient parameters
+        poly_coef_names_ = [f"ACT{act_id}_"+poly_param_name_+f"_{i}" for i in range(3)]
+
+        # Update the data of the the coefficient for order 0
+        self.entry_poly_0.delete(0, tk.END)
+        self.entry_poly_0.insert(0, self.format_as_scientific(self.data[poly_coef_names_[0]]['value']))
+        # Update the data of the the coefficient for order 1
+        self.entry_poly_1.delete(0, tk.END)
+        self.entry_poly_1.insert(0, self.format_as_scientific(self.data[poly_coef_names_[1]]['value']))
+        # Update the data of the the coefficient for order 2
+        self.entry_poly_2.delete(0, tk.END)
+        self.entry_poly_2.insert(0, self.format_as_scientific(self.data[poly_coef_names_[2]]['value']))
+
+        # Update the plot graph
+        self.plot_poly()
 
 
+    def plot_poly(self):
+        """
+        Function to plot a polynomial on the right pane. The coefficients used are the ones in the entry boxes.
+        """
 
+        # Return if the actuator id or the curve are not selected
+        if(not self.act_id_var.get() or not self.act_feature_var.get()):
+            return
 
+        # Get actuator id
+        act_id = self.act_id_var.get().split()[-1]
 
+        abscissa = {}
+        # Compute abscissa voltage based on the maximum voltage
+        max_voltage_ = self.data['BAT_N_CELLS']['value']*4.2 # Assuming a LiPo Cell
+        n_pts_ = 1000
+        abscissa['voltage'] = [i * max_voltage_ / (n_pts_ - 1) for i in range(n_pts_)]
+        # Compute abscissa speed based on the maximum speed computed from maximum value of the voltage2speed map
+        volt2speed_coef_names_ = [f"ACT{act_id}_VOLT2SPEED"+f"_{i}" for i in range(3)]
+        volt2speed_coef_ = [self.data[s]['value'] for s in volt2speed_coef_names_]
+        poly_speed = POLY.polynomial(volt2speed_coef_)
+        max_speed_ = poly_speed.eval(max_voltage_)
+        abscissa['speed'] = [i * max_speed_ / (n_pts_ - 1) for i in range(n_pts_)]
+        # Compute abscissa torque based on the maximum torque computed from maximum value of the speed2torque map
+        speed2torque_coef_names_ = [f"ACT{act_id}_SPEED2TORQUE"+f"_{i}" for i in range(3)]
+        speed2torque_coef_ = [self.data[s]['value'] for s in speed2torque_coef_names_]
+        poly_torque = POLY.polynomial(speed2torque_coef_)
+        max_torque_ = poly_torque.eval(max_speed_)
+        abscissa['torque'] = [i * max_torque_ / (n_pts_ - 1) for i in range(n_pts_)]
 
+        # Get the polynomial coefficients from the entry boxes
+        poly_coefs_ = [float(self.entry_poly_0.get()), float(self.entry_poly_1.get()), float(self.entry_poly_2.get())]
 
+        # Create a polynomial object based on the coefficients
+        poly_selected_ = POLY.polynomial(poly_coefs_)
 
+        # Get the x data for the plot
+        xdata = abscissa[self.poly_param_names[self.act_feature_var.get()]['xdata']]
+        # Initialize the y data for the plot
+        ydata = []
 
+        # Evaluate the polynomial
+        for x in xdata:
+            ydata.append(poly_selected_.eval(x))
+
+        # Plot the curve on the right panel
+        self.axs.clear() # clear
+        self.axs.plot(xdata, ydata, linewidth=2, color='blue') # plot
+        self.axs.grid(True) # enable grid
+        self.axs.set_xlabel(self.poly_param_names[self.act_feature_var.get()]['xl']) # set x axis name
+        self.axs.set_ylabel(self.poly_param_names[self.act_feature_var.get()]['yl']) # set y axis name
+        self.axs.set_title(self.act_id_var.get() + ' - ' + self.act_feature_var.get()) # set title
+
+        # Show the plot and proceed
+        plt.ion()
 
 
     def saveas_json(self):
@@ -318,12 +451,60 @@ class ActuatorsEditorGUI:
                 self.data = json.load(json_file)
             
             # self.populate_tree()
-            self.left_panel()
+            self.update_displayed_data()
+
+
+    def on_closing(self):
+        # Close matplotlib.pyplot to avoid gui to keep alive after it is closed
+        plt.close()
+
+
+    def set_data(self, d, path):
+        """
+        Set data dictionary and the file path of the gui
+        """
+        self.data = d
+        self.file_path = path
+
+        self.update_displayed_data()
+
+
+    def get_data(self):
+        """
+        Return the current data dictionary that the gui is using
+        """
+        return self.data
+
+
+    def viz_return(self):
+        """
+        Function to update the visualization of the gui
+        """
+        # Just call the update_displayed_data() function
+        self.update_displayed_data()
+
+
+    def update_actuator_options(self):
+        """
+        Function to update available actuators on the dropdown
+        """
+
+        # If there is data 
+        if (self.data):
+
+            # Define the options based the number of actuators
+            options = [f'Actuator {i}' for i in range(self.data['VEH_ACT_NUM']['value'])]
+
+            # Delet the list currently set of the dropdown
+            self.actuator_menu['menu'].delete(0, 'end')
+            # Add the updated options to the dropdown
+            for opt in options:
+                self.actuator_menu['menu'].add_command(label=opt, command=tk._setit(self.act_id_var, opt))
 
  
 if __name__ == "__main__":
     """
-    Main to run a detached JsonEditorGUI window
+    Main to run a detached ActuatorsEditorGUI window
     """
 
     # Define root GUI window
@@ -331,7 +512,7 @@ if __name__ == "__main__":
     # Define GUI title
     root.title("Actuators configuration")
     # Define GUI window size
-    root.geometry('1150x500')
+    root.geometry('1200x600')
 
     try:
         # Define and set a parameters icon for the GUI
@@ -343,6 +524,7 @@ if __name__ == "__main__":
     # Create the GUI object
     app = ActuatorsEditorGUI(root, True)
 
+    # Call the function to terminate the matplotlib.pyplot when window is closed
     root.protocol("WM_DELETE_WINDOW", app.on_closing)
 
     # Run the tkinter event loop
