@@ -1,24 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
-
+# GUI to put together all of the GUIs related with the simulator
 
 import tkinter as tk
 from tkinter import ttk, filedialog
 from tkinter import messagebox
 import json
-import matplotlib.pyplot as plt
 from ttkthemes import ThemedTk
 
 import os
 import home_sim as HOME
 import full_set_params as FULL_SET
 import cfg_actuators as CFG_ACT
-
-
-
-
-
 
 class SimGUI:
     """
@@ -27,7 +21,7 @@ class SimGUI:
 
     def __init__(self, root_):
         """
-        Constructor for the dynamics class
+        Constructor for the SimGUI class
 
         Parameters:
             root_ (tkinter.Tk): Object of the tkinter.Tk class where the TopazConfig gui will be built into
@@ -36,10 +30,8 @@ class SimGUI:
         # Set the root variable
         self.root = root_
 
-
+        # Initialize the variable to store the json path
         self.json_path = None
-
-
 
         # Create the top-level notebook
         self.top_notebook = ttk.Notebook(self.root)
@@ -48,95 +40,108 @@ class SimGUI:
         # Create the first tab in the top-level notebook
         tab_main = ttk.Frame(self.top_notebook)
         self.top_notebook.add(tab_main, text="Home")
-        # Create buttons to load and save file
+
+        # Create a subframe for the io buttons
         tab_main_io = ttk.Frame(tab_main)
         tab_main_io.pack(side=tk.BOTTOM, pady=5, fill="x")
-        # Create buttons to load and save file
-        tab_home = ttk.Frame(tab_main)
-        tab_home.pack(side=tk.BOTTOM, pady=5, expand=True, fill="both")
-
-        self.home_gui = HOME.SimHomeApp(tab_home)
-
-        # # Create buttons to load and save file
-        # io_frame = ttk.Frame(tab_main_io)
-        # io_frame.pack(side=tk.LEFT, pady=0, fill="both", expand=True)
-
         # Button to load file
         self.load_button = ttk.Button(tab_main_io, text="   Load", width=7, padding=(4, 4), command=self.load_json)
         self.load_button.pack(padx=5, side=tk.LEFT)
-
         # Button to save file
         self.save_button = ttk.Button(tab_main_io, text="   Save", width=7, padding=(4, 4), command=self.save_json)
         self.save_button.pack(padx=5, side=tk.LEFT)
-
         # Button to save file as
         self.saveas_button = ttk.Button(tab_main_io, text="Save As", width=7, padding=(4, 4), command=self.saveas_json)
         self.saveas_button.pack(padx=5, side=tk.LEFT)
-
-        # Label
+        # Label form the path of the config file
         self.path_label = ttk.Label(tab_main_io, text="JSON path: ")
         self.path_label.pack(side=tk.LEFT, padx=10, fill="both", expand=True)
 
-
-
+        # Create subframe for the home gui
+        tab_home = ttk.Frame(tab_main)
+        tab_home.pack(side=tk.BOTTOM, pady=5, expand=True, fill="both")
+        # Append the home gui to the subframe
+        self.home_gui = HOME.SimHomeApp(tab_home)
 
         # Create the second tab in the top-level notebook
         tab2 = ttk.Frame(self.top_notebook)
         self.top_notebook.add(tab2, text="Configuration")
-
         # Create a second-level notebook inside Tab 2
         self.config_level_notebook = ttk.Notebook(tab2)
         self.config_level_notebook.pack(fill='both', expand=True)
 
-        # Create tabs inside the second-level notebook
+        # Inside the second-level notebook, create a tab for configuring the geolocation
         cfg_tab_geo = ttk.Frame(self.config_level_notebook)
         self.config_level_notebook.add(cfg_tab_geo, text="Geolocation")
 
+        # Inside the second-level notebook, create a tab for configuring the sensors
         cfg_tab_sens = ttk.Frame(self.config_level_notebook)
         self.config_level_notebook.add(cfg_tab_sens, text="Sensors")
 
+        # Inside the second-level notebook, create a tab for configuring the actuators
         cfg_tab_act = ttk.Frame(self.config_level_notebook)
         self.config_level_notebook.add(cfg_tab_act, text="Actuators")
+        # Append the ActuatorsEditorGUI gui to the tab
         self.cfg_act_gui = CFG_ACT.ActuatorsEditorGUI(cfg_tab_act, False)
-        # self.root.protocol("WM_DELETE_WINDOW", self.cfg_act_gui.on_closing)
 
+        # Inside the second-level notebook, create a tab for configuring all of the parameters
         cfg_tab_full = ttk.Frame(self.config_level_notebook)
         self.config_level_notebook.add(cfg_tab_full, text="Full Parameter Set")
+        # Append the JsonEditorGUI gui to the tab
         self.full_set_gui = FULL_SET.JsonEditorGUI(cfg_tab_full, False)
 
-
+        # Bind the function tab_changed to the actions of changing tabs
         self.top_notebook.bind("<<NotebookTabChanged>>", self.tab_changed)
         self.config_level_notebook.bind("<<NotebookTabChanged>>", self.tab_changed)
 
+        # Initialize the current tab variable
         self.current_tab = [self.top_notebook.index(self.top_notebook.select()), self.config_level_notebook.index(self.config_level_notebook.select())]
 
 
 
     def tab_changed(self,event):
-        current_tab_a = self.top_notebook.index(self.top_notebook.select())
-        current_tab_b = self.config_level_notebook.index(self.config_level_notebook.select())
+        """
+        Tab to handle action that need to occur when the selected tab changes
+
+        Parameters:
+            event (tkinter.Event): Unused argument passed through the bind method
+        """
+
+        # Get current first level tab
+        current_tab_1 = self.top_notebook.index(self.top_notebook.select())
+        # Get current second level tab
+        current_tab_2 = self.config_level_notebook.index(self.config_level_notebook.select())
+
+        # Save the previous tab variable
         prev_tab = self.current_tab[:]
-        self.current_tab = [current_tab_a, current_tab_b]
+        # Update the current tab variable
+        self.current_tab = [current_tab_1, current_tab_2]
 
-
+        # Get the object of the gui in the previous tab
         old_tab_gui = self.tab_map(prev_tab)
         if (old_tab_gui):
+            # Get the updated data from the previous gui
             data = old_tab_gui.get_data()
             self.data = data
 
+        # Get the object of the gui in the current tab
         new_tab_gui = self.tab_map(self.current_tab)
         if(new_tab_gui):
+            # Set the updated data into the current gui
             new_tab_gui.set_data(self.data,self.json_path)
-
-        print ("Old tab: ", prev_tab)
-        print ("New tab: ", self.current_tab)
-        print("")
-
+            new_tab_gui.viz_return()
 
 
     def tab_map(self,ids):
+        """
+        Function to map the id list of a GUI tab to its object
 
-        tab = None
+        Parameters:
+            ids (list of int): List with the ids (one id of each level) of the selected tab
+
+        Returns:
+            (class of a gui tab): Object that represents the gui that are attached to the selected tab
+        """
         if(ids[0] == 0):
             return self.home_gui
         elif(ids[0] == 1):
@@ -149,6 +154,15 @@ class SimGUI:
             if(ids[1] == 3):
                 return self.full_set_gui
 
+
+    def on_closing(self):
+        """
+        Function to handle action when window is closed
+        """
+        # Make sure the simulator is closed
+        self.home_gui.on_closing()
+        # Make sure matplotlib.pyplot is terminated
+        self.cfg_act_gui.on_closing()
 
 
     def load_json(self):
@@ -166,7 +180,6 @@ class SimGUI:
             # Update data on the child GUIs
             self.full_set_gui.set_data(self.data, self.json_path)
             self.home_gui.set_data(self.data, self.json_path)
-
 
    
     def saveas_json(self):
@@ -200,13 +213,10 @@ class SimGUI:
             # Throw an error message there was a problem in saving the file
             messagebox.showerror("Error", "A problem ocurred when saving the file")
 
-    def on_closing(self):
-        plt.close()
-
 
 if __name__ == "__main__":
     """
-    Main to run a detached JsonEditorGUI window
+    Main to run a detached SimGUI window
     """
 
     # Define root GUI window
@@ -214,7 +224,7 @@ if __name__ == "__main__":
     # Define GUI title
     root.title("Custom Copter Simulator")
     # Define GUI window size
-    root.geometry('1150x500')
+    root.geometry('1200x600')
 
     try:
         # Define and set a parameters icon for the GUI
@@ -226,7 +236,11 @@ if __name__ == "__main__":
     # Create the GUI object
     app = SimGUI(root)
 
+    # Call the function to terminate the matplotlib.pyplot when window is closed 
     root.protocol("WM_DELETE_WINDOW", app.on_closing)
+
+    # Maximize the window
+    root.attributes('-zoomed', 1)
 
     # Run the tkinter event loop
     root.mainloop()
@@ -251,7 +265,7 @@ if __name__ == "__main__":
 # # scidpurple - good
 # # black
 # # kroc - this is orange
-# # radiance
+# # radiance - Ubuntu
 # # breeze
 
 

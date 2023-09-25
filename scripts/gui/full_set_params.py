@@ -22,6 +22,7 @@ class JsonEditorGUI:
 
         Parameters:
             root_ (tkinter.Tk): Object of the tkinter.Tk class where the TopazConfig gui will be built into
+            enable_io_ (bool): Flag to enable the creation of input/output buttons to the gui
         """
 
         # Set the root variable
@@ -64,9 +65,6 @@ class JsonEditorGUI:
         right_frame.pack(side=tk.LEFT, fill="both", expand=False)
 
         if(self.io_enabled):
-
-            # self.io = IO.ioJsonrGUI(right_frame, self.data, self.load_json)
-
             # Create buttons to load and save file
             buttons_frame = ttk.Frame(right_frame)
             buttons_frame.pack(side=tk.TOP, padx=10)
@@ -79,9 +77,6 @@ class JsonEditorGUI:
             # Button to save file as
             self.saveas_button = ttk.Button(buttons_frame, text="  Save As", padding=(4, 4), command=self.saveas_json)
             self.saveas_button.pack(pady=10, side=tk.LEFT)
-        # else:
-        #     self.populate_button = ttk.Button(right_frame, text=" Populate", padding=(4, 4), command=self.populate_tree)
-        #     self.populate_button.pack(pady=10, side=tk.TOP)
         
         # Create a subframe for detailed info about a parameter
         details_frame = ttk.Frame(right_frame)
@@ -146,12 +141,27 @@ class JsonEditorGUI:
         
 
     def set_data(self, d, path):
+        """
+        Set data dictionary and the file path of the gui
+        """
         self.data = d
-        self.populate_tree()
         self.file_path = path
 
+
     def get_data(self):
+        """
+        Return the current data dictionary that the gui is using
+        """
         return self.data
+
+
+    def viz_return(self):
+        """
+        Function to update the visualization of the gui
+        """
+        # Just call the populate_tree() function
+        self.populate_tree()
+        return
 
 
     def on_option_selected(self, event):
@@ -424,7 +434,7 @@ class JsonEditorGUI:
             new_value = self.data[selected_param]['default']
             # Set the value to the default value
             self.data[selected_param]['value'] = new_value
-            # Update the entrybox with the new (default) value
+            # Update the entry box with the new (default) value
             self.combobox.delete(0, tk.END)
             self.combobox.insert(0, str(new_value))
             self.combobox['values'] = self.data[selected_param]['options']

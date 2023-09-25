@@ -22,7 +22,6 @@ class PolyEstimatorGUI:
             root_ (tkinter.Tk): Object of the tkinter.Tk class where the TopazConfig gui will be built into
         """
 
-
         # Set the root variable
         self.root = root_
         # Initialize the coefficients variable and a existence flag
@@ -82,13 +81,13 @@ class PolyEstimatorGUI:
         self.buttons_frame = ttk.Frame(self.main_frame)
         self.buttons_frame.pack(side=tk.TOP, pady=5)
         # Create a button to add a point to the treeview
-        self.add_button = ttk.Button(self.buttons_frame, text="Add", padding=(3, 3), command=self.add_point)
+        self.add_button = ttk.Button(self.buttons_frame, text="    Add", padding=(3, 3), command=self.add_point)
         self.add_button.pack(padx=5, side=tk.LEFT)
         # Create a button to delete points from the treeview
-        self.del_button = ttk.Button(self.buttons_frame, text="Delete", padding=(3, 3), command=self.del_points)
+        self.del_button = ttk.Button(self.buttons_frame, text="   Delete", padding=(3, 3), command=self.del_points)
         self.del_button.pack(padx=5, side=tk.LEFT)
         # Create a button to compute the coefficients
-        self.compute_button = ttk.Button(self.buttons_frame, text="Compute", padding=(3, 3), command=self.poly_identification)
+        self.compute_button = ttk.Button(self.buttons_frame, text=" Compute", padding=(3, 3), command=self.poly_identification)
         self.compute_button.pack(padx=5, side=tk.LEFT)
 
         # Add label to display the results

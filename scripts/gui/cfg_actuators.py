@@ -136,11 +136,11 @@ class ActuatorsEditorGUI:
         act_curve_label.pack(side=tk.LEFT,padx=5)
         # Add a dropdown to select among the possible actuator ids
         curve_options = self.poly_param_names.keys()
-        self.act_feature_var = tk.StringVar()
-        self.curve_menu = ttk.OptionMenu(act_curve_frame, self.act_feature_var, None, *curve_options)
+        self.act_curve_var = tk.StringVar()
+        self.curve_menu = ttk.OptionMenu(act_curve_frame, self.act_curve_var, None, *curve_options)
         self.curve_menu.pack(side=tk.TOP, padx=10)
         # Bind the function to update the data displayed in the gui
-        self.act_feature_var.trace("w", self.update_displayed_data)
+        self.act_curve_var.trace("w", self.update_displayed_data)
 
         # Subframe for actuator simple configurations
         act_poly_frame = ttk.Frame(self.left_frame)
@@ -211,11 +211,11 @@ class ActuatorsEditorGUI:
         self.data[f"ACT{act_id}_SPIN"]['value'] = int(self.combo_spin.get())
 
         # Return if there not curve selected
-        if(not self.act_feature_var.get()):
+        if(not self.act_curve_var.get()):
             return
 
         # Get the selected curve
-        poly_param_name_ = self.poly_param_names[self.act_feature_var.get()]['name']
+        poly_param_name_ = self.poly_param_names[self.act_curve_var.get()]['name']
         # Compute the full name of the coefficient parameters
         poly_coef_names_ = [f"ACT{act_id}_"+poly_param_name_+f"_{i}" for i in range(3)]
 
@@ -254,7 +254,7 @@ class ActuatorsEditorGUI:
             # Display a message and return if there is not polynomial estimation
             messagebox.showerror("Error", "There is no available estimation")
             return
-        elif(not self.act_id_var.get() and not self.act_feature_var.get()):
+        elif(not self.act_id_var.get() and not self.act_curve_var.get()):
             # Display a message and return if actuator id and curve are not selected
             messagebox.showerror("Error", "Select an actuator id and a curve")
             return
@@ -262,7 +262,7 @@ class ActuatorsEditorGUI:
             # Display a message and return if actuator id is not selected
             messagebox.showerror("Error", "Select an actuator id")
             return
-        elif(not self.act_feature_var.get()):
+        elif(not self.act_curve_var.get()):
             # Display a message and return if curve is not selected
             messagebox.showerror("Error", "Select a curve")
             return
@@ -324,18 +324,18 @@ class ActuatorsEditorGUI:
         self.combo_spin['values'] = self.data[f"ACT{act_id}_SPIN"]['options']
 
         # Return it there is no curve selected
-        if(not self.act_feature_var.get()):
+        if(not self.act_curve_var.get()):
             return
         
         # Get the selected curve
-        poly_param_name_ = self.poly_param_names[self.act_feature_var.get()]['name']
+        poly_param_name_ = self.poly_param_names[self.act_curve_var.get()]['name']
         # Compute the full name of the coefficient parameters
         poly_coef_names_ = [f"ACT{act_id}_"+poly_param_name_+f"_{i}" for i in range(3)]
         # Cet the coefficient parameters
         poly_coefs_ = [self.data[s]['value'] for s in poly_coef_names_]
 
         # Get the selected curve
-        poly_param_name_ = self.poly_param_names[self.act_feature_var.get()]['name']
+        poly_param_name_ = self.poly_param_names[self.act_curve_var.get()]['name']
         # Compute the full name of the coefficient parameters
         poly_coef_names_ = [f"ACT{act_id}_"+poly_param_name_+f"_{i}" for i in range(3)]
 
@@ -359,7 +359,7 @@ class ActuatorsEditorGUI:
         """
 
         # Return if the actuator id or the curve are not selected
-        if(not self.act_id_var.get() or not self.act_feature_var.get()):
+        if(not self.act_id_var.get() or not self.act_curve_var.get()):
             return
 
         # Get actuator id
@@ -390,7 +390,7 @@ class ActuatorsEditorGUI:
         poly_selected_ = POLY.polynomial(poly_coefs_)
 
         # Get the x data for the plot
-        xdata = abscissa[self.poly_param_names[self.act_feature_var.get()]['xdata']]
+        xdata = abscissa[self.poly_param_names[self.act_curve_var.get()]['xdata']]
         # Initialize the y data for the plot
         ydata = []
 
@@ -402,9 +402,9 @@ class ActuatorsEditorGUI:
         self.axs.clear() # clear
         self.axs.plot(xdata, ydata, linewidth=2, color='blue') # plot
         self.axs.grid(True) # enable grid
-        self.axs.set_xlabel(self.poly_param_names[self.act_feature_var.get()]['xl']) # set x axis name
-        self.axs.set_ylabel(self.poly_param_names[self.act_feature_var.get()]['yl']) # set y axis name
-        self.axs.set_title(self.act_id_var.get() + ' - ' + self.act_feature_var.get()) # set title
+        self.axs.set_xlabel(self.poly_param_names[self.act_curve_var.get()]['xl']) # set x axis name
+        self.axs.set_ylabel(self.poly_param_names[self.act_curve_var.get()]['yl']) # set y axis name
+        self.axs.set_title(self.act_id_var.get() + ' - ' + self.act_curve_var.get()) # set title
 
         # Show the plot and proceed
         plt.ion()
@@ -455,6 +455,9 @@ class ActuatorsEditorGUI:
 
 
     def on_closing(self):
+        """
+        Function to handle action when window is closed
+        """
         # Close matplotlib.pyplot to avoid gui to keep alive after it is closed
         plt.close()
 

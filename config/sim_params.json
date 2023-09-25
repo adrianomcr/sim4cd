@@ -771,7 +771,7 @@
     },
     "ACT1_VOLT2SPEED_1": {
         "description": "Polynomial constant for order 1 of the map from the applied voltage to the rotation speed of actuator 1 in radians per second per Volt.",
-        "value": 33.0,
+        "value": 30.782,
         "default": 33.0,
         "options": [],
         "type": "float",
@@ -803,7 +803,7 @@
     },
     "ACT1_VOLT2SPEED_2": {
         "description": "Polynomial constant for order 2 of the map from the applied voltage to the rotation speed of actuator 1 in radians per second per Volt.",
-        "value": 0.0,
+        "value": -0.181,
         "default": 0.0,
         "options": [],
         "type": "float",
