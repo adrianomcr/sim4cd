@@ -8,6 +8,7 @@ from tkinter import filedialog, ttk, messagebox
 import json
 from ttkthemes import ThemedTk
 import os
+from fnmatch import fnmatch
 
 
 class JsonEditorGUI:
@@ -15,23 +16,23 @@ class JsonEditorGUI:
     Class that defines a GUI for editing the parameters
     """
 
-    def __init__(self, root_):
+    def __init__(self, root_, enable_io_=True):
         """
         Constructor for the dynamics class
 
         Parameters:
             root_ (tkinter.Tk): Object of the tkinter.Tk class where the TopazConfig gui will be built into
+            enable_io_ (bool): Flag to enable the creation of input/output buttons to the gui
         """
 
         # Set the root variable
         self.root = root_
+        
+        # Set the io_enabled variable
+        self.io_enabled = enable_io_
 
-        try:
-            # Define and set a parameters icon for the GUI
-            photo = tk.PhotoImage(file = os.path.abspath(__file__).rsplit('/', 1)[0]+'/resources/params_icon.png')
-            root.iconphoto(False, photo)
-        except Exception as e:
-            print("An error occurred while creating the icon:", e)
+        # Initialize the variable to store the json data
+        self.data = {}  
         
         # Create a treeview to display the parameters attributes
         self.tree = ttk.Treeview(self.root, columns=("Value", "Unit", "Description"), height=20)
@@ -45,7 +46,7 @@ class JsonEditorGUI:
         # Configure the sizes of each column
         self.tree.column("#0", minwidth=200, width=200, stretch=tk.NO)  # Column 0 (Name)
         self.tree.column("#1", minwidth=120, width=120, stretch=tk.NO)  # Column 1 (Value)
-        self.tree.column("#2", minwidth=100, width=100, stretch=tk.NO)  # Column 2 (Unit)
+        self.tree.column("#2", minwidth=150, width=150, stretch=tk.NO)  # Column 2 (Unit)
         self.tree.column("#3", minwidth=400)                            # Column 3 (Description)
         # Pack the treeview
         self.tree.pack(side=tk.LEFT, fill="both", expand=True)
@@ -63,18 +64,19 @@ class JsonEditorGUI:
         right_frame = ttk.Frame(self.root)
         right_frame.pack(side=tk.LEFT, fill="both", expand=False)
 
-        # Create buttons to load and save file
-        buttons_frame = ttk.Frame(right_frame)
-        buttons_frame.pack(side=tk.TOP, padx=10)
-        # Button to load file
-        self.load_button = ttk.Button(buttons_frame, text="    Load", padding=(4, 4), command=self.load_json)
-        self.load_button.pack(pady=10, side=tk.LEFT)
-        # Button to save file
-        self.save_button = ttk.Button(buttons_frame, text="    Save", padding=(4, 4), command=self.save_json)
-        self.save_button.pack(pady=10, side=tk.LEFT)
-        # Button to save file as
-        self.saveas_button = ttk.Button(buttons_frame, text="  Save As", padding=(4, 4), command=self.saveas_json)
-        self.saveas_button.pack(pady=10, side=tk.LEFT)
+        if(self.io_enabled):
+            # Create buttons to load and save file
+            buttons_frame = ttk.Frame(right_frame)
+            buttons_frame.pack(side=tk.TOP, padx=10)
+            # Button to load file
+            self.load_button = ttk.Button(buttons_frame, text="    Load", padding=(4, 4), command=self.load_json)
+            self.load_button.pack(pady=10, side=tk.LEFT)
+            # Button to save file
+            self.save_button = ttk.Button(buttons_frame, text="    Save", padding=(4, 4), command=self.save_json)
+            self.save_button.pack(pady=10, side=tk.LEFT)
+            # Button to save file as
+            self.saveas_button = ttk.Button(buttons_frame, text="  Save As", padding=(4, 4), command=self.saveas_json)
+            self.saveas_button.pack(pady=10, side=tk.LEFT)
         
         # Create a subframe for detailed info about a parameter
         details_frame = ttk.Frame(right_frame)
@@ -91,6 +93,7 @@ class JsonEditorGUI:
         # Create an entry to set new parameter values and a dropdown to display options
         self.combobox = ttk.Combobox(details_frame, values=[])
         self.combobox.bind("<<ComboboxSelected>>", self.on_option_selected)
+        self.combobox.bind("<Return>", lambda event=None: self.set_value())
         self.combobox.set("")
         self.combobox.pack(pady=2)
         # Display the description of the parameter
@@ -121,12 +124,45 @@ class JsonEditorGUI:
         self.set_default_button = ttk.Button(set_buttons_frame, text="  Restore", padding=(4, 4), command=self.set_default_value)
         self.set_default_button.pack(padx=5, side=tk.LEFT)
 
+        # Create a subframe for filter entry and button
+        filter_frame = ttk.Frame(right_frame)
+        filter_frame.pack(side=tk.BOTTOM, pady=10)
+        # Create an entry to filter the parameters displayed on the tree
+        self.filter_entry = tk.Entry(filter_frame, width=15)
+        self.filter_entry.pack(padx=5, side=tk.LEFT)
+        # Bind an enter press to the function that repopulates the tree
+        self.filter_entry.bind("<Return>", lambda event=None: self.populate_tree_filtered())
+        # Create a button to repopulate the tree according to the filter value
+        self.set_button = ttk.Button(filter_frame, text="    Filter", padding=(3, 3), command=self.populate_tree_filtered)
+        self.set_button.pack(padx=5, side=tk.LEFT)
+
         # Initialize the variable to store the json path
         self.file_path = False
         
-        # Initialize the variable to store the json data
-        self.data = {}  
-        
+
+    def set_data(self, d, path):
+        """
+        Set data dictionary and the file path of the gui
+        """
+        self.data = d
+        self.file_path = path
+
+
+    def get_data(self):
+        """
+        Return the current data dictionary that the gui is using
+        """
+        return self.data
+
+
+    def viz_return(self):
+        """
+        Function to update the visualization of the gui
+        """
+        # Just call the populate_tree() function
+        self.populate_tree()
+        return
+
 
     def on_option_selected(self, event):
         """
@@ -150,10 +186,27 @@ class JsonEditorGUI:
             
             self.populate_tree()
     
-    
-    def populate_tree(self):
+
+    def populate_tree_filtered(self):
+        """
+        Function to insert the parameter values on the treeview according to the filter value on the entrybox for the filter
+        """
+
+        # Get the filter pattern
+        self.pattern = self.filter_entry.get()
+        # If the filter is not specific (contains '*'), generalize it by adding '*' before and after
+        if(not '*' in self.pattern):
+            self.pattern = '*'+self.pattern+'*'
+        # Populate the treeview according with the filter pattern
+        self.populate_tree(filter_pattern=self.pattern)
+
+
+    def populate_tree(self, filter_pattern='*'):
         """
         Function to insert the parameter values on the treeview
+
+        Parameters:
+            filter_pattern (str): pattern the parameter name needs to fit in in order to be displayed on the treeview
         """
 
         # Reset the treeview
@@ -161,6 +214,11 @@ class JsonEditorGUI:
 
         # For every parameter
         for param_name, param_values in self.data.items():
+
+            # Ignore parameter if it does not match the pattern
+            if(not fnmatch(param_name.lower(),filter_pattern.lower())):
+                continue
+
             # Insert the parameter data on the tree
             value = param_values["value"] # Insert current value
             unit = param_values["unit"] # Insert 
@@ -376,7 +434,7 @@ class JsonEditorGUI:
             new_value = self.data[selected_param]['default']
             # Set the value to the default value
             self.data[selected_param]['value'] = new_value
-            # Update the entrybox with the new (default) value
+            # Update the entry box with the new (default) value
             self.combobox.delete(0, tk.END)
             self.combobox.insert(0, str(new_value))
             self.combobox['values'] = self.data[selected_param]['options']
@@ -405,14 +463,21 @@ if __name__ == "__main__":
     """
 
     # Define root GUI window
-    root = ThemedTk(theme='black') #https://ttkthemes.readthedocs.io/en/latest/themes.html
+    root = ThemedTk(theme='radiance') #https://ttkthemes.readthedocs.io/en/latest/themes.html
     # Define GUI title
     root.title("Parameters Editor")
     # Define GUI window size
-    root.geometry('1150x450')
+    root.geometry('1150x500')
+
+    try:
+        # Define and set a parameters icon for the GUI
+        photo = tk.PhotoImage(file = os.path.abspath(__file__).rsplit('/', 1)[0]+'/resources/params_icon.png')
+        root.iconphoto(False, photo)
+    except Exception as e:
+        print("An error occurred while creating the icon:", e)
 
     # Create the GUI object
-    app = JsonEditorGUI(root)
+    app = JsonEditorGUI(root, True)
 
     # Run the tkinter event loop
     root.mainloop()

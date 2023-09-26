@@ -8,6 +8,7 @@ from math import pi, sin
 import time
 import numpy as np
 import math_utils as MU
+import polynomial as POLY
 
 class prop_actuator:
     """
@@ -33,10 +34,20 @@ class prop_actuator:
         self.position = 0.0 # angular position # [rad]
         self.current = 0.0 # current being consumed by the actuator # [A]
         self.cmd = 0 # PWM command [0.0, 1.0] for the actuator
-        self.motor_kv = self.volt_to_speed/(2*pi)*60 # Kv of the actuators motor TODO: Not used, remove?
+        self.motor_kv = self.volt_to_speed[1]/(2*pi)*60 # Kv of the actuators motor TODO: Not used, remove?
 
         # Initialize the last time variable for time step computation
         self.last_time = time.time()
+
+        # Define polynomials for the actuator curves
+        # self.poly_volt_to_speed = POLY.polynomial([0,self.volt_to_speed,0])
+        # self.poly_speed_to_thrust = POLY.polynomial([0,self.speed_to_thrust,0])
+        # self.poly_speed_to_torque = POLY.polynomial([-self.spin*0,-self.spin*self.speed_to_torque,-self.spin*0])
+        # self.poly_torque_to_current = POLY.polynomial([0,self.torque_to_current,0])
+        self.poly_volt_to_speed = POLY.polynomial(self.volt_to_speed)
+        self.poly_speed_to_thrust = POLY.polynomial(self.speed_to_thrust)
+        self.poly_speed_to_torque = POLY.polynomial(self.speed_to_torque)
+        self.poly_torque_to_current = POLY.polynomial(self.torque_to_current)
 
 
     def load_parameters(self, params, act_id):
@@ -50,11 +61,17 @@ class prop_actuator:
 
         self.spin = params.get_parameter_value(f"ACT{act_id}_SPIN")
         self.time_cte = params.get_parameter_value(f"ACT{act_id}_TIME_CTE")
-        self.volt_to_speed = params.get_parameter_value(f"ACT{act_id}_VOLT2SPEED_1")
-        self.speed_to_thrust = params.get_parameter_value(f"ACT{act_id}_SPEED2THRUST_1")
-        self.speed_to_torque = params.get_parameter_value(f"ACT{act_id}_SPEED2TORQUE_1")
-        self.torque_to_current = params.get_parameter_value(f"ACT{act_id}_TORQUE2AMPS_1")
         self.Jr = params.get_parameter_value(f"ACT{act_id}_MOI_ROTOR")
+        self.volt_to_speed = []
+        self.speed_to_thrust = []
+        self.speed_to_torque = []
+        self.torque_to_current = []
+        for i in [0,1,2]:
+            self.volt_to_speed.append( params.get_parameter_value(f"ACT{act_id}_VOLT2SPEED_{i}") )
+            self.speed_to_thrust.append( params.get_parameter_value(f"ACT{act_id}_SPEED2THRUST_{i}") )
+            self.speed_to_torque.append( -self.spin*params.get_parameter_value(f"ACT{act_id}_SPEED2TORQUE_{i}") )
+            self.torque_to_current.append( params.get_parameter_value(f"ACT{act_id}_TORQUE2AMPS_{i}") )
+
 
         return
 
@@ -122,7 +139,8 @@ class prop_actuator:
         """
 
         # Compute the speed map
-        speed = self.volt_to_speed*(self.cmd*self.bat_voltage) # TODO: Improve model
+        # speed = self.volt_to_speed*(self.cmd*self.bat_voltage) # TODO: Improve model
+        speed = self.poly_volt_to_speed.eval(self.cmd*self.bat_voltage)
         
         return speed # rad/s
 
@@ -136,7 +154,8 @@ class prop_actuator:
         """
 
         # Compute the force map
-        force = self.speed_to_thrust*self.speed
+        # force = self.speed_to_thrust*self.speed # TODO: Improve model
+        force = self.poly_speed_to_thrust.eval(self.speed)
         
         return force # [N]
 
@@ -150,7 +169,8 @@ class prop_actuator:
         """
 
         # Compute the torque map
-        torque = -self.spin*self.speed_to_torque*self.speed
+        # torque = -self.spin*self.speed_to_torque*self.speed # TODO: Improve model
+        torque = self.poly_speed_to_torque.eval(self.speed)
 
         return torque # [Nm]
 
@@ -164,7 +184,8 @@ class prop_actuator:
         """
 
         # Compute current map
-        current = self.torque_to_current*abs(self.torque_map()) # TODO: Improve model
+        # current = self.torque_to_current*abs(self.torque_map()) # TODO: Improve model
+        current = self.poly_torque_to_current.eval(abs(self.torque_map()))
         # https://www.mad-motor.com/products/mad-components-5015-ipe-v3.html
 
         return current
