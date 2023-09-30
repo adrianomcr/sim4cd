@@ -177,7 +177,9 @@ class JsonEditorGUI:
 
 
     def load_json(self):
-        #TODO: Use parameter server?????
+        """
+        Function to show a file dialog to load a json file
+        """
         path = filedialog.askopenfilename(filetypes=[("JSON Files", "*.json")])
         if path:
             self.file_path = path

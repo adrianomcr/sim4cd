@@ -41,7 +41,7 @@ class battery:
         self.full_charge = params.get_parameter_value("BAT_FULL_CHARGE")          # [mAh]
         self.init_charge = params.get_parameter_value("BAT_INIT_CHARGE")          # [%]
         self.n_cells = params.get_parameter_value("BAT_N_CELLS")                  #
-        self.idle_current = params.get_parameter_value("BAT_IDLE_CURRENT")        # [A]
+        self.idle_current = params.get_parameter_value("PWR_IDLE_CURRENT")        # [A]
         self.internal_R = params.get_parameter_value("BAT_INTERNAL_RES")          # [Ohms]
         self.discharge_rate = params.get_parameter_value("BAT_DISCHARGE_RATE")    #
         

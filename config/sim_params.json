@@ -771,7 +771,7 @@
     },
     "ACT1_VOLT2SPEED_1": {
         "description": "Polynomial constant for order 1 of the map from the applied voltage to the rotation speed of actuator 1 in radians per second per Volt.",
-        "value": 30.782,
+        "value": 33.0,
         "default": 33.0,
         "options": [],
         "type": "float",
@@ -803,7 +803,7 @@
     },
     "ACT1_VOLT2SPEED_2": {
         "description": "Polynomial constant for order 2 of the map from the applied voltage to the rotation speed of actuator 1 in radians per second per Volt.",
-        "value": -0.181,
+        "value": 0.0,
         "default": 0.0,
         "options": [],
         "type": "float",
@@ -1724,14 +1724,6 @@
         "type": "int",
         "unit": "[ ]"
     },
-    "BAT_IDLE_CURRENT": {
-        "description": "Current that is constantly drowning from the battery even if no actuator is on.",
-        "value": 1,
-        "default": 1,
-        "options": [],
-        "type": "float",
-        "unit": "[A]"
-    },
     "BAT_INTERNAL_RES": {
         "description": "Internal resistance of the battery in Ohms.",
         "value": 0.05,
@@ -1758,5 +1750,21 @@
         ],
         "type": "int",
         "unit": "['C']"
+    },
+    "PWR_IDLE_CURRENT": {
+        "description": "Current that is constantly drowning from the battery even if no actuator is on.",
+        "value": 1,
+        "default": 1,
+        "options": [],
+        "type": "float",
+        "unit": "[A]"
+    },
+    "PWR_EFF": {
+        "description": "Efficiency of the vehicle electricla power conversion board.",
+        "value": 90,
+        "default": 90,
+        "options": [],
+        "type": "int",
+        "unit": "[%]"
     }
 }

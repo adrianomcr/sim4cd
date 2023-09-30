@@ -8,7 +8,6 @@ from tkinter import ttk, PhotoImage, filedialog
 import os
 import subprocess
 from ttkthemes import ThemedTk
-import shlex
 import psutil
 
 class SimHomeApp():
@@ -64,7 +63,7 @@ class SimHomeApp():
         self.stop_button = ttk.Button(self.start_stop_frame, text="Stop Simulator", padding=(4, 4), command=self.stop_command)
         self.stop_button.pack(side=tk.LEFT,padx=10)
 
-        self.sim_status = ttk.Label(self.left_frame, text="Simulator idle", foreground="#3030FF")
+        self.sim_status = ttk.Label(self.left_frame, text="Simulator idle", foreground="#3030FF", font=("Helvetica", 16))
         self.sim_status.pack(pady=2)
 
         # Variable to store the subprocess object

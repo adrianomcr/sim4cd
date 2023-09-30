@@ -647,14 +647,6 @@ data["BAT_N_CELLS"] = {
     "type":          "int",
     "unit":          "[ ]"}
 
-data["BAT_IDLE_CURRENT"] = {
-    "description":   "Current that is constantly drowning from the battery even if no actuator is on.",
-    "value":         1,
-    "default":       1,
-    "options":       [ ],
-    "type":          "float",
-    "unit":          "[A]"}
-
 data["BAT_INTERNAL_RES"] = {
     "description":   "Internal resistance of the battery in Ohms.",
     "value":         0.05,
@@ -670,6 +662,23 @@ data["BAT_DISCHARGE_RATE"] = {
     "options":       [(i+1)*10 for i in range(10)],
     "type":          "int",
     "unit":          "['C']"}
+
+
+data["PWR_IDLE_CURRENT"] = {
+    "description":   "Current that is constantly drowning from the battery even if no actuator is on.",
+    "value":         1,
+    "default":       1,
+    "options":       [ ],
+    "type":          "float",
+    "unit":          "[A]"}
+
+data["PWR_EFF"] = {
+    "description":   "Efficiency of the vehicle electricla power conversion board.",
+    "value":         90,
+    "default":       90,
+    "options":       [ ],
+    "type":          "int",
+    "unit":          "[%]"}
 
 
 # Save parameters to default file

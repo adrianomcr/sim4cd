@@ -80,7 +80,7 @@ class ActuatorsEditorGUI:
             'Torque to current' : { 'name':'TORQUE2AMPS' , 'xdata':'torque' , 'xl':'Torque [Nm]'  , 'yl':'Current [A]'  }
         }
 
-        # Builf the left and right panels
+        # Build the left and right panels
         self.build_left_panel()
         self.build_right_panel()
 
@@ -185,25 +185,32 @@ class ActuatorsEditorGUI:
         # Create a pyplot figure
         self.fig, self.axs = plt.subplots(1,1)
 
+        # Create a canvas for the plot
+        self.canvas = FigureCanvasTkAgg(self.fig, master=self.right_frame)
+        self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        # Update the plot
+        self.canvas.draw()
         # Attach the plot to the right_frame
-        canvas = FigureCanvasTkAgg(self.fig, master=self.right_frame)
-        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        canvas.draw()
-        canvas.get_tk_widget().pack()
+        self.canvas.get_tk_widget().pack()
 
 
     def set_values(self):
         """
-        Function to set the values in the gui to the data dictionary
+        Function to set the values inserted in the gui to the data dictionary
         """
 
-        # Get the actuator id
-        act_id = self.act_id_var.get().split()[-1]
+        # Return if there is parameter file loaded
+        if(not self.file_path):
+            messagebox.showerror("Error", "There is no parameter file loaded")
+            return
 
         # Return if there is no actuator selected
         if(not self.act_id_var.get()):
             messagebox.showerror("Error", "Select an actuator id")
             return
+
+        # Get the actuator id
+        act_id = self.act_id_var.get().split()[-1]
 
         # Set simple properties
         self.data[f"ACT{act_id}_TIME_CTE"]['value'] = float(self.combo_tcte.get())
@@ -294,7 +301,7 @@ class ActuatorsEditorGUI:
 
     def update_displayed_data(self, *args):
         """
-        Function to replicate the configuration of the selected actuator to the other actuators
+        Function to update the data displayed on the gui
 
         Parameters:
             *args (list): Unused arguments passed by the function when it is binded to a widget action.
@@ -407,8 +414,8 @@ class ActuatorsEditorGUI:
         self.axs.set_title(self.act_id_var.get() + ' - ' + self.act_curve_var.get()) # set title
 
         # Show the plot and proceed
-        plt.ion()
-
+        #plt.ion()
+        self.canvas.draw()
 
     def saveas_json(self):
         """
@@ -443,7 +450,9 @@ class ActuatorsEditorGUI:
 
 
     def load_json(self):
-        #TODO: Use parameter server?????
+        """
+        Function to show a file dialog to load a json file
+        """
         path = filedialog.askopenfilename(filetypes=[("JSON Files", "*.json")])
         if path:
             self.file_path = path
@@ -465,19 +474,27 @@ class ActuatorsEditorGUI:
     def set_data(self, d, path):
         """
         Set data dictionary and the file path of the gui
+
+        Parameters:
+            d (dict): Updated dictionary with the parameters data edited in other guis
+            path (str): path for the json file that stores the parameters
         """
+        # Set data dictionary and file path
         self.data = d
         self.file_path = path
 
+        # Update the gui with the new data
         self.update_displayed_data()
 
 
     def get_data(self):
         """
         Return the current data dictionary that the gui is using
+
+        Return:
+            self.data (dict): Dictionary with the parameters data edited on the gui
         """
         return self.data
-
 
     def viz_return(self):
         """

@@ -13,6 +13,8 @@ import os
 import home_sim as HOME
 import full_set_params as FULL_SET
 import cfg_actuators as CFG_ACT
+import cfg_geolocation as CFG_GEO
+import cfg_power as CFG_POW
 
 class SimGUI:
     """
@@ -73,16 +75,28 @@ class SimGUI:
         # Inside the second-level notebook, create a tab for configuring the geolocation
         cfg_tab_geo = ttk.Frame(self.config_level_notebook)
         self.config_level_notebook.add(cfg_tab_geo, text="Geolocation")
+        # Append the ActuatorsEditorGUI gui to the tab
+        self.cfg_geo_gui = CFG_GEO.GeolocationEditorGUI(cfg_tab_geo, False)
 
         # Inside the second-level notebook, create a tab for configuring the sensors
         cfg_tab_sens = ttk.Frame(self.config_level_notebook)
         self.config_level_notebook.add(cfg_tab_sens, text="Sensors")
+
+        # Inside the second-level notebook, create a tab for configuring the vehicle geometry
+        cfg_tab_vehicle = ttk.Frame(self.config_level_notebook)
+        self.config_level_notebook.add(cfg_tab_vehicle, text="Vehicle")
 
         # Inside the second-level notebook, create a tab for configuring the actuators
         cfg_tab_act = ttk.Frame(self.config_level_notebook)
         self.config_level_notebook.add(cfg_tab_act, text="Actuators")
         # Append the ActuatorsEditorGUI gui to the tab
         self.cfg_act_gui = CFG_ACT.ActuatorsEditorGUI(cfg_tab_act, False)
+
+        # Inside the second-level notebook, create a tab for configuring the power
+        cfg_tab_power = ttk.Frame(self.config_level_notebook)
+        self.config_level_notebook.add(cfg_tab_power, text="Power")
+        # Append the PowerEditorGUI gui to the tab
+        self.cfg_pow_gui = CFG_POW.PowerEditorGUI(cfg_tab_power, False)
 
         # Inside the second-level notebook, create a tab for configuring all of the parameters
         cfg_tab_full = ttk.Frame(self.config_level_notebook)
@@ -96,8 +110,6 @@ class SimGUI:
 
         # Initialize the current tab variable
         self.current_tab = [self.top_notebook.index(self.top_notebook.select()), self.config_level_notebook.index(self.config_level_notebook.select())]
-
-
 
     def tab_changed(self,event):
         """
@@ -146,12 +158,16 @@ class SimGUI:
             return self.home_gui
         elif(ids[0] == 1):
             if(ids[1] == 0):
-                return None
+                return self.cfg_geo_gui
             if(ids[1] == 1):
                 return None
             if(ids[1] == 2):
-                return self.cfg_act_gui
+                return None
             if(ids[1] == 3):
+                return self.cfg_act_gui
+            if(ids[1] == 4):
+                return self.cfg_pow_gui
+            if(ids[1] == 5):
                 return self.full_set_gui
 
 
@@ -162,11 +178,18 @@ class SimGUI:
         # Make sure the simulator is closed
         self.home_gui.on_closing()
         # Make sure matplotlib.pyplot is terminated
+        self.cfg_geo_gui.on_closing()
+        # Make sure matplotlib.pyplot is terminated
         self.cfg_act_gui.on_closing()
+        # Make sure matplotlib.pyplot is terminated
+        self.cfg_pow_gui.on_closing()
+        
 
 
     def load_json(self):
-        #TODO: Use parameter server?????
+        """
+        Function to show a file dialog to load a json file
+        """
         path = filedialog.askopenfilename(filetypes=[("JSON Files", "*.json")])
         if path:
             self.file_path = path
