@@ -13,6 +13,8 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
 from PIL import Image
 from math import pi, sin, cos, asin, sqrt, atan2
+from magnetic_field_calculator import MagneticFieldCalculator
+from datetime import datetime
 
 import poly_estimator as PEST
 
@@ -81,6 +83,9 @@ class GeolocationEditorGUI:
         # Compute the size of the image
         self.W, self.H = self.bm.size
 
+        # Initialize the variable to store the estimated local magnetic field
+        self.estimated_mag_field = None
+
         # Build the left and right panels
         self.build_left_panel()
         self.build_right_panel()
@@ -96,9 +101,9 @@ class GeolocationEditorGUI:
 
         # Create a subframe for geografic origin properties
         geographic_label = ttk.Label(self.left_frame, text="Geolocation")
-        geographic_label.pack(side=tk.TOP, pady=(20,2))
+        geographic_label.pack(side=tk.TOP, pady=(20,2), padx=(4,4))
         geographic_frame = ttk.Frame(self.left_frame)
-        geographic_frame.pack(side=tk.TOP, pady=(2,20))
+        geographic_frame.pack(side=tk.TOP, pady=(2,20), padx=(4,4))
         # Add label, entry and units for origin latitude
         lat_label = ttk.Label(geographic_frame, text="  Latitude")
         lat_label.grid(row=0, column=0)
@@ -106,6 +111,7 @@ class GeolocationEditorGUI:
         self.combo_lat.grid(row=0, column=1)
         lat_unit_label = ttk.Label(geographic_frame, text="[degrees]")
         lat_unit_label.grid(row=0, column=2)
+        self.combo_lat.bind("<Return>", lambda event=None: self.set_values())
         # Add label, entry and units for origin longitude
         lon_label = ttk.Label(geographic_frame, text="Longitude")
         lon_label.grid(row=1, column=0)
@@ -113,56 +119,134 @@ class GeolocationEditorGUI:
         self.combo_lon.grid(row=1, column=1)
         lon_unit_label = ttk.Label(geographic_frame, text="[degrees]")
         lon_unit_label.grid(row=1, column=2)
+        self.combo_lon.bind("<Return>", lambda event=None: self.set_values())
         # Add label, entry and units for origin altitude
         alt_label = ttk.Label(geographic_frame, text="  Altitude")
         alt_label.grid(row=2, column=0)
         self.combo_alt = ttk.Combobox(geographic_frame, values=[])
         self.combo_alt.grid(row=2, column=1)
         alt_unit_label = ttk.Label(geographic_frame, text="[meters]")
-        alt_unit_label.grid(row=2, column=2)        
+        alt_unit_label.grid(row=2, column=2)
+        self.combo_alt.bind("<Return>", lambda event=None: self.set_values())
 
         # Create a subframe for local magnetic field properties
         magnetic_label = ttk.Label(self.left_frame, text="Local magnetic field")
-        magnetic_label.pack(side=tk.TOP, pady=(10,2))
+        magnetic_label.pack(side=tk.TOP, pady=(10,2), padx=(4,4))
         magnetic_frame = ttk.Frame(self.left_frame)
-        magnetic_frame.pack(side=tk.TOP, pady=(2,20))
-        # Add label, entry and units for local magnetic field pointinh East
+        magnetic_frame.pack(side=tk.TOP, pady=(2,20), padx=(4,4))
+        # Add label, entry and units for local magnetic field pointing East
         mag_east_label = ttk.Label(magnetic_frame, text="   East")
         mag_east_label.grid(row=0, column=0)
         self.combo_mag_east = ttk.Combobox(magnetic_frame, values=[])
         self.combo_mag_east.grid(row=0, column=1)
         mag_east_unit_label = ttk.Label(magnetic_frame, text="[Gauss]")
         mag_east_unit_label.grid(row=0, column=2)
-        # Add label, entry and units for local magnetic field pointinh North
+        self.combo_mag_east.bind("<Return>", lambda event=None: self.set_values())
+        # Add label, entry and units for local magnetic field pointing North
         mag_north_label = ttk.Label(magnetic_frame, text=" North")
         mag_north_label.grid(row=1, column=0)
         self.combo_mag_north = ttk.Combobox(magnetic_frame, values=[])
         self.combo_mag_north.grid(row=1, column=1)
         mag_north_unit_label = ttk.Label(magnetic_frame, text="[Gauss]")
         mag_north_unit_label.grid(row=1, column=2)
-        # Add label, entry and units for local magnetic field pointinh up
+        self.combo_mag_north.bind("<Return>", lambda event=None: self.set_values())
+        # Add label, entry and units for local magnetic field pointing up
         mag_up_label = ttk.Label(magnetic_frame, text="     Up")
         mag_up_label.grid(row=2, column=0)
         self.combo_mag_up = ttk.Combobox(magnetic_frame, values=[])
         self.combo_mag_up.grid(row=2, column=1)
         mag_up_unit_label = ttk.Label(magnetic_frame, text="[Gauss]")
         mag_up_unit_label.grid(row=2, column=2)
+        self.combo_mag_up.bind("<Return>", lambda event=None: self.set_values())
 
         # Add button to apply the estimated coefficients to the current actuator
         self.set_button = ttk.Button(self.left_frame, text="Set values", padding=(4, 4), command=self.set_values)
-        self.set_button.pack(pady=2, side=tk.TOP)
+        self.set_button.pack(pady=2, padx=(4,4), side=tk.TOP)
 
-        # TODO
-        tmp_label = ttk.Label(self.left_frame, text="\nAdd mag field computator\nInternet?\nPython?")
-        tmp_label.pack()
+        # Create a subframe for the estimation of local magnetic field
+        mag_estimator_frame = ttk.Frame(self.left_frame)
+        mag_estimator_frame.pack(side=tk.BOTTOM, pady=(2,5), padx=(4,4))
+        mag_estimator_label = ttk.Label(mag_estimator_frame, text="Estimate local magnetic field")
+        mag_estimator_label.pack(side=tk.TOP, pady=(10,2))
+        # Add button to compute local magnetic field
+        self.compute_field_button = ttk.Button(mag_estimator_frame, text="Compute local field", padding=(4, 4), command=self.compute_mag_field)
+        self.compute_field_button.pack(pady=2, side=tk.TOP)
+        # Add button to apply the computed magnetic field
+        self.set_field_button = ttk.Button(mag_estimator_frame, text="Apply computed field", padding=(4, 4), command=self.apply_mag_field)
+        self.set_field_button.pack(pady=2, side=tk.TOP)
+        # Add label to display the computed field
+        self.estimated_mag_label = ttk.Label(mag_estimator_frame, text="\n\n\n\n")
+        self.estimated_mag_label.pack(side=tk.TOP, pady=(2,2))
 
-        # Bind the set function to the the enter key
-        self.combo_lat.bind("<Return>", lambda event=None: self.set_values())
-        self.combo_lon.bind("<Return>", lambda event=None: self.set_values())
-        self.combo_alt.bind("<Return>", lambda event=None: self.set_values())
-        self.combo_mag_east.bind("<Return>", lambda event=None: self.set_values())
-        self.combo_mag_north.bind("<Return>", lambda event=None: self.set_values())
-        self.combo_mag_up.bind("<Return>", lambda event=None: self.set_values())
+        
+    def compute_mag_field(self, *args):
+        """
+        Function to compute the magnetic field at the origin geolocation set on the entry boxes
+
+        Parameters:
+            *args (list): Unused arguments passed by the function when it is binded to a widget action.
+        """
+
+        # Return if there is parameter file loaded
+        if(not self.file_path):
+            messagebox.showerror("Error", "There is no parameter file loaded")
+            return
+        
+        # Use the label to display that the magnetic field is being computed
+        self.estimated_mag_label.config(text="Computing magnetic field ...\n\n\n\n")
+        self.root.update()
+
+        # Create a MagneticFieldCalculator object
+        calculator = MagneticFieldCalculator(
+            model='wmm',
+            revision='2020',
+            sub_revision='2'
+        )
+
+        # Get the geolocation where the field will be computed
+        geolocation = [float(self.combo_lat.get()), float(self.combo_lon.get()), float(self.combo_alt.get())]
+        # Compute the magnetic field
+        result = calculator.calculate(
+            latitude=geolocation[0],                    # latitude in degrees
+            longitude=geolocation[1],                   # longitude in degrees
+            altitude=geolocation[2]/1000.0,             # altitude in km
+            date=datetime.now().strftime("%Y-%m-%d")    # date
+        )
+
+        # Store the computed magnetic field in the ENU frame in Gauss
+        self.estimated_mag_field = [
+            float(result['field-value']['east-intensity']['value'])*1e-5,
+            result['field-value']['north-intensity']['value']*1e-5,
+            -result['field-value']['vertical-intensity']['value']*1e-5
+        ]
+
+        # Update the label that displays the computed field
+        result_str = ("[lat,lon,alt] = [%.3f°, %.3f°, %.0fm]\n\n  Field East: %.5f [Gauss]\nField North: %.5f [Gauss]\n    Field Up: %.5f [Gauss]" % tuple(geolocation+self.estimated_mag_field))
+        self.estimated_mag_label.config(text=result_str)
+
+
+    def apply_mag_field(self, *args):
+        """
+        Function to apply the computed magnetic field to the entry boxes
+
+        Parameters:
+            *args (list): Unused arguments passed by the function when it is binded to a widget action.
+        """
+
+        # Return if there is no estimated magnetic field
+        if(not self.estimated_mag_field):
+            messagebox.showerror("Error", "There is no magnetic field computed")
+            return
+
+        # Update the displayed value of magnetic field pointing East
+        self.combo_mag_east.delete(0, tk.END)
+        self.combo_mag_east.insert(0, "%.5f" % self.estimated_mag_field[0])
+        # Update the displayed value of magnetic field pointing North
+        self.combo_mag_north.delete(0, tk.END)
+        self.combo_mag_north.insert(0, "%.5f" % self.estimated_mag_field[1])
+        # Update the displayed value of magnetic field pointing up
+        self.combo_mag_up.delete(0, tk.END)
+        self.combo_mag_up.insert(0, "%.5f" % self.estimated_mag_field[2])
 
 
     def build_right_panel(self):
@@ -340,28 +424,28 @@ class GeolocationEditorGUI:
         if(not self.file_path):
             return
 
-        # Update the value of actuator time constant
+        # Update the displayed value of origin latitude
         self.combo_lat.delete(0, tk.END)
         self.combo_lat.insert(0, str(self.data["SENS_LAT_ORIGIN"]['value']))
         self.combo_lat['values'] = self.data[f"SENS_LAT_ORIGIN"]['options']
-        # Update the value of actuator moment of inertia
+        # Update the displayed value of origin longitude
         self.combo_lon.delete(0, tk.END)
         self.combo_lon.insert(0, str(self.data[f"SENS_LON_ORIGIN"]['value']))
         self.combo_lon['values'] = self.data[f"SENS_LON_ORIGIN"]['options']
-        # Update the value of actuator spin
+        # Update the displayed value of origin altitude
         self.combo_alt.delete(0, tk.END)
         self.combo_alt.insert(0, str(self.data["SENS_ALT_ORIGIN"]['value']))
         self.combo_alt['values'] = self.data["SENS_ALT_ORIGIN"]['options']
 
-        # Update the value of actuator time constant
+        # Update the displayed value of magnetic field pointing East
         self.combo_mag_east.delete(0, tk.END)
         self.combo_mag_east.insert(0, str(self.data["SENS_MAG_FIELD_E"]['value']))
         self.combo_mag_east['values'] = self.data[f"SENS_MAG_FIELD_E"]['options']
-        # Update the value of actuator moment of inertia
+        # Update the displayed value of magnetic field pointing North
         self.combo_mag_north.delete(0, tk.END)
         self.combo_mag_north.insert(0, str(self.data[f"SENS_MAG_FIELD_N"]['value']))
         self.combo_mag_north['values'] = self.data[f"SENS_MAG_FIELD_N"]['options']
-        # Update the value of actuator spin
+        # Update the displayed value of magnetic field pointing up
         self.combo_mag_up.delete(0, tk.END)
         self.combo_mag_up.insert(0, str(self.data["SENS_MAG_FIELD_U"]['value']))
         self.combo_mag_up['values'] = self.data["SENS_MAG_FIELD_U"]['options']

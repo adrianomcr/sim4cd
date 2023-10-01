@@ -558,22 +558,22 @@ data["SENS_ALT_ORIGIN"] = {
     "unit":          "[m]"}
 data["SENS_MAG_FIELD_E"] = {
     "description":   "Local magnetic field in the East direction in Gauss.",
-    "value":         -0.02559,
-    "default":       -0.02559,
+    "value":         -0.03313,
+    "default":       -0.03313,
     "options":       [],
     "type":          "float",
     "unit":          "[G]"}
 data["SENS_MAG_FIELD_N"] = {
     "description":   "Local magnetic field in the North direction in Gauss.",
-    "value":         0.16928,
-    "default":       0.16928,
+    "value":         0.20188,
+    "default":       0.20188,
     "options":       [],
     "type":          "float",
     "unit":          "[G]"}
 data["SENS_MAG_FIELD_U"] = {
     "description":   "Local magnetic field in the up direction in Gauss.",
-    "value":         -0.39550,
-    "default":       -0.39550,
+    "value":         -0.47534,
+    "default":       -0.47534,
     "options":       [],
     "type":          "float",
     "unit":          "[G]"}
