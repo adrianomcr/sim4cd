@@ -63,7 +63,7 @@ class SimHomeApp():
         self.stop_button = ttk.Button(self.start_stop_frame, text="Stop Simulator", padding=(4, 4), command=self.stop_command)
         self.stop_button.pack(side=tk.LEFT,padx=10)
 
-        self.sim_status = ttk.Label(self.left_frame, text="Simulator idle", foreground="#3030FF", font=("Helvetica", 16))
+        self.sim_status = ttk.Label(self.left_frame, text="Simulator idle", foreground="#0000FF", font=("Helvetica", 18))
         self.sim_status.pack(pady=2)
 
         # Variable to store the subprocess object
@@ -119,7 +119,7 @@ class SimHomeApp():
         self.process = None
 
         # Update label to show that simulator is idle
-        self.sim_status.configure(text='Simulator idle', foreground="#3030FF")
+        self.sim_status.configure(text='Simulator idle', foreground="#0000FF")
 
 
 

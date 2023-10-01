@@ -196,33 +196,38 @@ class GeolocationEditorGUI:
         self.estimated_mag_label.config(text="Computing magnetic field ...\n\n\n\n")
         self.root.update()
 
-        # Create a MagneticFieldCalculator object
-        calculator = MagneticFieldCalculator(
-            model='wmm',
-            revision='2020',
-            sub_revision='2'
-        )
+        try:
+            # Create a MagneticFieldCalculator object
+            calculator = MagneticFieldCalculator(
+                model='wmm',
+                revision='2020',
+                sub_revision='2'
+            )
 
-        # Get the geolocation where the field will be computed
-        geolocation = [float(self.combo_lat.get()), float(self.combo_lon.get()), float(self.combo_alt.get())]
-        # Compute the magnetic field
-        result = calculator.calculate(
-            latitude=geolocation[0],                    # latitude in degrees
-            longitude=geolocation[1],                   # longitude in degrees
-            altitude=geolocation[2]/1000.0,             # altitude in km
-            date=datetime.now().strftime("%Y-%m-%d")    # date
-        )
+            # Get the geolocation where the field will be computed
+            geolocation = [float(self.combo_lat.get()), float(self.combo_lon.get()), float(self.combo_alt.get())]
+            # Compute the magnetic field
+            result = calculator.calculate(
+                latitude=geolocation[0],                    # latitude in degrees
+                longitude=geolocation[1],                   # longitude in degrees
+                altitude=geolocation[2]/1000.0,             # altitude in km
+                date=datetime.now().strftime("%Y-%m-%d")    # date
+            )
 
-        # Store the computed magnetic field in the ENU frame in Gauss
-        self.estimated_mag_field = [
-            float(result['field-value']['east-intensity']['value'])*1e-5,
-            result['field-value']['north-intensity']['value']*1e-5,
-            -result['field-value']['vertical-intensity']['value']*1e-5
-        ]
+            # Store the computed magnetic field in the ENU frame in Gauss
+            self.estimated_mag_field = [
+                float(result['field-value']['east-intensity']['value'])*1e-5,
+                result['field-value']['north-intensity']['value']*1e-5,
+                -result['field-value']['vertical-intensity']['value']*1e-5
+            ]
 
-        # Update the label that displays the computed field
-        result_str = ("[lat,lon,alt] = [%.3f°, %.3f°, %.0fm]\n\n  Field East: %.5f [Gauss]\nField North: %.5f [Gauss]\n    Field Up: %.5f [Gauss]" % tuple(geolocation+self.estimated_mag_field))
-        self.estimated_mag_label.config(text=result_str)
+            # Update the label that displays the computed field
+            result_str = ("[lat,lon,alt] = [%.3f°, %.3f°, %.0fm]\n\n  Field East: %.5f [Gauss]\nField North: %.5f [Gauss]\n    Field Up: %.5f [Gauss]" % tuple(geolocation+self.estimated_mag_field))
+            self.estimated_mag_label.config(text=result_str)
+        except:
+            # Use the label to display that there was an error in the magnetic field computation
+            self.estimated_mag_label.config(text="Error in the computation of magnetic field\n\n\n\n")
+            self.root.update()
 
 
     def apply_mag_field(self, *args):

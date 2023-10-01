@@ -15,6 +15,7 @@ import full_set_params as FULL_SET
 import cfg_actuators as CFG_ACT
 import cfg_geolocation as CFG_GEO
 import cfg_power as CFG_POW
+import cfg_sensors as CFG_SENS
 
 class SimGUI:
     """
@@ -81,6 +82,8 @@ class SimGUI:
         # Inside the second-level notebook, create a tab for configuring the sensors
         cfg_tab_sens = ttk.Frame(self.config_level_notebook)
         self.config_level_notebook.add(cfg_tab_sens, text="Sensors")
+        # Append the SensorsEditorGUI gui to the tab
+        self.cfg_sens_gui = CFG_SENS.SensorsEditorGUI(cfg_tab_sens, False)
 
         # Inside the second-level notebook, create a tab for configuring the vehicle geometry
         cfg_tab_vehicle = ttk.Frame(self.config_level_notebook)
@@ -160,7 +163,7 @@ class SimGUI:
             if(ids[1] == 0):
                 return self.cfg_geo_gui
             if(ids[1] == 1):
-                return None
+                return self.cfg_sens_gui
             if(ids[1] == 2):
                 return None
             if(ids[1] == 3):
@@ -179,6 +182,8 @@ class SimGUI:
         self.home_gui.on_closing()
         # Make sure matplotlib.pyplot is terminated
         self.cfg_geo_gui.on_closing()
+        # Make sure gui is terminated
+        self.cfg_sens_gui.on_closing()
         # Make sure matplotlib.pyplot is terminated
         self.cfg_act_gui.on_closing()
         # Make sure matplotlib.pyplot is terminated

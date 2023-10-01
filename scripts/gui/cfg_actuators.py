@@ -40,14 +40,14 @@ class ActuatorsEditorGUI:
 
         # Define a left panel
         self.left_frame = ttk.Frame(self.root)
-        self.left_frame.pack(side=tk.LEFT, fill="both", expand=False)
+        self.left_frame.pack(side=tk.LEFT, fill="both", expand=False, padx=(4,4))
         # Add a title for the left panel
         self.name_l_label = ttk.Label(self.left_frame, text="Actuator configuration")
         self.name_l_label.pack(padx=5)
 
         # Define a right panel
         self.right_frame = ttk.Frame(self.root)
-        self.right_frame.pack(side=tk.LEFT, fill="both", expand=True)
+        self.right_frame.pack(side=tk.LEFT, fill="both", expand=True, padx=(4,4))
         # Add a title for the right panel
         self.name_r_label = ttk.Label(self.right_frame, text="Curve model")
         self.name_r_label.pack(padx=5)
