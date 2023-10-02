@@ -1095,7 +1095,7 @@
     },
     "DYN_WIND_E": {
         "description": "Constant air speed in the East direction in meters per second.",
-        "value": 20.0,
+        "value": 0.0,
         "default": 0.0,
         "options": [],
         "type": "float",
