@@ -85,7 +85,7 @@ class PowerEditorGUI:
 
     def add_configurable_input(self,frame,text,units):
         """
-        Function to build the widgets into the left panel
+        Function add a combo box with labels for name and unit
 
         Parameters:
             frame (tkinter.ttk.Frame): Subframe in which the combobox will be added
@@ -343,6 +343,7 @@ class PowerEditorGUI:
             self.data (dict): Dictionary with the parameters data edited on the gui
         """
         return self.data
+
 
     def viz_return(self):
         """

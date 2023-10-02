@@ -262,7 +262,8 @@ class GeolocationEditorGUI:
         # Create a pyplot figure
         self.fig, self.axs = plt.subplots(1,1)
         # Set a background color
-        self.fig.set_facecolor('#101010')
+        #self.fig.set_facecolor('#101010')
+        self.fig.set_facecolor('#000000')
 
         # Create a canvas for the plot
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.right_frame)
@@ -323,7 +324,7 @@ class GeolocationEditorGUI:
         # Size of the image
         L = 300
         # Black margin of the image
-        M = 20
+        M = 5
 
         # Create  black image of size (LxL)
         P = [[[0 for i in range(L+2*M)] for j in range(L+2*M)] for d in range(3)]
@@ -367,15 +368,16 @@ class GeolocationEditorGUI:
                         P[1][j+M][i+M] = self.g[lat_id,lon_id]
                         P[2][j+M][i+M] = self.b[lat_id,lon_id]
 
-        # Create an RGB image
-        color_image = np.stack((np.array(P[0][:][:]),np.array(P[1][:][:]),np.array(P[2][:][:])), axis=-1)
-        # Clear the plot
-        self.axs.clear()
-        # Show the image (black image if there is no data)
-        self.axs.imshow(color_image)
+            # Create an RGB image
+            color_image = np.stack((np.array(P[0][:][:]),np.array(P[1][:][:]),np.array(P[2][:][:])), axis=-1)
+            # Clear the plot
+            self.axs.clear()
+            # Show the image (black image if there is no data)
+            self.axs.imshow(color_image)
+            self.fig.set_facecolor('#000000')
 
         # If there is data available
-        if(self.file_path):
+        #if(self.file_path):
             # Plot a red point at (lat,lon)=(lat0,lon0)
             self.axs.scatter(L/2+M, L/2+M, color='red', s=20)
             # Compute a circle

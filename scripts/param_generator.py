@@ -75,8 +75,8 @@ data["SIM_GT_HZ"] ={
     "unit":          "[Hz]"}
 data["SIM_PRINT_EN"] ={
     "description":   "Flag to enable the printing of sim data on the terminal.",
-    "value":         True,
-    "default":       True,
+    "value":         False,
+    "default":       False,
     "options":       [True, False],
     "type":          "bool",
     "unit":          "[ ]"}
@@ -578,31 +578,117 @@ data["SENS_MAG_FIELD_U"] = {
     "type":          "float",
     "unit":          "[G]"}
 
-data["SENS_ACC_NOISE_STD"] = {
-    "description":   "Standard deviation of the accelerometer noise in meters per second square.",
-    "value":         0.4,
-    "default":       0.4,
-    "options":       [],
-    "type":          "float",
-    "unit":          "[m/(s*s)]"}
-data["SENS_GYRO_NOISE_STD"] = {
-    "description":   "Standard deviation of the gyro noise in radians per second.",
-    "value":         0.1,
-    "default":       0.1,
-    "options":       [],
-    "type":          "float",
-    "unit":          "[rad/s]"}
-data["SENS_MAG_NOISE_STD"] = {
-    "description":   "Standard deviation of the magnetometer noise in Gauss.",
-    "value":         0.15,
-    "default":       0.15,
-    "options":       [],
-    "type":          "float",
-    "unit":          "[G]"}
-data["SENS_BAR_NOISE_STD"] = {
+####################################
+for d in ['X','Y','Z']:
+    # Gaussian noise
+    data[f"SENS_ACC_STD_{d}"] = {
+        "description":   f"Standard deviation of the {d} component of the accelerometer noise in meters per second square.",
+        "value":         0.4,
+        "default":       0.4,
+        "options":       [],
+        "type":          "float",
+        "unit":          "[m/(s*s)]"}
+    data[f"SENS_GYRO_STD_{d}"] = {
+        "description":   f"Standard deviation of the {d} component of the gyro noise in radians per second.",
+        "value":         0.1,
+        "default":       0.1,
+        "options":       [],
+        "type":          "float",
+        "unit":          "[rad/s]"}
+    data[f"SENS_MAG_STD_{d}"] = {
+        "description":   f"Standard deviation of the {d} component of the magnetometer noise in Gauss.",
+        "value":         0.15,
+        "default":       0.15,
+        "options":       [],
+        "type":          "float",
+        "unit":          "[G]"}
+    # data[f"SENS_GPS_STD_{d}"] = {
+    #     "description":   f"Standard deviation on the {d} component of the GPS in meters.",
+    #     "value":         0.05,
+    #     "default":       0.05,
+    #     "options":       [],
+    #     "type":          "float",
+    #     "unit":          "[m]"}
+    # Bias
+    data[f"SENS_ACC_BIAS_{d}"] = {
+        "description":   f"Constant bias of the {d} component of the accelerometer in meters per second square.",
+        "value":         0.0,
+        "default":       0.0,
+        "options":       [],
+        "type":          "float",
+        "unit":          "[m/(s*s)]"}
+    data[f"SENS_GYRO_BIAS_{d}"] = {
+        "description":   f"Constant bias of the {d} component of the gyro in radians per second.",
+        "value":         0.0,
+        "default":       0.0,
+        "options":       [],
+        "type":          "float",
+        "unit":          "[rad/s]"}
+    data[f"SENS_MAG_BIAS_{d}"] = {
+        "description":   f"Constant bias of the {d} component of the magnetometer in Gauss.",
+        "value":         0.0,
+        "default":       0.0,
+        "options":       [],
+        "type":          "float",
+        "unit":          "[G]"}
+    # Vibration
+    data[f"SENS_ACC_VIB_{d}"] = {
+        "description":   f"Vibration coupling index of the {d} component of the accelerometer.\nIt maps the actuators thrust to the vibration measured by the {d} component of the accelerometer.",
+        "value":         1.0,
+        "default":       1.0,
+        "options":       [],
+        "type":          "float",
+        "unit":          "[ - ]"}
+    data[f"SENS_GYRO_VIB_{d}"] = {
+        "description":   f"Vibration coupling index of the {d} component of the gyro.\nIt maps the actuators torque to the vibration measured by the {d} component of the gyro.",
+        "value":         1.0,
+        "default":       1.0,
+        "options":       [],
+        "type":          "float",
+        "unit":          "[ - ]"}
+    # Magnetic coupling
+    data[f"SENS_MAG_INTF_{d}"] = {
+        "description":   f"Interference coupling index of the {d} component of the magnetometer in Gauss per Ampere.\nIt maps the vehicle current to the internally generated magnetic field on the {d} component of the magnetometer.",
+        "value":         1.0,
+        "default":       1.0,
+        "options":       [],
+        "type":          "float",
+        "unit":          "[G/A]"}
+    
+####################################
+
+# data["SENS_ACC_NOISE_STD"] = {
+#     "description":   "Standard deviation of the accelerometer noise in meters per second square.",
+#     "value":         0.4,
+#     "default":       0.4,
+#     "options":       [],
+#     "type":          "float",
+#     "unit":          "[m/(s*s)]"}
+# data["SENS_GYRO_NOISE_STD"] = {
+#     "description":   "Standard deviation of the gyro noise in radians per second.",
+#     "value":         0.1,
+#     "default":       0.1,
+#     "options":       [],
+#     "type":          "float",
+#     "unit":          "[rad/s]"}
+# data["SENS_MAG_NOISE_STD"] = {
+#     "description":   "Standard deviation of the magnetometer noise in Gauss.",
+#     "value":         0.15,
+#     "default":       0.15,
+#     "options":       [],
+#     "type":          "float",
+#     "unit":          "[G]"}
+data["SENS_BAR_STD"] = {
     "description":   "Standard deviation of the barometer noise in hectopascal.",
     "value":         0.005,
     "default":       0.005,
+    "options":       [],
+    "type":          "float",
+    "unit":          "[hPa]"}
+data["SENS_BAR_BIAS"] = {
+    "description":   "Constant bias of the barometer in hectopascal.",
+    "value":         0.0,
+    "default":       0.0,
     "options":       [],
     "type":          "float",
     "unit":          "[hPa]"}
@@ -681,8 +767,12 @@ data["PWR_EFF"] = {
     "unit":          "[%]"}
 
 
+
+sorted_items = [(key, value) for key, value in sorted(data.items())]
+sorted_data = dict(sorted_items)
+
 # Save parameters to default file
-save_parameters(data)
+save_parameters(sorted_data)
 
 
 

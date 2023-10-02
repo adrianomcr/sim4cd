@@ -67,10 +67,10 @@ class SimGUI:
         self.home_gui = HOME.SimHomeApp(tab_home)
 
         # Create the second tab in the top-level notebook
-        tab2 = ttk.Frame(self.top_notebook)
-        self.top_notebook.add(tab2, text="Configuration")
+        tab_config = ttk.Frame(self.top_notebook)
+        self.top_notebook.add(tab_config, text="Configuration")
         # Create a second-level notebook inside Tab 2
-        self.config_level_notebook = ttk.Notebook(tab2)
+        self.config_level_notebook = ttk.Notebook(tab_config)
         self.config_level_notebook.pack(fill='both', expand=True)
 
         # Inside the second-level notebook, create a tab for configuring the geolocation
@@ -106,6 +106,14 @@ class SimGUI:
         self.config_level_notebook.add(cfg_tab_full, text="Full Parameter Set")
         # Append the JsonEditorGUI gui to the tab
         self.full_set_gui = FULL_SET.JsonEditorGUI(cfg_tab_full, False)
+
+        # Create the second tab in the top-level notebook
+        tab_interact = ttk.Frame(self.top_notebook)
+        self.top_notebook.add(tab_interact, text="Interaction")
+        # Add temporary message
+        temp_label = ttk.Label(tab_interact, text="To be implemented", font=("Helvetica", 25))
+        temp_label.pack(side=tk.TOP, pady=30, fill="both", expand=True)
+
 
         # Bind the function tab_changed to the actions of changing tabs
         self.top_notebook.bind("<<NotebookTabChanged>>", self.tab_changed)
@@ -172,6 +180,8 @@ class SimGUI:
                 return self.cfg_pow_gui
             if(ids[1] == 5):
                 return self.full_set_gui
+        if(ids[0] == 2):
+            return None
 
 
     def on_closing(self):
@@ -197,13 +207,16 @@ class SimGUI:
         """
         path = filedialog.askopenfilename(filetypes=[("JSON Files", "*.json")])
         if path:
-            self.file_path = path
-            with open(self.file_path, "r") as json_file:
-                self.data = json.load(json_file)
-        
             # Store the path and display it
             self.json_path = path
             self.path_label.config(text="JSON path: "+self.json_path)
+            
+            with open(self.json_path, "r") as json_file:
+                self.data = json.load(json_file)
+        
+            # # Store the path and display it
+            # self.json_path = path
+            # self.path_label.config(text="JSON path: "+self.json_path)
 
             # Update data on the child GUIs
             self.full_set_gui.set_data(self.data, self.json_path)
@@ -220,7 +233,8 @@ class SimGUI:
         # If a path and a name were provided
         if path:
             # Set the new path
-            self.file_path = path
+            self.json_path = path
+            self.path_label.config(text="JSON path: "+self.json_path)
             # Save current set of parameters as a JSON file
             self.save_json()
 
@@ -232,9 +246,9 @@ class SimGUI:
 
         try:
             # If path is set
-            if self.file_path:
+            if self.json_path:
                 # Open the file
-                with open(self.file_path, "w") as json_file:
+                with open(self.json_path, "w") as json_file:
                     # Dump the parameters data to the file
                     json.dump(self.data, json_file, indent=4)
         except:

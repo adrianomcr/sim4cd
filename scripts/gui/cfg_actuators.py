@@ -496,6 +496,7 @@ class ActuatorsEditorGUI:
         """
         return self.data
 
+
     def viz_return(self):
         """
         Function to update the visualization of the gui
