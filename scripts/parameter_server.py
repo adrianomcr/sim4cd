@@ -90,6 +90,6 @@ class parameter_server(object):
 if __name__ == "__main__":
 
     # Load default file if script is run directly
-    default_file_path = os.path.expanduser('~')+"/simulation_ws/src/px4sim/config/sim_params.json"
+    default_file_path = os.path.expanduser('~')+"/simulation_ws/src/sim4cd/config/sim_params.json"
     params = parameter_server(default_file_path)
 

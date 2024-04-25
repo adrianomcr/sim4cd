@@ -1,35 +1,35 @@
 <?xml version="1.0"?>
 <launch>
 
-    <arg name="parameters_path" default="$(find px4sim)/config/sim_params.json"/>
+    <arg name="parameters_path" default="$(find sim4cd)/config/sim_params.json"/>
 
     <!--Run PX4 sitl-->
-    <node pkg = "px4sim" name = "px4_stil" type = "px4_stil.sh" args="$(find px4)" output="screen">
+    <node pkg = "sim4cd" name = "px4_stil" type = "px4_stil.sh" args="$(find px4)" output="screen">
     </node>
 
     <!--Run rviz to visualize the drone-->
-    <node pkg = "rviz" name = "rviz" type = "rviz" args="-d $(find px4sim)/rviz/basic.rviz">
+    <node pkg = "rviz" name = "rviz" type = "rviz" args="-d $(find sim4cd)/rviz/basic.rviz">
     </node>
 
     <!--Run the node that will simulate the drone-->
-    <node pkg="px4sim" name="px4sim" type="px4sim.py" args="$(arg parameters_path)" output="screen">
+    <node pkg="sim4cd" name="sim4cd" type="sim4cd.py" args="$(arg parameters_path)" output="screen">
     </node>
 
     <!--Run the node that will generate an example path-->
     <node pkg = "examples" name = "path_generator" type = "example_path.py" output="screen">
-        <rosparam command="load" file="$(find px4sim)/config/pub_path.yaml" />
+        <rosparam command="load" file="$(find sim4cd)/config/pub_path.yaml" />
     </node>
 
     <!-- Run the node that controls the robot in the acro mode  with vector fields -->
     <node pkg="quad_robot" name="quad_node" type="quad_node.py" args="" output="screen">
-        <rosparam command="load" file="$(find px4sim)/config/quad_params.yaml" />
+        <rosparam command="load" file="$(find sim4cd)/config/quad_params.yaml" />
     </node>
 
     <!-- Run mavros to control the drone o the acro mode -->
     <include file="$(find mavros)/launch/node.launch">
         <!-- MAVROS configs -->
         <arg name="pluginlists_yaml" value="$(find mavros)/launch/px4_pluginlists.yaml"/>
-        <arg name="config_yaml" value="$(find px4sim)/config/px4_config.yaml"/>
+        <arg name="config_yaml" value="$(find sim4cd)/config/px4_config.yaml"/>
         <!-- pass FCU -->
         <arg name="fcu_url" value="udp://:14540@localhost:14557"/>
         <arg name="gcs_url" value=""/>

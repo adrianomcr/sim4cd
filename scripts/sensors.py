@@ -247,11 +247,17 @@ class sensors(object):
         self.meters2deg_lon =  180 / ( small_radius * pi)
 
         # Standard deviations of sensor noise
-        self.acc_noise_std = params.get_parameter_value('SENS_ACC_NOISE_STD')
-        self.gyro_noise_std = params.get_parameter_value('SENS_GYRO_NOISE_STD')
-        self.mag_noise_std = params.get_parameter_value('SENS_MAG_NOISE_STD')
-        self.bar_noise_std = params.get_parameter_value('SENS_BAR_NOISE_STD')
+        self.acc_noise_std = [params.get_parameter_value('SENS_ACC_STD_X'), params.get_parameter_value('SENS_ACC_STD_Y'), params.get_parameter_value('SENS_ACC_STD_Z')]
+        self.gyro_noise_std = [params.get_parameter_value('SENS_GYRO_STD_X'), params.get_parameter_value('SENS_GYRO_STD_Y'), params.get_parameter_value('SENS_GYRO_STD_Z') ]
+        self.mag_noise_std = [params.get_parameter_value('SENS_MAG_STD_X'), params.get_parameter_value('SENS_MAG_STD_Y'), params.get_parameter_value('SENS_MAG_STD_Z')]
+        # self.gps_noise_std = [params.get_parameter_value('SENS_GPS_STD_X'), params.get_parameter_value('SENS_GPS_STD_Y'), params.get_parameter_value('SENS_GPS_STD_Z')]
         self.gps_noise_std_xy = params.get_parameter_value('SENS_GPS_STD_XY')
         self.gps_noise_std_z = params.get_parameter_value('SENS_GPS_STD_Z')
+        self.bar_noise_std = params.get_parameter_value('SENS_BAR_STD')
+
+        # Bias of sensors
+        self.acc_bias = [params.get_parameter_value('SENS_ACC_BIAS_X'), params.get_parameter_value('SENS_ACC_BIAS_Y'), params.get_parameter_value('SENS_ACC_BIAS_Z')]
+        self.gyro_bias = [params.get_parameter_value('SENS_GYRO_BIAS_X'), params.get_parameter_value('SENS_GYRO_BIAS_Y'), params.get_parameter_value('SENS_GYRO_BIAS_Z')]
+        self.mag_bias = [params.get_parameter_value('SENS_MAG_BIAS_X'), params.get_parameter_value('SENS_MAG_BIAS_Y'), params.get_parameter_value('SENS_MAG_BIAS_Z')]
 
         
