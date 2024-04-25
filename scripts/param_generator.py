@@ -759,7 +759,7 @@ data["PWR_IDLE_CURRENT"] = {
     "unit":          "[A]"}
 
 data["PWR_EFF"] = {
-    "description":   "Efficiency of the vehicle electricla power conversion board.",
+    "description":   "Efficiency of the vehicle electrical power conversion board.",
     "value":         90,
     "default":       90,
     "options":       [ ],
