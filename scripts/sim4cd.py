@@ -19,14 +19,14 @@ import timer as TIM
 # import joystick as JOY
 
 
-class px4sim(object):
+class sim4cd(object):
     """
     PX4 simulation class
     """
 
     def __init__(self, params):
         """
-        Constructor for the px4sim class
+        Constructor for the sim4cd class
 
         Parameters:
             params (<parameter_server.parameter_server>): Parameter server object
@@ -78,7 +78,7 @@ class px4sim(object):
         # Terminate ROS node
         del self.ros_aux
 
-        # Terminate px4sim
+        # Terminate sim4cd
         print("\33[92mExiting\33[0m") 
         exit()
 
@@ -202,20 +202,20 @@ if __name__ == "__main__":
     # Define the full path for the parameter file
     if len(sys.argv) < 2:
         # Use the default if no argument is provided
-        param_file_name = os.path.expanduser('~')+"/simulation_ws/src/px4sim/config/sim_params.json"
-        print(f"\33[94m[px4sim] Using default parameter file: {param_file_name}\33[0m")
+        param_file_name = os.path.expanduser('~')+"/simulation_ws/src/sim4cd/config/sim_params.json"
+        print(f"\33[94m[sim4cd] Using default parameter file: {param_file_name}\33[0m")
     elif len(sys.argv) >= 2:
         # Use the provided argument 
         param_file_name = str(sys.argv[1])
-        print(f"\33[94m[px4sim] Argument parameter file: {param_file_name}\33[0m")
+        print(f"\33[94m[sim4cd] Argument parameter file: {param_file_name}\33[0m")
     if len(sys.argv) > 2:
         # Inform that provided extra arguments were ignored
-        print("\33[93m[px4sim] Extra arguments ignored\33[0m")
+        print("\33[93m[sim4cd] Extra arguments ignored\33[0m")
 
     # Load parameter file
     params = PRM.parameter_server(param_file_name)
 
     # Create the simulator object
-    sim = px4sim(params)
+    sim = sim4cd(params)
     # Spin the simulator
     sim.run()

@@ -5,4 +5,4 @@ script_dir=$(dirname "$0")
 #echo $script_dir
 source $script_dir/../../../devel/setup.bash
 
-roslaunch px4sim px4sim.launch parameters_path:=$1
+roslaunch sim4cd sim4cd.launch parameters_path:=$1

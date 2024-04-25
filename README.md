@@ -1,7 +1,6 @@
-# px4sim
-Quadcopter simulator for px4
+# sim4cd - Simulator for a Custom Drone
 
-
+This package is a simulator tailored for quadcopters with fixed rotors. It offers configurable drone characteristics, allowing users to replicate their own platform. Currently, the simulator integrates seamlessly with PX4 firmware.
 
 
 ## Setup
@@ -51,12 +50,14 @@ chmod +x ./QGroundControl.AppImage
 ```bash
 mkdir -p ~/simulation_ws/src
 cd ~/simulation_ws/src
-git clone https://github.com/adrianomcr/px4sim.git
+git clone https://github.com/adrianomcr/sim4cd.git
 catkin build
 ```
 
 
 ## GUI
+
+The intent of the GUI is to provide an fast and easy way to configure the simulator with an specific drone model.
 
 ### Install depenndencies
 
