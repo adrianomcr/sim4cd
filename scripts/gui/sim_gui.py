@@ -13,6 +13,7 @@ import os
 import home_sim as HOME
 import full_set_params as FULL_SET
 import cfg_actuators as CFG_ACT
+import cfg_vehicle as CFG_VEH
 import cfg_geolocation as CFG_GEO
 import cfg_power as CFG_POW
 import cfg_sensors as CFG_SENS
@@ -88,6 +89,8 @@ class SimGUI:
         # Inside the second-level notebook, create a tab for configuring the vehicle geometry
         cfg_tab_vehicle = ttk.Frame(self.config_level_notebook)
         self.config_level_notebook.add(cfg_tab_vehicle, text="Vehicle")
+        # Append the VehicleEditorGUI gui to the tab
+        self.cfg_veh_gui = CFG_VEH.VehicleEditorGUI(cfg_tab_vehicle, False)
 
         # Inside the second-level notebook, create a tab for configuring the actuators
         cfg_tab_act = ttk.Frame(self.config_level_notebook)
@@ -173,7 +176,7 @@ class SimGUI:
             if(ids[1] == 1):
                 return self.cfg_sens_gui
             if(ids[1] == 2):
-                return None
+                return self.cfg_veh_gui
             if(ids[1] == 3):
                 return self.cfg_act_gui
             if(ids[1] == 4):

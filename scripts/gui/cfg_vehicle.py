@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
-# GUI to configure the actuator properties
+# GUI to configure the vehicle geometric and dynamic properties
 
 import tkinter as tk
 from tkinter import filedialog, ttk, messagebox
@@ -18,14 +18,14 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import polynomial as POLY
 
-class ActuatorsEditorGUI:
+class VehicleEditorGUI:
     """
-    Class that defines a GUI for configuring the actuators properties
+    Class that defines a GUI for configuring the vehicle geometric and dynamic properties
     """
 
     def __init__(self, root_, enable_io_=True):
         """
-        Constructor for the ActuatorsEditorGUI class
+        Constructor for the VehicleEditorGUI class
 
         Parameters:
             root_ (tkinter.Tk): Object of the tkinter.Tk class where the TopazConfig gui will be built into
@@ -42,7 +42,7 @@ class ActuatorsEditorGUI:
         self.left_frame = ttk.Frame(self.root)
         self.left_frame.pack(side=tk.LEFT, fill="both", expand=False, padx=(4,4))
         # Add a title for the left panel
-        self.name_l_label = ttk.Label(self.left_frame, text="Actuator configuration")
+        self.name_l_label = ttk.Label(self.left_frame, text="Vehicle configuration")
         self.name_l_label.pack(padx=5)
 
         # Define a right panel
@@ -81,11 +81,178 @@ class ActuatorsEditorGUI:
         }
 
         # Build the left and right panels
-        self.build_left_panel()
+        self.build_left_panel(self.left_frame)
         self.build_right_panel()
 
 
-    def build_left_panel(self):
+
+    def build_dynamics_pannel(self,parent_frame):
+
+        dyn_frame = ttk.Frame(parent_frame)
+        dyn_frame.pack(side=tk.TOP, pady=5, fill=tk.X, expand=False)
+        label_dyn = ttk.Label(dyn_frame, text="Dynamics configuration:")
+        label_dyn.pack(side=tk.TOP, pady=5, anchor=tk.NW)
+
+        # Subframe for mass configuration
+        mass_label = ttk.Label(dyn_frame, text="Mass [kg]:")
+        mass_label.pack(side=tk.TOP, pady=(5,1))
+        mass_frame = ttk.Frame(dyn_frame)
+        mass_frame.pack(side=tk.TOP, pady=1)
+        mass_label_m = ttk.Label(mass_frame, text="m:")
+        mass_label_m.grid(row=0, column=1)
+        self.entry_mass = ttk.Entry(mass_frame,width=11)
+        self.entry_mass.grid(row=0, column=2)
+
+        # Subframe for moment of inertia configuration
+        moi_label = ttk.Label(dyn_frame, text="Moment of inertia [kg*m*m]:")
+        moi_label.pack(side=tk.TOP, pady=(10,1))
+        moi_frame = ttk.Frame(dyn_frame)
+        moi_frame.pack(side=tk.TOP, pady=1)
+        # Moment of inertia in x
+        moi_label_x = ttk.Label(moi_frame, text="xx:")
+        moi_label_x.grid(row=0, column=1)
+        self.entry_moi_x = ttk.Entry(moi_frame,width=11)
+        self.entry_moi_x.grid(row=0, column=2)
+        # Moment of inertia in y
+        moi_label_y = ttk.Label(moi_frame, text=" yy:")
+        moi_label_y.grid(row=0, column=3)
+        self.entry_moi_y = ttk.Entry(moi_frame,width=11)
+        self.entry_moi_y.grid(row=0, column=4)
+        # Moment of inertia in z
+        moi_label_z = ttk.Label(moi_frame, text=" zz:")
+        moi_label_z.grid(row=0, column=5)
+        self.entry_moi_z = ttk.Entry(moi_frame,width=11)
+        self.entry_moi_z.grid(row=0, column=6)
+        
+        # Subframe for linear drag configuration
+        lin_drag_label = ttk.Label(dyn_frame, text="Linear drag [N*s/m]:")
+        lin_drag_label.pack(side=tk.TOP, pady=(10,1))
+        lin_drag_frame = ttk.Frame(dyn_frame)
+        lin_drag_frame.pack(side=tk.TOP, pady=1)
+        lin_drag_label_m = ttk.Label(lin_drag_frame, text="drag:")
+        lin_drag_label_m.grid(row=0, column=1)
+        self.entry_lin_drag = ttk.Entry(lin_drag_frame,width=11)
+        self.entry_lin_drag.grid(row=0, column=2)
+
+        # Subframe for angular drag configuration
+        ang_drag_label = ttk.Label(dyn_frame, text="Angular drag [N*s/rad]:")
+        ang_drag_label.pack(side=tk.TOP, pady=(10,1))
+        ang_drag_frame = ttk.Frame(dyn_frame)
+        ang_drag_frame.pack(side=tk.TOP, pady=1)
+        ang_drag_label_m = ttk.Label(ang_drag_frame, text="drag:")
+        ang_drag_label_m.grid(row=0, column=1)
+        self.entry_ang_drag = ttk.Entry(ang_drag_frame,width=11)
+        self.entry_ang_drag.grid(row=0, column=2)
+
+
+        return
+    
+    def build_geometry_pannel(self,parent_frame):
+
+        geometry_frame = ttk.Frame(parent_frame)
+        geometry_frame.pack(side=tk.TOP, pady=5, fill=tk.X, expand=False)
+        label_geometry = ttk.Label(geometry_frame, text="Geometry configuration:")
+        label_geometry.pack(side=tk.TOP, pady=5, anchor=tk.NW)
+
+        # Define the options for the actuators ids if this information is available
+        if (self.data):
+            actuator_options = [f'Actuator {i}' for i in range(self.data['VEH_ACT_NUM']['value'])]
+        else:
+            actuator_options = []
+
+        # Create a subframe to select the id of the actuator to be configured
+        act_select_frame = ttk.Frame(geometry_frame)
+        act_select_frame.pack(side=tk.TOP, pady=5)
+        # Add a label for the actuator id selector
+        act_select_label = ttk.Label(act_select_frame, text="Actuator number")
+        act_select_label.pack(side=tk.LEFT,padx=5)
+        # Add a dropdown to select among the possible actuator ids
+        self.act_id_var = tk.StringVar()
+        self.actuator_menu = ttk.OptionMenu(act_select_frame, self.act_id_var, None, *actuator_options)
+        self.actuator_menu.pack(side=tk.LEFT, padx=10)
+
+
+        # Subframe for the position of the selected actuator
+        pos_frame = ttk.Label(geometry_frame, text="Actuators position [m]:")
+        pos_frame.pack(side=tk.TOP, pady=(10,1))
+        pos_frame = ttk.Frame(geometry_frame)
+        pos_frame.pack(side=tk.TOP, pady=1)
+        # Position in x
+        pos_frame_x = ttk.Label(pos_frame, text="x:")
+        pos_frame_x.grid(row=0, column=1)
+        self.entry_pos_x = ttk.Entry(pos_frame,width=11)
+        self.entry_pos_x.grid(row=0, column=2)
+        # Position in y
+        pos_frame_y = ttk.Label(pos_frame, text=" y:")
+        pos_frame_y.grid(row=0, column=3)
+        self.entry_pos_y = ttk.Entry(pos_frame,width=11)
+        self.entry_pos_y.grid(row=0, column=4)
+        # Position in z
+        pos_frame_z = ttk.Label(pos_frame, text=" z:")
+        pos_frame_z.grid(row=0, column=5)
+        self.entry_pos_z = ttk.Entry(pos_frame,width=11)
+        self.entry_pos_z.grid(row=0, column=6)
+
+        # Subframe for the direction of the selected actuator
+        dir_frame = ttk.Label(geometry_frame, text="Actuators direction [ ]:")
+        dir_frame.pack(side=tk.TOP, pady=(10,1))
+        dir_frame = ttk.Frame(geometry_frame)
+        dir_frame.pack(side=tk.TOP, pady=1)
+        # Direction in x
+        dir_frame_x = ttk.Label(dir_frame, text="x:")
+        dir_frame_x.grid(row=0, column=1)
+        self.entry_dir_x = ttk.Entry(dir_frame,width=11)
+        self.entry_dir_x.grid(row=0, column=2)
+        # Direction in y
+        dir_frame_y = ttk.Label(dir_frame, text=" y:")
+        dir_frame_y.grid(row=0, column=3)
+        self.entry_dir_y = ttk.Entry(dir_frame,width=11)
+        self.entry_dir_y.grid(row=0, column=4)
+        # Direction in z
+        dir_frame_z = ttk.Label(dir_frame, text=" z:")
+        dir_frame_z.grid(row=0, column=5)
+        self.entry_dir_z = ttk.Entry(dir_frame,width=11)
+        self.entry_dir_z.grid(row=0, column=6)
+
+
+        # Subframe for the body size
+        size_frame = ttk.Label(geometry_frame, text="Body size [m] (visualization only):")
+        size_frame.pack(side=tk.TOP, pady=(10,1))
+        size_frame = ttk.Frame(geometry_frame)
+        size_frame.pack(side=tk.TOP, pady=1)
+        # Size in x
+        size_frame_x = ttk.Label(size_frame, text="x:")
+        size_frame_x.grid(row=0, column=1)
+        self.entry_size_x = ttk.Entry(size_frame,width=11)
+        self.entry_size_x.grid(row=0, column=2)
+        # Size in y
+        size_frame_y = ttk.Label(size_frame, text=" y:")
+        size_frame_y.grid(row=0, column=3)
+        self.entry_size_y = ttk.Entry(size_frame,width=11)
+        self.entry_size_y.grid(row=0, column=4)
+        # Size in z
+        size_frame_z = ttk.Label(size_frame, text=" z:")
+        size_frame_z.grid(row=0, column=5)
+        self.entry_size_z = ttk.Entry(size_frame,width=11)
+        self.entry_size_z.grid(row=0, column=6)
+
+        return
+
+
+
+    def build_left_panel(self,parent_frame):
+        """
+        Function to build the widgets into the left panel
+        """
+
+        self.build_dynamics_pannel(parent_frame)
+
+        self.build_geometry_pannel(parent_frame)
+
+
+
+
+    def build_left_panel_old(self):
         """
         Function to build the widgets into the left panel
         """
@@ -143,38 +310,25 @@ class ActuatorsEditorGUI:
         self.act_curve_var.trace("w", self.update_displayed_data)
 
         # Subframe for actuator simple configurations
-        act_poly_frame = ttk.Frame(self.left_frame)
-        act_poly_frame.pack(side=tk.TOP, pady=5)
-        poly_label = ttk.Label(act_poly_frame, text="p(u) = ")
+        moi_frame = ttk.Frame(self.left_frame)
+        moi_frame.pack(side=tk.TOP, pady=5)
+        poly_label = ttk.Label(moi_frame, text="p(u) = ")
         poly_label.grid(row=0, column=0)
         # Actuator polynomial coefficient for order 0
-        self.entry_poly_0 = ttk.Entry(act_poly_frame,width=11)
+        self.entry_poly_0 = ttk.Entry(moi_frame,width=11)
         self.entry_poly_0.grid(row=0, column=1)
-        poly_label_0 = ttk.Label(act_poly_frame, text="  ")
+        poly_label_0 = ttk.Label(moi_frame, text="  ")
         poly_label_0.grid(row=0, column=2)
         # Actuator polynomial coefficient for order 0
-        self.entry_poly_1 = ttk.Entry(act_poly_frame,width=11)
+        self.entry_poly_1 = ttk.Entry(moi_frame,width=11)
         self.entry_poly_1.grid(row=0, column=3)
-        poly_label_1 = ttk.Label(act_poly_frame, text="u ")
+        poly_label_1 = ttk.Label(moi_frame, text="u ")
         poly_label_1.grid(row=0, column=4)
         # Actuator polynomial coefficient for order 0
-        self.entry_poly_2 = ttk.Entry(act_poly_frame,width=11)
+        self.entry_poly_2 = ttk.Entry(moi_frame,width=11)
         self.entry_poly_2.grid(row=0, column=5)
-        poly_label_2 = ttk.Label(act_poly_frame, text="u²")
+        poly_label_2 = ttk.Label(moi_frame, text="u²")
         poly_label_2.grid(row=0, column=6)
-
-        # Add button to set the estimated coefficients to the current actuator configuration parameters
-        self.set_button = ttk.Button(self.left_frame, text="Set values", padding=(4, 4), command=self.set_values)
-        self.set_button.pack(pady=2, side=tk.TOP)
-
-        # Add button to apply the estimated coefficients and see the plot
-        self.apply_est_button = ttk.Button(self.left_frame, text="Apply estimated coefficients", padding=(4, 4), command=self.apply_coefs)
-        self.apply_est_button.pack(pady=5, side=tk.BOTTOM)
-
-        # Add polynomial estimator GUI
-        estimator_frame = ttk.Frame(self.left_frame)
-        estimator_frame.pack(side=tk.BOTTOM)
-        self.poly_est_gui = PEST.PolyEstimatorGUI(estimator_frame)
 
 
     def build_right_panel(self):
@@ -252,52 +406,6 @@ class ActuatorsEditorGUI:
         return formatted_value
 
 
-    def apply_coefs(self):
-        """
-        Function to apply the estimated coefficients to the coefficient entry boxes
-        """
-
-        if (not self.poly_est_gui.has_coefs()):
-            # Display a message and return if there is not polynomial estimation
-            messagebox.showerror("Error", "There is no available estimation")
-            return
-        elif(not self.act_id_var.get() and not self.act_curve_var.get()):
-            # Display a message and return if actuator id and curve are not selected
-            messagebox.showerror("Error", "Select an actuator id and a curve")
-            return
-        elif(not self.act_id_var.get()):
-            # Display a message and return if actuator id is not selected
-            messagebox.showerror("Error", "Select an actuator id")
-            return
-        elif(not self.act_curve_var.get()):
-            # Display a message and return if curve is not selected
-            messagebox.showerror("Error", "Select a curve")
-            return
-
-        # Get coefficients from the polynomial estimation gui
-        C_ = self.poly_est_gui.get_coefs()
-
-        # Set the coefficient for order 0
-        self.entry_poly_0.delete(0, tk.END)
-        self.entry_poly_0.insert(0, self.format_as_scientific(C_[0]))
-        # Set the coefficient for order 1
-        self.entry_poly_1.delete(0, tk.END)
-        self.entry_poly_1.insert(0, self.format_as_scientific(C_[1]))
-        # Set the coefficient for order 2
-        self.entry_poly_2.delete(0, tk.END)
-        self.entry_poly_2.insert(0, self.format_as_scientific(C_[2]))
-
-        # Update the plot with the new polynomial
-        self.plot_poly()
-
-
-    def replicate_config(self):
-        """
-        Function to replicate the configuration of the selected actuator to the other actuators
-        """
-        # TODO
-        return
-
 
     def update_displayed_data(self, *args):
         """
@@ -359,63 +467,6 @@ class ActuatorsEditorGUI:
         # Update the plot graph
         self.plot_poly()
 
-
-    def plot_poly(self):
-        """
-        Function to plot a polynomial on the right pane. The coefficients used are the ones in the entry boxes.
-        """
-
-        # Return if the actuator id or the curve are not selected
-        if(not self.act_id_var.get() or not self.act_curve_var.get()):
-            return
-
-        # Get actuator id
-        act_id = self.act_id_var.get().split()[-1]
-
-        abscissa = {}
-        # Compute abscissa voltage based on the maximum voltage
-        max_voltage_ = self.data['BAT_N_CELLS']['value']*4.2 # Assuming a LiPo Cell
-        n_pts_ = 1000
-        abscissa['voltage'] = [i * max_voltage_ / (n_pts_ - 1) for i in range(n_pts_)]
-        # Compute abscissa speed based on the maximum speed computed from maximum value of the voltage2speed map
-        volt2speed_coef_names_ = [f"ACT{act_id}_VOLT2SPEED"+f"_{i}" for i in range(3)]
-        volt2speed_coef_ = [self.data[s]['value'] for s in volt2speed_coef_names_]
-        poly_speed = POLY.polynomial(volt2speed_coef_)
-        max_speed_ = poly_speed.eval(max_voltage_)
-        abscissa['speed'] = [i * max_speed_ / (n_pts_ - 1) for i in range(n_pts_)]
-        # Compute abscissa torque based on the maximum torque computed from maximum value of the speed2torque map
-        speed2torque_coef_names_ = [f"ACT{act_id}_SPEED2TORQUE"+f"_{i}" for i in range(3)]
-        speed2torque_coef_ = [self.data[s]['value'] for s in speed2torque_coef_names_]
-        poly_torque = POLY.polynomial(speed2torque_coef_)
-        max_torque_ = poly_torque.eval(max_speed_)
-        abscissa['torque'] = [i * max_torque_ / (n_pts_ - 1) for i in range(n_pts_)]
-
-        # Get the polynomial coefficients from the entry boxes
-        poly_coefs_ = [float(self.entry_poly_0.get()), float(self.entry_poly_1.get()), float(self.entry_poly_2.get())]
-
-        # Create a polynomial object based on the coefficients
-        poly_selected_ = POLY.polynomial(poly_coefs_)
-
-        # Get the x data for the plot
-        xdata = abscissa[self.poly_param_names[self.act_curve_var.get()]['xdata']]
-        # Initialize the y data for the plot
-        ydata = []
-
-        # Evaluate the polynomial
-        for x in xdata:
-            ydata.append(poly_selected_.eval(x))
-
-        # Plot the curve on the right panel
-        self.axs.clear() # clear
-        self.axs.plot(xdata, ydata, linewidth=2, color='blue') # plot
-        self.axs.grid(True) # enable grid
-        self.axs.set_xlabel(self.poly_param_names[self.act_curve_var.get()]['xl']) # set x axis name
-        self.axs.set_ylabel(self.poly_param_names[self.act_curve_var.get()]['yl']) # set y axis name
-        self.axs.set_title(self.act_id_var.get() + ' - ' + self.act_curve_var.get()) # set title
-
-        # Show the plot and proceed
-        #plt.ion()
-        self.canvas.draw()
 
     def saveas_json(self):
         """
@@ -525,13 +576,14 @@ class ActuatorsEditorGUI:
  
 if __name__ == "__main__":
     """
-    Main to run a detached ActuatorsEditorGUI window
+    Main to run a detached VehicleEditorGUI window
     """
 
     # Define root GUI window
     root = ThemedTk(theme='black') #https://ttkthemes.readthedocs.io/en/latest/themes.html
+    # root = ThemedTk(theme='radiance')
     # Define GUI title
-    root.title("Actuators configuration")
+    root.title("Vehicle configuration")
     # Define GUI window size
     root.geometry('1200x600')
 
@@ -543,7 +595,7 @@ if __name__ == "__main__":
         print("An error occurred while creating the icon:", e)
 
     # Create the GUI object
-    app = ActuatorsEditorGUI(root, True)
+    app = VehicleEditorGUI(root, True)
 
     # Call the function to terminate the matplotlib.pyplot when window is closed
     root.protocol("WM_DELETE_WINDOW", app.on_closing)

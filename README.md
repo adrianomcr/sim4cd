@@ -62,6 +62,10 @@ The intent of the GUI is to provide an fast and easy way to configure the simula
 ### Install depenndencies
 
 ```bash
+sudo apt-get install wmctrl
+```
+
+```bash
 pip3 install ttkthemes
 pip3 install magnetic_field_calculator
 ```
