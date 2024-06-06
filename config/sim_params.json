@@ -1158,7 +1158,7 @@
         "unit": "[K]"
     },
     "PWR_EFF": {
-        "description": "Efficiency of the vehicle electricla power conversion board.",
+        "description": "Efficiency of the vehicle electrical power conversion board.",
         "value": 90,
         "default": 90,
         "options": [],
@@ -1575,7 +1575,7 @@
         "unit": "[m]"
     },
     "VEH_ACT0_DIR_Y": {
-        "description": "Y component (right) of the direction of action of actuator 0 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT0_DIR_X and VEH_ACT0_DIR_Z.",
+        "description": "Y component (left) of the direction of action of actuator 0 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT0_DIR_X and VEH_ACT0_DIR_Z.",
         "value": 0.0,
         "default": 0.0,
         "options": [],
@@ -1599,7 +1599,7 @@
         "unit": "[m]"
     },
     "VEH_ACT0_POS_Y": {
-        "description": "Y component (right) of the position of actuator 0 in the vehicle frame. Value in meters.",
+        "description": "Y component (left) of the position of actuator 0 in the vehicle frame. Value in meters.",
         "value": -0.15,
         "default": -0.15,
         "options": [],
@@ -1623,7 +1623,7 @@
         "unit": "[m]"
     },
     "VEH_ACT1_DIR_Y": {
-        "description": "Y component (right) of the direction of action of actuator 1 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT1_DIR_X and VEH_ACT1_DIR_Z.",
+        "description": "Y component (left) of the direction of action of actuator 1 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT1_DIR_X and VEH_ACT1_DIR_Z.",
         "value": 0.0,
         "default": 0.0,
         "options": [],
@@ -1647,7 +1647,7 @@
         "unit": "[m]"
     },
     "VEH_ACT1_POS_Y": {
-        "description": "Y component (right) of the position of actuator 1 in the vehicle frame. Value in meters.",
+        "description": "Y component (left) of the position of actuator 1 in the vehicle frame. Value in meters.",
         "value": 0.15,
         "default": 0.15,
         "options": [],
@@ -1671,7 +1671,7 @@
         "unit": "[m]"
     },
     "VEH_ACT2_DIR_Y": {
-        "description": "Y component (right) of the direction of action of actuator 2 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT2_DIR_X and VEH_ACT2_DIR_Z.",
+        "description": "Y component (left) of the direction of action of actuator 2 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT2_DIR_X and VEH_ACT2_DIR_Z.",
         "value": 0.0,
         "default": 0.0,
         "options": [],
@@ -1695,7 +1695,7 @@
         "unit": "[m]"
     },
     "VEH_ACT2_POS_Y": {
-        "description": "Y component (right) of the position of actuator 2 in the vehicle frame. Value in meters.",
+        "description": "Y component (left) of the position of actuator 2 in the vehicle frame. Value in meters.",
         "value": 0.15,
         "default": 0.15,
         "options": [],
@@ -1719,7 +1719,7 @@
         "unit": "[m]"
     },
     "VEH_ACT3_DIR_Y": {
-        "description": "Y component (right) of the direction of action of actuator 3 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT3_DIR_X and VEH_ACT3_DIR_Z.",
+        "description": "Y component (left) of the direction of action of actuator 3 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT3_DIR_X and VEH_ACT3_DIR_Z.",
         "value": 0.0,
         "default": 0.0,
         "options": [],
@@ -1743,7 +1743,7 @@
         "unit": "[m]"
     },
     "VEH_ACT3_POS_Y": {
-        "description": "Y component (right) of the position of actuator 3 in the vehicle frame. Value in meters.",
+        "description": "Y component (left) of the position of actuator 3 in the vehicle frame. Value in meters.",
         "value": -0.15,
         "default": -0.15,
         "options": [],
@@ -1767,7 +1767,7 @@
         "unit": "[m]"
     },
     "VEH_ACT4_DIR_Y": {
-        "description": "Y component (right) of the direction of action of actuator 4 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT4_DIR_X and VEH_ACT4_DIR_Z.",
+        "description": "Y component (left) of the direction of action of actuator 4 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT4_DIR_X and VEH_ACT4_DIR_Z.",
         "value": 0.0,
         "default": 0.0,
         "options": [],
@@ -1791,7 +1791,7 @@
         "unit": "[m]"
     },
     "VEH_ACT4_POS_Y": {
-        "description": "Y component (right) of the position of actuator 4 in the vehicle frame. Value in meters.",
+        "description": "Y component (left) of the position of actuator 4 in the vehicle frame. Value in meters.",
         "value": 0.0,
         "default": 0.0,
         "options": [],
@@ -1815,7 +1815,7 @@
         "unit": "[m]"
     },
     "VEH_ACT5_DIR_Y": {
-        "description": "Y component (right) of the direction of action of actuator 5 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT5_DIR_X and VEH_ACT5_DIR_Z.",
+        "description": "Y component (left) of the direction of action of actuator 5 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT5_DIR_X and VEH_ACT5_DIR_Z.",
         "value": 0.0,
         "default": 0.0,
         "options": [],
@@ -1839,7 +1839,7 @@
         "unit": "[m]"
     },
     "VEH_ACT5_POS_Y": {
-        "description": "Y component (right) of the position of actuator 5 in the vehicle frame. Value in meters.",
+        "description": "Y component (left) of the position of actuator 5 in the vehicle frame. Value in meters.",
         "value": 0.0,
         "default": 0.0,
         "options": [],
@@ -1863,7 +1863,7 @@
         "unit": "[m]"
     },
     "VEH_ACT6_DIR_Y": {
-        "description": "Y component (right) of the direction of action of actuator 6 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT6_DIR_X and VEH_ACT6_DIR_Z.",
+        "description": "Y component (left) of the direction of action of actuator 6 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT6_DIR_X and VEH_ACT6_DIR_Z.",
         "value": 0.0,
         "default": 0.0,
         "options": [],
@@ -1887,7 +1887,7 @@
         "unit": "[m]"
     },
     "VEH_ACT6_POS_Y": {
-        "description": "Y component (right) of the position of actuator 6 in the vehicle frame. Value in meters.",
+        "description": "Y component (left) of the position of actuator 6 in the vehicle frame. Value in meters.",
         "value": 0.0,
         "default": 0.0,
         "options": [],
@@ -1911,7 +1911,7 @@
         "unit": "[m]"
     },
     "VEH_ACT7_DIR_Y": {
-        "description": "Y component (right) of the direction of action of actuator 7 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT7_DIR_X and VEH_ACT7_DIR_Z.",
+        "description": "Y component (left) of the direction of action of actuator 7 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT7_DIR_X and VEH_ACT7_DIR_Z.",
         "value": 0.0,
         "default": 0.0,
         "options": [],
@@ -1935,7 +1935,7 @@
         "unit": "[m]"
     },
     "VEH_ACT7_POS_Y": {
-        "description": "Y component (right) of the position of actuator 7 in the vehicle frame. Value in meters.",
+        "description": "Y component (left) of the position of actuator 7 in the vehicle frame. Value in meters.",
         "value": 0.0,
         "default": 0.0,
         "options": [],
@@ -1966,5 +1966,221 @@
         ],
         "type": "int",
         "unit": "[ ]"
+    },
+    "VIZ_ACT0_BASE_X": {
+        "description": "X component (forward) os the position of the base of the arm that holds actuator 0.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VIZ_ACT0_BASE_Y": {
+        "description": "Y component (left) os the position of the base of the arm that holds actuator 0.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VIZ_ACT0_BASE_Z": {
+        "description": "Z component (up) os the position of the base of the arm that holds actuator 0.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VIZ_ACT1_BASE_X": {
+        "description": "X component (forward) os the position of the base of the arm that holds actuator 1.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VIZ_ACT1_BASE_Y": {
+        "description": "Y component (left) os the position of the base of the arm that holds actuator 1.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VIZ_ACT1_BASE_Z": {
+        "description": "Z component (up) os the position of the base of the arm that holds actuator 1.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VIZ_ACT2_BASE_X": {
+        "description": "X component (forward) os the position of the base of the arm that holds actuator 2.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VIZ_ACT2_BASE_Y": {
+        "description": "Y component (left) os the position of the base of the arm that holds actuator 2.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VIZ_ACT2_BASE_Z": {
+        "description": "Z component (up) os the position of the base of the arm that holds actuator 2.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VIZ_ACT3_BASE_X": {
+        "description": "X component (forward) os the position of the base of the arm that holds actuator 3.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VIZ_ACT3_BASE_Y": {
+        "description": "Y component (left) os the position of the base of the arm that holds actuator 3.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VIZ_ACT3_BASE_Z": {
+        "description": "Z component (up) os the position of the base of the arm that holds actuator 3.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VIZ_ACT4_BASE_X": {
+        "description": "X component (forward) os the position of the base of the arm that holds actuator 4.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VIZ_ACT4_BASE_Y": {
+        "description": "Y component (left) os the position of the base of the arm that holds actuator 4.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VIZ_ACT4_BASE_Z": {
+        "description": "Z component (up) os the position of the base of the arm that holds actuator 4.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VIZ_ACT5_BASE_X": {
+        "description": "X component (forward) os the position of the base of the arm that holds actuator 5.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VIZ_ACT5_BASE_Y": {
+        "description": "Y component (left) os the position of the base of the arm that holds actuator 5.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VIZ_ACT5_BASE_Z": {
+        "description": "Z component (up) os the position of the base of the arm that holds actuator 5.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VIZ_ACT6_BASE_X": {
+        "description": "X component (forward) os the position of the base of the arm that holds actuator 6.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VIZ_ACT6_BASE_Y": {
+        "description": "Y component (left) os the position of the base of the arm that holds actuator 6.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VIZ_ACT6_BASE_Z": {
+        "description": "Z component (up) os the position of the base of the arm that holds actuator 6.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VIZ_ACT7_BASE_X": {
+        "description": "X component (forward) os the position of the base of the arm that holds actuator 7.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VIZ_ACT7_BASE_Y": {
+        "description": "Y component (left) os the position of the base of the arm that holds actuator 7.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VIZ_ACT7_BASE_Z": {
+        "description": "Z component (up) os the position of the base of the arm that holds actuator 7.",
+        "value": 0.0,
+        "default": 0.0,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VIZ_SIZE_X": {
+        "description": "Length in the x direction of the box that represents the drone's body",
+        "value": 0.1,
+        "default": 0.1,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VIZ_SIZE_Y": {
+        "description": "Length in the y direction of the box that represents the drone's body",
+        "value": 0.1,
+        "default": 0.1,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
+    },
+    "VIZ_SIZE_Z": {
+        "description": "Length in the z direction of the box that represents the drone's body",
+        "value": 0.02,
+        "default": 0.02,
+        "options": [],
+        "type": "float",
+        "unit": "[m]"
     }
 }
