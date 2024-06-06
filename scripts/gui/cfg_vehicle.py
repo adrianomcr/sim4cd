@@ -40,16 +40,16 @@ class VehicleEditorGUI:
 
         # Define a left panel
         self.left_frame = ttk.Frame(self.root)
-        self.left_frame.pack(side=tk.LEFT, fill="both", expand=False, padx=(4,4))
+        self.left_frame.pack(side=tk.LEFT, fill="both", expand=False, padx=(0,1))
         # Add a title for the left panel
         self.name_l_label = ttk.Label(self.left_frame, text="Vehicle configuration")
         self.name_l_label.pack(padx=5)
 
         # Define a right panel
         self.right_frame = ttk.Frame(self.root)
-        self.right_frame.pack(side=tk.LEFT, fill="both", expand=True, padx=(4,4))
+        self.right_frame.pack(side=tk.LEFT, fill="both", expand=True, padx=(1,0))
         # Add a title for the right panel
-        self.name_r_label = ttk.Label(self.right_frame, text="Curve model")
+        self.name_r_label = ttk.Label(self.right_frame, text="Vehicle geometry")
         self.name_r_label.pack(padx=5)
 
         if(self.io_enabled):
@@ -74,14 +74,13 @@ class VehicleEditorGUI:
 
         # Build the left and right panels
         self.build_left_panel(self.left_frame)
-        self.build_right_panel()
-
+        self.build_right_panel(self.right_frame)
 
 
     def build_dynamics_pannel(self,parent_frame):
 
         dyn_frame = ttk.Frame(parent_frame)
-        dyn_frame.pack(side=tk.TOP, pady=5, fill=tk.X, expand=False)
+        dyn_frame.pack(side=tk.TOP, padx=5, pady=5, fill=tk.X, expand=False)
         label_dyn = ttk.Label(dyn_frame, text="Dynamics configuration:")
         label_dyn.pack(side=tk.TOP, pady=5, anchor=tk.NW)
 
@@ -136,13 +135,13 @@ class VehicleEditorGUI:
         self.entry_ang_drag = ttk.Entry(ang_drag_frame,width=11)
         self.entry_ang_drag.grid(row=0, column=2)
 
-
         return
-    
+
+
     def build_geometry_pannel(self,parent_frame):
 
         geometry_frame = ttk.Frame(parent_frame)
-        geometry_frame.pack(side=tk.TOP, pady=5, fill=tk.X, expand=False)
+        geometry_frame.pack(side=tk.TOP, padx=5, pady=5, fill=tk.X, expand=False)
         label_geometry = ttk.Label(geometry_frame, text="Geometry configuration:")
         label_geometry.pack(side=tk.TOP, pady=5, anchor=tk.NW)
 
@@ -229,7 +228,6 @@ class VehicleEditorGUI:
         self.entry_base_z = ttk.Entry(base_frame,width=11)
         self.entry_base_z.grid(row=0, column=6)
 
-
         # Subframe for the body size
         size_frame = ttk.Label(geometry_frame, text="Body size [m] (visualization only):")
         size_frame.pack(side=tk.TOP, pady=(10,1))
@@ -254,7 +252,6 @@ class VehicleEditorGUI:
         return
 
 
-
     def build_left_panel(self,parent_frame):
         """
         Function to build the widgets into the left panel
@@ -266,101 +263,29 @@ class VehicleEditorGUI:
 
 
 
+        button_frame = ttk.Frame(parent_frame)
+        button_frame.pack(side=tk.TOP, padx=(10,10), pady=(40,10))
 
-    def build_left_panel_old(self):
-        """
-        Function to build the widgets into the left panel
-        """
+        # Add button to apply the estimated coefficients and see the plot
+        update_button = ttk.Button(button_frame, text="Update image", padding=(4, 4), command=self.update_image)
+        update_button.pack(padx=5, side=tk.LEFT)
 
-        # Define the options for the actuators ids if this information is available
-        if (self.data):
-            actuator_options = [f'Actuator {i}' for i in range(self.data['VEH_ACT_NUM']['value'])]
-        else:
-            actuator_options = []
-
-        # Create a subframe to select the id of the actuator to be configured
-        act_select_frame = ttk.Frame(self.left_frame)
-        act_select_frame.pack(side=tk.TOP, pady=5)
-        # Add a label for the actuator id selector
-        act_select_label = ttk.Label(act_select_frame, text="Actuator number")
-        act_select_label.pack(side=tk.LEFT,padx=5)
-        # Add a dropdown to select among the possible actuator ids
-        self.act_id_var = tk.StringVar()
-        self.actuator_menu = ttk.OptionMenu(act_select_frame, self.act_id_var, None, *actuator_options)
-        self.actuator_menu.pack(side=tk.LEFT, padx=10)
-        # Bind the function to update the data displayed in the gui
-        self.act_id_var.trace("w", self.update_displayed_data)
-
-        # Create a subframe for some actuators simple properties
-        act_features_frame = ttk.Frame(self.left_frame)
-        act_features_frame.pack(side=tk.TOP, pady=5)
-        # Add label and entry box for actuators time constant
-        act_tcte_label = ttk.Label(act_features_frame, text="Time constant")
-        act_tcte_label.grid(row=0, column=0)
-        self.combo_tcte = ttk.Combobox(act_features_frame, values=[])
-        self.combo_tcte.grid(row=0, column=1)
-        # Add label and entry box for actuators moment of inertia
-        act_moi_label = ttk.Label(act_features_frame, text="Moment of inertia")
-        act_moi_label.grid(row=1, column=0)
-        self.combo_moi = ttk.Combobox(act_features_frame, values=[])
-        self.combo_moi.grid(row=1, column=1)
-        # Add label and entry box for actuators spin directions
-        act_spin_label = ttk.Label(act_features_frame, text="Spin direction")
-        act_spin_label.grid(row=2, column=0)
-        self.combo_spin = ttk.Combobox(act_features_frame, values=[])
-        self.combo_spin.grid(row=2, column=1)
-
-        # Create a subframe to select the curve displayed in the plot
-        act_curve_frame = ttk.Frame(self.left_frame)
-        act_curve_frame.pack(side=tk.TOP, pady=(15,3))
-        # Add a label for the curve selector
-        act_curve_label = ttk.Label(act_curve_frame, text="Curve")
-        act_curve_label.pack(side=tk.LEFT,padx=5)
-        # Add a dropdown to select among the possible actuator ids
-        curve_options = self.poly_param_names.keys()
-        self.act_curve_var = tk.StringVar()
-        self.curve_menu = ttk.OptionMenu(act_curve_frame, self.act_curve_var, None, *curve_options)
-        self.curve_menu.pack(side=tk.TOP, padx=10)
-        # Bind the function to update the data displayed in the gui
-        self.act_curve_var.trace("w", self.update_displayed_data)
-
-        # Subframe for actuator simple configurations
-        moi_frame = ttk.Frame(self.left_frame)
-        moi_frame.pack(side=tk.TOP, pady=5)
-        poly_label = ttk.Label(moi_frame, text="p(u) = ")
-        poly_label.grid(row=0, column=0)
-        # Actuator polynomial coefficient for order 0
-        self.entry_poly_0 = ttk.Entry(moi_frame,width=11)
-        self.entry_poly_0.grid(row=0, column=1)
-        poly_label_0 = ttk.Label(moi_frame, text="  ")
-        poly_label_0.grid(row=0, column=2)
-        # Actuator polynomial coefficient for order 0
-        self.entry_poly_1 = ttk.Entry(moi_frame,width=11)
-        self.entry_poly_1.grid(row=0, column=3)
-        poly_label_1 = ttk.Label(moi_frame, text="u ")
-        poly_label_1.grid(row=0, column=4)
-        # Actuator polynomial coefficient for order 0
-        self.entry_poly_2 = ttk.Entry(moi_frame,width=11)
-        self.entry_poly_2.grid(row=0, column=5)
-        poly_label_2 = ttk.Label(moi_frame, text="u²")
-        poly_label_2.grid(row=0, column=6)
+        # Add button to set the estimated coefficients to the current actuator configuration parameters
+        set_button = ttk.Button(button_frame, text="Set values", padding=(4, 4), command=self.set_values)
+        set_button.pack(padx=5, side=tk.LEFT)
 
 
-    def build_right_panel(self):
+    def update_image(self):
+        print("\33[93mNothing here yet\33[0m")
+        return
+
+
+    def build_right_panel(self,parent_frame):
         """
         Function to build the widgets into the right panel
         """
 
-        # Create a pyplot figure
-        self.fig, self.axs = plt.subplots(1,1)
-
-        # Create a canvas for the plot
-        self.canvas = FigureCanvasTkAgg(self.fig, master=self.right_frame)
-        self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        # Update the plot
-        self.canvas.draw()
-        # Attach the plot to the right_frame
-        self.canvas.get_tk_widget().pack()
+        return
 
 
     def set_values(self):
@@ -373,55 +298,44 @@ class VehicleEditorGUI:
             messagebox.showerror("Error", "There is no parameter file loaded")
             return
 
+        # Set mass of the vehicle
+        self.data['DYN_MASS']['value'] = float(self.entry_mass.get())
+        # Set moment of inertia of the vehicle
+        self.data['DYN_MOI_XX']['value'] = float(self.entry_moi_x.get())
+        self.data['DYN_MOI_YY']['value'] = float(self.entry_moi_y.get())
+        self.data['DYN_MOI_ZZ']['value'] = float(self.entry_moi_z.get())
+        # Set linear and angular drag
+        self.data['DYN_DRAG_V']['value'] = float(self.entry_lin_drag.get())
+        self.data['DYN_DRAG_W']['value'] = float(self.entry_ang_drag.get())
+
+        # Set vehicle size
+        self.data['VIZ_SIZE_X']['value'] = float(self.entry_size_x.get())
+        self.data['VIZ_SIZE_Y']['value'] = float(self.entry_size_y.get())
+        self.data['VIZ_SIZE_Z']['value'] = float(self.entry_size_z.get())
+
+
         # Return if there is no actuator selected
-        if(not self.act_id_var.get()):
-            messagebox.showerror("Error", "Select an actuator id")
-            return
+        if(self.act_id_var.get()):
+            
+            # Get the actuator id
+            act_id = self.act_id_var.get().split()[-1]
 
-        # Get the actuator id
-        act_id = self.act_id_var.get().split()[-1]
-
-        # Set simple properties
-        self.data[f"ACT{act_id}_TIME_CTE"]['value'] = float(self.combo_tcte.get())
-        self.data[f"ACT{act_id}_MOI_ROTOR"]['value'] = float(self.combo_moi.get())
-        self.data[f"ACT{act_id}_SPIN"]['value'] = int(self.combo_spin.get())
-
-        # Return if there not curve selected
-        if(not self.act_curve_var.get()):
-            return
-
-        # Get the selected curve
-        poly_param_name_ = self.poly_param_names[self.act_curve_var.get()]['name']
-        # Compute the full name of the coefficient parameters
-        poly_coef_names_ = [f"ACT{act_id}_"+poly_param_name_+f"_{i}" for i in range(3)]
-
-        # Set coefficient parameters
-        self.data[poly_coef_names_[0]]['value'] = float(self.entry_poly_0.get())
-        self.data[poly_coef_names_[1]]['value'] = float(self.entry_poly_1.get())
-        self.data[poly_coef_names_[2]]['value'] = float(self.entry_poly_2.get())
+            # Set position of selected actuator
+            self.data[f"VEH_ACT{act_id}_POS_X"]['value'] = float(self.entry_pos_x.get())
+            self.data[f"VEH_ACT{act_id}_POS_Y"]['value'] = float(self.entry_pos_y.get())
+            self.data[f"VEH_ACT{act_id}_POS_Z"]['value'] = float(self.entry_pos_y.get())
+            # Set direction of selected actuator
+            self.data[f"VEH_ACT{act_id}_DIR_X"]['value'] = float(self.entry_dir_x.get())
+            self.data[f"VEH_ACT{act_id}_DIR_Y"]['value'] = float(self.entry_dir_y.get())
+            self.data[f"VEH_ACT{act_id}_DIR_Z"]['value'] = float(self.entry_dir_y.get())
+            # Set base of the arm that holds the selected actuator
+            self.data[f"VIZ_ACT{act_id}_BASE_X"]['value'] = float(self.entry_base_x.get())
+            self.data[f"VIZ_ACT{act_id}_BASE_Y"]['value'] = float(self.entry_base_y.get())
+            self.data[f"VIZ_ACT{act_id}_BASE_Z"]['value'] = float(self.entry_base_y.get())
+        
 
         # Update displayed data
         self.update_displayed_data()
-
-
-    def format_as_scientific(self,value):
-        """
-        Function to define a string equivalent to a float in the scientific notation
-
-        Parameters:
-            value (float): Float value to be converted to a string
-
-        Return:
-            formatted_value (string): String with the input float in the scientific notation
-        """
-        formatted_value = "{:.5e}".format(value)
-        formatted_value = formatted_value.replace('+0','+')
-        formatted_value = formatted_value.replace('-0','-')
-        formatted_value = formatted_value.replace('e+0','')
-        return formatted_value
-
-
-
 
 
     def update_dynamic_properties(self):
@@ -455,7 +369,6 @@ class VehicleEditorGUI:
         # If there is no data 
         if (not self.data):
             return
-
 
         self.entry_size_x.delete(0, tk.END)
         self.entry_size_x.insert(0, str(self.data[f"VIZ_SIZE_X"]['value']))
@@ -492,9 +405,6 @@ class VehicleEditorGUI:
         self.entry_base_z.delete(0, tk.END)
         self.entry_base_z.insert(0, str(self.data[f"VIZ_ACT{act_id}_BASE_Z"]['value']))
 
-
-
-
         return
 
 
@@ -514,94 +424,6 @@ class VehicleEditorGUI:
         self.update_geometry_properties()
 
         return
-
-
-
-        # Update the value of actuator time constant
-        self.combo_tcte.delete(0, tk.END)
-        self.combo_tcte.insert(0, str(self.data[f"ACT{act_id}_TIME_CTE"]['value']))
-        self.combo_tcte['values'] = self.data[f"ACT{act_id}_TIME_CTE"]['options']
-        # Update the value of actuator moment of inertia
-        self.combo_moi.delete(0, tk.END)
-        self.combo_moi.insert(0, str(self.data[f"ACT{act_id}_MOI_ROTOR"]['value']))
-        self.combo_moi['values'] = self.data[f"ACT{act_id}_MOI_ROTOR"]['options']
-        # Update the value of actuator spin
-        self.combo_spin.delete(0, tk.END)
-        self.combo_spin.insert(0, str(int(self.data[f"ACT{act_id}_SPIN"]['value'])))
-        self.combo_spin['values'] = self.data[f"ACT{act_id}_SPIN"]['options']
-
-        # Return it there is no curve selected
-        if(not self.act_curve_var.get()):
-            return
-        
-        # Get the selected curve
-        poly_param_name_ = self.poly_param_names[self.act_curve_var.get()]['name']
-        # Compute the full name of the coefficient parameters
-        poly_coef_names_ = [f"ACT{act_id}_"+poly_param_name_+f"_{i}" for i in range(3)]
-        # Cet the coefficient parameters
-        poly_coefs_ = [self.data[s]['value'] for s in poly_coef_names_]
-
-
-
-    def update_displayed_data_old(self, *args):
-        """
-        Function to update the data displayed on the gui
-
-        Parameters:
-            *args (list): Unused arguments passed by the function when it is binded to a widget action.
-        """
-
-        # Update the possible ids of the actuators
-        self.update_actuator_options()
-
-        # Return it there is no actuator selected
-        if(not self.act_id_var.get()):
-            return
-
-        # Get selected actuator id
-        act_id = self.act_id_var.get().split()[-1]
-
-        # Update the value of actuator time constant
-        self.combo_tcte.delete(0, tk.END)
-        self.combo_tcte.insert(0, str(self.data[f"ACT{act_id}_TIME_CTE"]['value']))
-        self.combo_tcte['values'] = self.data[f"ACT{act_id}_TIME_CTE"]['options']
-        # Update the value of actuator moment of inertia
-        self.combo_moi.delete(0, tk.END)
-        self.combo_moi.insert(0, str(self.data[f"ACT{act_id}_MOI_ROTOR"]['value']))
-        self.combo_moi['values'] = self.data[f"ACT{act_id}_MOI_ROTOR"]['options']
-        # Update the value of actuator spin
-        self.combo_spin.delete(0, tk.END)
-        self.combo_spin.insert(0, str(int(self.data[f"ACT{act_id}_SPIN"]['value'])))
-        self.combo_spin['values'] = self.data[f"ACT{act_id}_SPIN"]['options']
-
-        # Return it there is no curve selected
-        if(not self.act_curve_var.get()):
-            return
-        
-        # Get the selected curve
-        poly_param_name_ = self.poly_param_names[self.act_curve_var.get()]['name']
-        # Compute the full name of the coefficient parameters
-        poly_coef_names_ = [f"ACT{act_id}_"+poly_param_name_+f"_{i}" for i in range(3)]
-        # Cet the coefficient parameters
-        poly_coefs_ = [self.data[s]['value'] for s in poly_coef_names_]
-
-        # Get the selected curve
-        poly_param_name_ = self.poly_param_names[self.act_curve_var.get()]['name']
-        # Compute the full name of the coefficient parameters
-        poly_coef_names_ = [f"ACT{act_id}_"+poly_param_name_+f"_{i}" for i in range(3)]
-
-        # Update the data of the the coefficient for order 0
-        self.entry_poly_0.delete(0, tk.END)
-        self.entry_poly_0.insert(0, self.format_as_scientific(self.data[poly_coef_names_[0]]['value']))
-        # Update the data of the the coefficient for order 1
-        self.entry_poly_1.delete(0, tk.END)
-        self.entry_poly_1.insert(0, self.format_as_scientific(self.data[poly_coef_names_[1]]['value']))
-        # Update the data of the the coefficient for order 2
-        self.entry_poly_2.delete(0, tk.END)
-        self.entry_poly_2.insert(0, self.format_as_scientific(self.data[poly_coef_names_[2]]['value']))
-
-        # Update the plot graph
-        self.plot_poly()
 
 
     def saveas_json(self):
@@ -660,7 +482,7 @@ class VehicleEditorGUI:
         self.root.quit()
         for widget in self.root.winfo_children():
             widget.destroy()
-            self.root.destroy()
+        self.root.destroy()
 
 
     def set_data(self, d, path):
@@ -726,7 +548,7 @@ if __name__ == "__main__":
     # Define GUI title
     root.title("Vehicle configuration")
     # Define GUI window size
-    root.geometry('1200x600')
+    root.geometry('1200x800')
 
     try:
         # Define and set a parameters icon for the GUI
