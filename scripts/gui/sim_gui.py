@@ -201,6 +201,11 @@ class SimGUI:
         self.cfg_act_gui.on_closing()
         # Make sure matplotlib.pyplot is terminated
         self.cfg_pow_gui.on_closing()
+
+        self.root.quit()
+        for widget in self.root.winfo_children():
+            widget.destroy()
+            self.root.destroy()
         
 
 

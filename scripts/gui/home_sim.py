@@ -154,7 +154,10 @@ class SimHomeApp():
         # Stop simulator if it is running
         self.stop_command()
         # Destroy the window
-        self.root.destroy()
+        self.root.quit()
+        for widget in self.root.winfo_children():
+            widget.destroy()
+            self.root.destroy()
 
 
 if __name__ == "__main__":

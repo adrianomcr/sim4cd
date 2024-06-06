@@ -318,6 +318,11 @@ class PowerEditorGUI:
         # Close matplotlib.pyplot to avoid gui to keep alive after it is closed
         plt.close()
 
+        self.root.quit()
+        for widget in self.root.winfo_children():
+            widget.destroy()
+            self.root.destroy()
+
 
     def set_data(self, d, path):
         """
