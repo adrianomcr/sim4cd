@@ -157,7 +157,7 @@ class SimHomeApp():
         self.root.quit()
         for widget in self.root.winfo_children():
             widget.destroy()
-            self.root.destroy()
+        self.root.destroy()
 
 
 if __name__ == "__main__":
