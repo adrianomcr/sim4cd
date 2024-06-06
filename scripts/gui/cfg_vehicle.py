@@ -72,14 +72,6 @@ class VehicleEditorGUI:
         # Initialize the variable to store the json data
         self.data = {}
 
-        # Define a dictionarry with generic information to build the gui
-        self.poly_param_names = {
-            'Voltage to speed'  : { 'name':'VOLT2SPEED'  , 'xdata':'voltage', 'xl':'Voltage [V]'  , 'yl':'Speed [rad/s]'},
-            'Speed to thrust'   : { 'name':'SPEED2THRUST', 'xdata':'speed'  , 'xl':'Speed [rad/s]', 'yl':'Force [N]'    },
-            'Speed to torque'   : { 'name':'SPEED2TORQUE', 'xdata':'speed'  , 'xl':'Speed [rad/s]', 'yl':'Torque [Nm]'  },
-            'Torque to current' : { 'name':'TORQUE2AMPS' , 'xdata':'torque' , 'xl':'Torque [Nm]'  , 'yl':'Current [A]'  }
-        }
-
         # Build the left and right panels
         self.build_left_panel(self.left_frame)
         self.build_right_panel()
@@ -170,6 +162,8 @@ class VehicleEditorGUI:
         self.act_id_var = tk.StringVar()
         self.actuator_menu = ttk.OptionMenu(act_select_frame, self.act_id_var, None, *actuator_options)
         self.actuator_menu.pack(side=tk.LEFT, padx=10)
+        # # Bind the function to update the data displayed in the gui
+        self.act_id_var.trace("w", lambda *args: self.update_geometry_properties())
 
 
         # Subframe for the position of the selected actuator
@@ -213,6 +207,27 @@ class VehicleEditorGUI:
         dir_frame_z.grid(row=0, column=5)
         self.entry_dir_z = ttk.Entry(dir_frame,width=11)
         self.entry_dir_z.grid(row=0, column=6)
+
+        # Subframe for the direction of the selected actuator
+        base_frame = ttk.Label(geometry_frame, text="Actuators arm base [m] (visualization only):")
+        base_frame.pack(side=tk.TOP, pady=(20,1))
+        base_frame = ttk.Frame(geometry_frame)
+        base_frame.pack(side=tk.TOP, pady=1)
+        # Arm base in x
+        base_frame_x = ttk.Label(base_frame, text="x:")
+        base_frame_x.grid(row=0, column=1)
+        self.entry_base_x = ttk.Entry(base_frame,width=11)
+        self.entry_base_x.grid(row=0, column=2)
+        # Arm base in y
+        base_frame_y = ttk.Label(base_frame, text=" y:")
+        base_frame_y.grid(row=0, column=3)
+        self.entry_base_y = ttk.Entry(base_frame,width=11)
+        self.entry_base_y.grid(row=0, column=4)
+        # Arm base in z
+        base_frame_z = ttk.Label(base_frame, text=" z:")
+        base_frame_z.grid(row=0, column=5)
+        self.entry_base_z = ttk.Entry(base_frame,width=11)
+        self.entry_base_z.grid(row=0, column=6)
 
 
         # Subframe for the body size
@@ -407,7 +422,128 @@ class VehicleEditorGUI:
 
 
 
+
+
+    def update_dynamic_properties(self):
+
+        # If there is no data 
+        if (not self.data):
+            return
+        
+        # Update the displayed dynamic properties
+        self.entry_mass.delete(0, tk.END)
+        self.entry_mass.insert(0, str(self.data['DYN_MASS']['value']))
+        #
+        self.entry_moi_x.delete(0, tk.END)
+        self.entry_moi_x.insert(0, str(self.data['DYN_MOI_XX']['value']))
+        self.entry_moi_y.delete(0, tk.END)
+        self.entry_moi_y.insert(0, str(self.data['DYN_MOI_YY']['value']))
+        self.entry_moi_z.delete(0, tk.END)
+        self.entry_moi_z.insert(0, str(self.data['DYN_MOI_ZZ']['value']))
+        #
+        self.entry_lin_drag.delete(0, tk.END)
+        self.entry_lin_drag.insert(0, str(self.data['DYN_DRAG_V']['value']))
+        self.entry_ang_drag.delete(0, tk.END)
+        self.entry_ang_drag.insert(0, str(self.data['DYN_DRAG_W']['value']))
+
+
+        return
+    
+
+    def update_geometry_properties(self):
+
+        # If there is no data 
+        if (not self.data):
+            return
+
+
+        self.entry_size_x.delete(0, tk.END)
+        self.entry_size_x.insert(0, str(self.data[f"VIZ_SIZE_X"]['value']))
+        self.entry_size_y.delete(0, tk.END)
+        self.entry_size_y.insert(0, str(self.data[f"VIZ_SIZE_Y"]['value']))
+        self.entry_size_z.delete(0, tk.END)
+        self.entry_size_z.insert(0, str(self.data[f"VIZ_SIZE_Z"]['value']))
+
+        # Return it there is no actuator selected
+        if(not self.act_id_var.get()):
+            return
+        
+        # Get selected actuator id
+        act_id = self.act_id_var.get().split()[-1]
+
+        self.entry_pos_x.delete(0, tk.END)
+        self.entry_pos_x.insert(0, str(self.data[f"VEH_ACT{act_id}_POS_X"]['value']))
+        self.entry_pos_y.delete(0, tk.END)
+        self.entry_pos_y.insert(0, str(self.data[f"VEH_ACT{act_id}_POS_Y"]['value']))
+        self.entry_pos_z.delete(0, tk.END)
+        self.entry_pos_z.insert(0, str(self.data[f"VEH_ACT{act_id}_POS_Z"]['value']))
+
+        self.entry_dir_x.delete(0, tk.END)
+        self.entry_dir_x.insert(0, str(self.data[f"VEH_ACT{act_id}_DIR_X"]['value']))
+        self.entry_dir_y.delete(0, tk.END)
+        self.entry_dir_y.insert(0, str(self.data[f"VEH_ACT{act_id}_DIR_Y"]['value']))
+        self.entry_dir_z.delete(0, tk.END)
+        self.entry_dir_z.insert(0, str(self.data[f"VEH_ACT{act_id}_DIR_Z"]['value']))
+
+        self.entry_base_x.delete(0, tk.END)
+        self.entry_base_x.insert(0, str(self.data[f"VIZ_ACT{act_id}_BASE_X"]['value']))
+        self.entry_base_y.delete(0, tk.END)
+        self.entry_base_y.insert(0, str(self.data[f"VIZ_ACT{act_id}_BASE_Y"]['value']))
+        self.entry_base_z.delete(0, tk.END)
+        self.entry_base_z.insert(0, str(self.data[f"VIZ_ACT{act_id}_BASE_Z"]['value']))
+
+
+
+
+        return
+
+
     def update_displayed_data(self, *args):
+        """
+        Function to update the data displayed on the gui
+
+        Parameters:
+            *args (list): Unused arguments passed by the function when it is binded to a widget action.
+        """
+
+        # Update the possible ids of the actuators
+        self.update_actuator_options()
+
+        self.update_dynamic_properties()
+
+        self.update_geometry_properties()
+
+        return
+
+
+
+        # Update the value of actuator time constant
+        self.combo_tcte.delete(0, tk.END)
+        self.combo_tcte.insert(0, str(self.data[f"ACT{act_id}_TIME_CTE"]['value']))
+        self.combo_tcte['values'] = self.data[f"ACT{act_id}_TIME_CTE"]['options']
+        # Update the value of actuator moment of inertia
+        self.combo_moi.delete(0, tk.END)
+        self.combo_moi.insert(0, str(self.data[f"ACT{act_id}_MOI_ROTOR"]['value']))
+        self.combo_moi['values'] = self.data[f"ACT{act_id}_MOI_ROTOR"]['options']
+        # Update the value of actuator spin
+        self.combo_spin.delete(0, tk.END)
+        self.combo_spin.insert(0, str(int(self.data[f"ACT{act_id}_SPIN"]['value'])))
+        self.combo_spin['values'] = self.data[f"ACT{act_id}_SPIN"]['options']
+
+        # Return it there is no curve selected
+        if(not self.act_curve_var.get()):
+            return
+        
+        # Get the selected curve
+        poly_param_name_ = self.poly_param_names[self.act_curve_var.get()]['name']
+        # Compute the full name of the coefficient parameters
+        poly_coef_names_ = [f"ACT{act_id}_"+poly_param_name_+f"_{i}" for i in range(3)]
+        # Cet the coefficient parameters
+        poly_coefs_ = [self.data[s]['value'] for s in poly_coef_names_]
+
+
+
+    def update_displayed_data_old(self, *args):
         """
         Function to update the data displayed on the gui
 
@@ -520,6 +656,11 @@ class VehicleEditorGUI:
         """
         # Close matplotlib.pyplot to avoid gui to keep alive after it is closed
         plt.close()
+
+        self.root.quit()
+        for widget in self.root.winfo_children():
+            widget.destroy()
+            self.root.destroy()
 
 
     def set_data(self, d, path):
