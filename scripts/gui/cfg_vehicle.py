@@ -12,6 +12,7 @@ from fnmatch import fnmatch
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import numpy as np
 
 import poly_estimator as PEST
 import sys
@@ -187,7 +188,7 @@ class VehicleEditorGUI:
         self.entry_pos_z.grid(row=0, column=6)
 
         # Subframe for the direction of the selected actuator
-        dir_frame = ttk.Label(geometry_frame, text="Actuators direction [ ]:")
+        dir_frame = ttk.Label(geometry_frame, text="Actuators direction [ ] (normalized vector):")
         dir_frame.pack(side=tk.TOP, pady=(10,1))
         dir_frame = ttk.Frame(geometry_frame)
         dir_frame.pack(side=tk.TOP, pady=1)
@@ -323,15 +324,18 @@ class VehicleEditorGUI:
             # Set position of selected actuator
             self.data[f"VEH_ACT{act_id}_POS_X"]['value'] = float(self.entry_pos_x.get())
             self.data[f"VEH_ACT{act_id}_POS_Y"]['value'] = float(self.entry_pos_y.get())
-            self.data[f"VEH_ACT{act_id}_POS_Z"]['value'] = float(self.entry_pos_y.get())
+            self.data[f"VEH_ACT{act_id}_POS_Z"]['value'] = float(self.entry_pos_z.get())
             # Set direction of selected actuator
-            self.data[f"VEH_ACT{act_id}_DIR_X"]['value'] = float(self.entry_dir_x.get())
-            self.data[f"VEH_ACT{act_id}_DIR_Y"]['value'] = float(self.entry_dir_y.get())
-            self.data[f"VEH_ACT{act_id}_DIR_Z"]['value'] = float(self.entry_dir_y.get())
+            direction = np.array([float(self.entry_dir_x.get()), float(self.entry_dir_y.get()), float(self.entry_dir_z.get())])
+            direction = direction/np.linalg.norm(direction)
+            direction = direction.tolist()
+            self.data[f"VEH_ACT{act_id}_DIR_X"]['value'] = direction[0]
+            self.data[f"VEH_ACT{act_id}_DIR_Y"]['value'] = direction[1]
+            self.data[f"VEH_ACT{act_id}_DIR_Z"]['value'] = direction[2]
             # Set base of the arm that holds the selected actuator
             self.data[f"VIZ_ACT{act_id}_BASE_X"]['value'] = float(self.entry_base_x.get())
             self.data[f"VIZ_ACT{act_id}_BASE_Y"]['value'] = float(self.entry_base_y.get())
-            self.data[f"VIZ_ACT{act_id}_BASE_Z"]['value'] = float(self.entry_base_y.get())
+            self.data[f"VIZ_ACT{act_id}_BASE_Z"]['value'] = float(self.entry_base_z.get())
         
 
         # Update displayed data
