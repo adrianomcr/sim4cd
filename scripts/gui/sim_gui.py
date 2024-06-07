@@ -37,6 +37,8 @@ class SimGUI:
         # Initialize the variable to store the json path
         self.json_path = None
 
+        self.root.bind('<F11>', self.toggle_fullscreen)
+
         # Create the top-level notebook
         self.top_notebook = ttk.Notebook(self.root)
         self.top_notebook.pack(fill='both', expand=True)
@@ -263,6 +265,8 @@ class SimGUI:
             # Throw an error message there was a problem in saving the file
             messagebox.showerror("Error", "A problem ocurred when saving the file")
 
+    def toggle_fullscreen(self,event):
+        self.root.attributes('-fullscreen', not root.attributes('-fullscreen'))
 
 if __name__ == "__main__":
     """
