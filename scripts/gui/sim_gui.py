@@ -10,13 +10,13 @@ import json
 from ttkthemes import ThemedTk
 
 import os
-import home_sim as HOME
-import full_set_params as FULL_SET
-import cfg_actuators as CFG_ACT
-import cfg_vehicle as CFG_VEH
-import cfg_geolocation as CFG_GEO
-import cfg_power as CFG_POW
-import cfg_sensors as CFG_SENS
+import gui.home_sim as HOME
+import gui.full_set_params as FULL_SET
+import gui.cfg_actuators as CFG_ACT
+import gui.cfg_vehicle as CFG_VEH
+import gui.cfg_geolocation as CFG_GEO
+import gui.cfg_power as CFG_POW
+import gui.cfg_sensors as CFG_SENS
 
 class SimGUI:
     """
@@ -127,6 +127,8 @@ class SimGUI:
         # Initialize the current tab variable
         self.current_tab = [self.top_notebook.index(self.top_notebook.select()), self.config_level_notebook.index(self.config_level_notebook.select())]
 
+        self.pre_load_json()
+
     def tab_changed(self,event):
         """
         Tab to handle action that need to occur when the selected tab changes
@@ -151,6 +153,10 @@ class SimGUI:
             # Get the updated data from the previous gui
             data = old_tab_gui.get_data()
             self.data = data
+            if(prev_tab[0]==1):
+                if(prev_tab[1]==2):
+                    old_tab_gui.close_vtk_window()
+                    print('close_vtk')
 
         # Get the object of the gui in the current tab
         new_tab_gui = self.tab_map(self.current_tab)
@@ -204,12 +210,24 @@ class SimGUI:
         # Make sure matplotlib.pyplot is terminated
         self.cfg_pow_gui.on_closing()
 
+        self.cfg_veh_gui.on_closing()
+
         self.root.quit()
         for widget in self.root.winfo_children():
             widget.destroy()
         self.root.destroy()
         
 
+    def pre_load_json(self):
+        path = os.path.normpath(os.path.abspath(__file__).rsplit('/', 1)[0]+'/../../config/sim_params.json')
+        # Store the path and display it
+        self.json_path = path
+        self.path_label.config(text="JSON path: "+self.json_path)
+
+        with open(self.json_path, "r") as json_file:
+            self.data = json.load(json_file)
+
+        self.home_gui.set_data(self.data, self.json_path)
 
     def load_json(self):
         """
@@ -293,8 +311,8 @@ if __name__ == "__main__":
     # Call the function to terminate the matplotlib.pyplot when window is closed 
     root.protocol("WM_DELETE_WINDOW", app.on_closing)
 
-    # Maximize the window
-    root.attributes('-zoomed', 1)
+    # # Maximize the window
+    # root.attributes('-zoomed', 1)
 
     # Run the tkinter event loop
     root.mainloop()

@@ -16,7 +16,7 @@ from math import pi, sin, cos, asin, sqrt, atan2
 from magnetic_field_calculator import MagneticFieldCalculator
 from datetime import datetime
 
-import poly_estimator as PEST
+import gui.poly_estimator as PEST
 
 
 class GeolocationEditorGUI:

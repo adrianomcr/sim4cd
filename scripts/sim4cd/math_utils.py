@@ -5,7 +5,7 @@
 
 import numpy as np
 import time
-from math import pi,sqrt,sin,cos,tan
+from math import pi,sqrt,sin,cos,tan,asin,atan2
 
 def quaternion_derivative(q, w):
     """
@@ -205,3 +205,21 @@ def quat2rotm(q):
                   [2*(q[1]*q[3]-q[2]*q[0]), 2*(q[2]*q[3]+q[1]*q[0]), 1-2*(q[1]*q[1]+q[2]*q[2])]]) #this was checked on matlab
 
     return R
+
+
+def quat2rpy(q):
+    """Convert a quaternion to Euler angles
+
+    Args:
+        q (numpy.array): Quaternion in the form [qw,qx,qy,qz]
+
+    Returns:
+        rpy (numpy.array): Vector with the Euler angles in the form [roll, pitch, yaw]
+    """
+    theta = asin(-2 * (q[1] * q[3] - q[0] * q[2]))
+    psi = atan2(2 * (q[0] * q[3] + q[1] * q[2]), (q[0] ** 2 + q[1] ** 2 - q[2] ** 2 - q[3] ** 2))
+    phi = atan2(2 * (q[0] * q[1] + q[2] * q[3]), (q[0] ** 2 - q[1] ** 2 - q[2] ** 2 + q[3] ** 2))
+
+    rpy = np.array([phi, theta, psi])
+
+    return rpy

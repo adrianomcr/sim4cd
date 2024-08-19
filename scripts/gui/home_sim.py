@@ -76,7 +76,7 @@ class SimHomeApp():
         """
 
         # Get the path of the start_sim.sh script
-        script_path = os.path.dirname(__file__)+"/../"
+        script_path = os.path.dirname(__file__)+"/../sim4cd/"
         # Check the status of the process before start
         if self.process is None or self.process.poll() is not None:
             # Create the string command to start the simulator

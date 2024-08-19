@@ -1568,7 +1568,7 @@
     },
     "VEH_ACT0_DIR_X": {
         "description": "X component (forward) of the direction of action of actuator 0 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT0_DIR_Y and VEH_ACT0_DIR_Z.",
-        "value": 0.0,
+        "value": -0.19245008972987526,
         "default": 0.0,
         "options": [],
         "type": "float",
@@ -1576,7 +1576,7 @@
     },
     "VEH_ACT0_DIR_Y": {
         "description": "Y component (left) of the direction of action of actuator 0 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT0_DIR_X and VEH_ACT0_DIR_Z.",
-        "value": 0.0,
+        "value": 0.19245008972987526,
         "default": 0.0,
         "options": [],
         "type": "float",
@@ -1584,7 +1584,7 @@
     },
     "VEH_ACT0_DIR_Z": {
         "description": "Z component (up) of the direction of action of actuator 0 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT0_DIR_X and VEH_ACT0_DIR_Y.",
-        "value": 1.0,
+        "value": 0.9622504486493763,
         "default": 1.0,
         "options": [],
         "type": "float",
@@ -1616,7 +1616,7 @@
     },
     "VEH_ACT1_DIR_X": {
         "description": "X component (forward) of the direction of action of actuator 1 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT1_DIR_Y and VEH_ACT1_DIR_Z.",
-        "value": 0.0,
+        "value": 0.19245008972987526,
         "default": 0.0,
         "options": [],
         "type": "float",
@@ -1624,7 +1624,7 @@
     },
     "VEH_ACT1_DIR_Y": {
         "description": "Y component (left) of the direction of action of actuator 1 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT1_DIR_X and VEH_ACT1_DIR_Z.",
-        "value": 0.0,
+        "value": -0.19245008972987526,
         "default": 0.0,
         "options": [],
         "type": "float",
@@ -1632,7 +1632,7 @@
     },
     "VEH_ACT1_DIR_Z": {
         "description": "Z component (up) of the direction of action of actuator 1 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT1_DIR_X and VEH_ACT1_DIR_Y.",
-        "value": 1.0,
+        "value": 0.9622504486493763,
         "default": 1.0,
         "options": [],
         "type": "float",
@@ -1664,7 +1664,7 @@
     },
     "VEH_ACT2_DIR_X": {
         "description": "X component (forward) of the direction of action of actuator 2 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT2_DIR_Y and VEH_ACT2_DIR_Z.",
-        "value": 0.0,
+        "value": -0.19245008972987526,
         "default": 0.0,
         "options": [],
         "type": "float",
@@ -1672,7 +1672,7 @@
     },
     "VEH_ACT2_DIR_Y": {
         "description": "Y component (left) of the direction of action of actuator 2 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT2_DIR_X and VEH_ACT2_DIR_Z.",
-        "value": 0.0,
+        "value": -0.19245008972987526,
         "default": 0.0,
         "options": [],
         "type": "float",
@@ -1680,7 +1680,7 @@
     },
     "VEH_ACT2_DIR_Z": {
         "description": "Z component (up) of the direction of action of actuator 2 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT2_DIR_X and VEH_ACT2_DIR_Y.",
-        "value": 1.0,
+        "value": 0.9622504486493763,
         "default": 1.0,
         "options": [],
         "type": "float",
@@ -1712,7 +1712,7 @@
     },
     "VEH_ACT3_DIR_X": {
         "description": "X component (forward) of the direction of action of actuator 3 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT3_DIR_Y and VEH_ACT3_DIR_Z.",
-        "value": 0.0,
+        "value": 0.19245008972987526,
         "default": 0.0,
         "options": [],
         "type": "float",
@@ -1720,7 +1720,7 @@
     },
     "VEH_ACT3_DIR_Y": {
         "description": "Y component (left) of the direction of action of actuator 3 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT3_DIR_X and VEH_ACT3_DIR_Z.",
-        "value": 0.0,
+        "value": 0.19245008972987526,
         "default": 0.0,
         "options": [],
         "type": "float",
@@ -1728,7 +1728,7 @@
     },
     "VEH_ACT3_DIR_Z": {
         "description": "Z component (up) of the direction of action of actuator 3 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT3_DIR_X and VEH_ACT3_DIR_Y.",
-        "value": 1.0,
+        "value": 0.9622504486493763,
         "default": 1.0,
         "options": [],
         "type": "float",

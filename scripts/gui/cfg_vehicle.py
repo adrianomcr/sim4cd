@@ -13,11 +13,17 @@ import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
+import subprocess
+import multiprocessing
+import time
+import zmq
 
-import poly_estimator as PEST
-import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import polynomial as POLY
+import gui.vtk_vehicle as VTK
+
+import gui.poly_estimator as PEST
+# import sys
+# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import sim4cd.polynomial as POLY
 
 class VehicleEditorGUI:
     """
@@ -32,6 +38,8 @@ class VehicleEditorGUI:
             root_ (tkinter.Tk): Object of the tkinter.Tk class where the TopazConfig gui will be built into
             enable_io_ (bool): Flag to enable the creation of input/output buttons to the gui
         """
+
+        self.vtk_window_title = "Vehicle Geometry View"
 
         # Set the root variable
         self.root = root_
@@ -76,6 +84,15 @@ class VehicleEditorGUI:
         # Build the left and right panels
         self.build_left_panel(self.left_frame)
         self.build_right_panel(self.right_frame)
+
+
+        # Create a ZeroMQ context
+        self.context = zmq.Context()
+
+        # Create a PUB socket
+        self.socket = self.context.socket(zmq.PUB)
+        self.socket.bind("tcp://*:5555")  # Bind to port 5555
+
 
 
     def build_dynamics_pannel(self,parent_frame):
@@ -259,34 +276,91 @@ class VehicleEditorGUI:
         """
 
         self.build_dynamics_pannel(parent_frame)
-
         self.build_geometry_pannel(parent_frame)
-
-
 
         button_frame = ttk.Frame(parent_frame)
         button_frame.pack(side=tk.TOP, padx=(10,10), pady=(40,10))
 
-        # Add button to apply the estimated coefficients and see the plot
-        update_button = ttk.Button(button_frame, text="Update image", padding=(4, 4), command=self.update_image)
-        update_button.pack(padx=5, side=tk.LEFT)
-
         # Add button to set the estimated coefficients to the current actuator configuration parameters
         set_button = ttk.Button(button_frame, text="Set values", padding=(4, 4), command=self.set_values)
         set_button.pack(padx=5, side=tk.LEFT)
-
-
-    def update_image(self):
-        print("\33[93mNothing here yet\33[0m")
-        return
-
 
     def build_right_panel(self,parent_frame):
         """
         Function to build the widgets into the right panel
         """
 
+        button = ttk.Button(parent_frame, text="Show vehicle", command=self.create_and_position_vtk_window)
+        button.pack()
+
         return
+
+
+    def move_window_to_frame(self,window_id, top_left, width, height):
+        x, y = top_left
+        height = height-38  
+        command = f'wmctrl -i -r {window_id} -e 0,{x},{y},{width},{height}'
+        os.system(command)
+        command = f'wmctrl -i -r {window_id} -b add,above'
+        os.system(command)
+
+
+    def get_frame_corners(self,frame):
+        # Get frame position relative to the root window
+        frame_x = frame.winfo_rootx()
+        frame_y = frame.winfo_rooty()
+        
+        # Get frame size
+        frame_width = frame.winfo_width()
+        frame_height = frame.winfo_height()
+        
+        # Corners of the frame
+        top_left = (frame_x, frame_y)
+        top_right = (frame_x + frame_width, frame_y)
+        bottom_left = (frame_x, frame_y + frame_height)
+        bottom_right = (frame_x + frame_width, frame_y + frame_height)
+        
+        return top_left, top_right, bottom_left, bottom_right
+
+    def create_and_position_vtk_window(self):
+        if(not self.get_window_id(self.vtk_window_title)):
+            self.proc = multiprocessing.Process(target=self.run_external_vtk_viz, args=())
+            self.proc.start()
+
+        corners = self.get_frame_corners(self.right_frame)
+        top_left, _, _, _ = corners
+        width = self.right_frame.winfo_width()
+        height = self.right_frame.winfo_height()
+
+        for attempts in range(10):
+            window_id = self.get_window_id(self.vtk_window_title)
+            if window_id:
+                self.move_window_to_frame(window_id, top_left, width, height)
+                break
+            else:
+                print("Window not found")
+                time.sleep(0.1)
+
+    def get_window_id(self, title):
+
+        result = subprocess.run(['wmctrl', '-l'], stdout=subprocess.PIPE)
+        lines = result.stdout.decode('utf-8').splitlines()
+        for line in lines:
+            if title in line:
+                return line.split()[0]
+        return None
+
+
+    def close_vtk_window(self):
+        window_id = self.get_window_id(self.vtk_window_title)
+        if(not window_id):
+            return
+        
+        command = f'wmctrl -ic {window_id}'
+        os.system(command)
+
+
+
 
 
     def set_values(self):
@@ -299,6 +373,8 @@ class VehicleEditorGUI:
             messagebox.showerror("Error", "There is no parameter file loaded")
             return
 
+        # with self.data_lock:
+        # print('with self.data_lock')
         # Set mass of the vehicle
         self.data['DYN_MASS']['value'] = float(self.entry_mass.get())
         # Set moment of inertia of the vehicle
@@ -340,6 +416,11 @@ class VehicleEditorGUI:
 
         # Update displayed data
         self.update_displayed_data()
+
+        # Sending tate to vtk
+        data_json = json.dumps(self.data)
+        self.socket.send_string(data_json)  # Send the JSON-encoded dictionary
+
 
 
     def update_dynamic_properties(self):
@@ -483,10 +564,14 @@ class VehicleEditorGUI:
         # Close matplotlib.pyplot to avoid gui to keep alive after it is closed
         plt.close()
 
+        self.close_vtk_window()
         self.root.quit()
         for widget in self.root.winfo_children():
             widget.destroy()
         self.root.destroy()
+
+        self.socket.close()
+        self.context.term()
 
 
     def set_data(self, d, path):
@@ -515,6 +600,12 @@ class VehicleEditorGUI:
         return self.data
 
 
+    def run_external_vtk_viz(self):
+        # self.visualization = VTK.Visualization(self.data, self.data_lock)
+        self.visualization = VTK.Visualization(self.data)
+        
+        self.visualization.start()
+
     def viz_return(self):
         """
         Function to update the visualization of the gui
@@ -522,6 +613,7 @@ class VehicleEditorGUI:
         # Just call the update_displayed_data() function
         self.update_displayed_data()
 
+        self.create_and_position_vtk_window()
 
     def update_actuator_options(self):
         """
@@ -556,7 +648,7 @@ if __name__ == "__main__":
 
     try:
         # Define and set a parameters icon for the GUI
-        photo = tk.PhotoImage(file = os.path.abspath(__file__).rsplit('/', 1)[0]+'/resources/actuators_icon.png')
+        photo = tk.PhotoImage(file = os.path.abspath(__file__).rsplit('/', 1)[0]+'/resources/vehicle_icon.png')
         root.iconphoto(False, photo)
     except Exception as e:
         print("An error occurred while creating the icon:", e)

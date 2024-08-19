@@ -13,10 +13,10 @@ import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-import poly_estimator as PEST
+import gui.poly_estimator as PEST
 import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import polynomial as POLY
+# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import sim4cd.polynomial as POLY
 
 class ActuatorsEditorGUI:
     """
