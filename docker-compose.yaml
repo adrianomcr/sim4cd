@@ -1,0 +1,23 @@
+services:
+  sim4cd:
+    image: ros_noetic_sim4cd
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sim4cd_container
+    network_mode: "host"                  # Use host network for ROS
+    environment:
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1                # Prevent shared memory issues
+      - NVIDIA_VISIBLE_DEVICES=${NVIDIA_VISIBLE_DEVICES:-all}
+      - NVIDIA_DRIVER_CAPABILITIES=all    # Ensure graphics support for RViz
+      - LIBGL_ALWAYS_INDIRECT=1           # Enable indirect rendering (for some environments)
+    runtime: nvidia                       # Use NVIDIA runtime for GPU acceleration
+    privileged: true                      # Needed for access to certain system resources
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix     # Allow GUI apps to connect to the host's X server
+      - ./logs:/root/catkin_ws/logs       # Mount local folder for logs
+      # - .:/root/catkin_ws/src/sim4cd      # Mount the sim4cd package into the container
+    stdin_open: true                      # Keep stdin open (for interactive shell)
+    tty: true                             # Allocate a pseudo-TTY for the container
+    command: /bin/bash                    # Start an interactive bash session
