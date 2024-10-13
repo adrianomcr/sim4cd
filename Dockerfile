@@ -74,8 +74,8 @@ RUN /bin/bash -c "source /opt/ros/noetic/setup.bash && catkin build"
 # Set the entry point to start a bash session with ROS environment sourced
 CMD ["/bin/bash", "-c", "source /opt/ros/noetic/setup.bash && source ~/.bashrc && bash"]
 
-# # Needed for running source
-# SHELL ["/bin/bash", "-c"]
+# Needed for running source
+SHELL ["/bin/bash", "-c"]
 
 # Reset DEBIAN_FRONTEND (optional but good practice)
 ENV DEBIAN_FRONTEND=dialog
