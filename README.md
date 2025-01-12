@@ -3,7 +3,37 @@
 This package is a simulator tailored for quadcopters with fixed rotors. It offers configurable drone characteristics, allowing users to replicate their own platform. Currently, the simulator integrates seamlessly with PX4 firmware.
 
 
-## Setup
+## Docker setup
+
+Install clone sim4cd
+```bash
+mkdir -p ~/simulation_ws/src
+cd ~/simulation_ws/src
+git clone https://github.com/adrianomcr/sim4cd.git
+```
+
+Build the image
+```bash
+docker compose -f docker-compose.yaml build
+```
+
+Give docker access to the X server
+```bash
+xhost +local:docker
+```
+
+Run the docker container
+```bash
+docker compose -f docker-compose.yaml run --rm sim4cd bash
+```
+
+Within the docker container, run the gui
+```bash
+rosrun sim4cd sim_gui.py
+```
+
+
+## Native setup
 
 Install PX4
 ```bash
@@ -39,7 +69,7 @@ sudo apt install gstreamer1.0-plugins-bad gstreamer1.0-libav gstreamer1.0-gl -y
 sudo apt install libqt5gui5 -y
 sudo apt install libfuse2 -y
 ```
-Ownload the AppImage from https://docs.qgroundcontrol.com/master/en/qgc-user-guide/getting_started/download_and_install.html.
+Download the AppImage from https://docs.qgroundcontrol.com/master/en/qgc-user-guide/getting_started/download_and_install.html.
 ```bash
 cd ~/Downloads
 chmod +x ./QGroundControl.AppImage
