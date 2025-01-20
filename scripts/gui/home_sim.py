@@ -10,6 +10,10 @@ import subprocess
 from ttkthemes import ThemedTk
 import psutil
 
+import time
+
+import gui.gui_utils as GU
+
 class SimHomeApp():
     """
     Class that defines a GUI for starting and stopping the simulator
@@ -35,8 +39,6 @@ class SimHomeApp():
         # Define a right panel
         self.right_frame = ttk.Frame(self.root)
         self.right_frame.pack(side=tk.LEFT, fill="both", expand=True)
-        self.name_r_label = ttk.Label(self.right_frame, text="Status")
-        self.name_r_label.pack(pady=2)
 
         # Add an image to the right panel
         try:
@@ -69,6 +71,8 @@ class SimHomeApp():
         # Variable to store the subprocess object
         self.process = None
 
+        self.rviz_window_title = "basic.rviz - RViz"
+
 
     def start_command(self):
         """
@@ -76,7 +80,7 @@ class SimHomeApp():
         """
 
         # Get the path of the start_sim.sh script
-        script_path = os.path.dirname(__file__)+"/../"
+        script_path = os.path.dirname(__file__)+"/../sim4cd/"
         # Check the status of the process before start
         if self.process is None or self.process.poll() is not None:
             # Create the string command to start the simulator
@@ -98,6 +102,9 @@ class SimHomeApp():
             
             # Update label to show that simulator is running
             self.sim_status.configure(text='Simulator running', foreground="#00FF00")
+
+            # Reposition the RViz window
+            GU.position_external_window(self.rviz_window_title, self.right_frame, shift=38)
 
 
     def stop_command(self):
@@ -122,8 +129,6 @@ class SimHomeApp():
         self.sim_status.configure(text='Simulator idle', foreground="#0000FF")
 
 
-
-
     def set_data(self, d, path):
         """
         Set data dictionary and the file path of the gui
@@ -143,8 +148,16 @@ class SimHomeApp():
         """
         Function to update the visualization of the gui
         """
-        # Do nothing for this gui
-        return
+        time.sleep(0.2)
+        GU.send_window_above(self.rviz_window_title)
+
+
+    def viz_exit(self):
+        """
+        Function to clean up gui when its tab is switched off
+        """
+        GU.send_window_below(self.rviz_window_title)
+        time.sleep(0.2)
 
 
     def on_closing(self):
@@ -154,6 +167,9 @@ class SimHomeApp():
         # Stop simulator if it is running
         self.stop_command()
         # Destroy the window
+        self.root.quit()
+        for widget in self.root.winfo_children():
+            widget.destroy()
         self.root.destroy()
 
 

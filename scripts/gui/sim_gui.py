@@ -10,12 +10,13 @@ import json
 from ttkthemes import ThemedTk
 
 import os
-import home_sim as HOME
-import full_set_params as FULL_SET
-import cfg_actuators as CFG_ACT
-import cfg_geolocation as CFG_GEO
-import cfg_power as CFG_POW
-import cfg_sensors as CFG_SENS
+import gui.home_sim as HOME
+import gui.full_set_params as FULL_SET
+import gui.cfg_actuators as CFG_ACT
+import gui.cfg_vehicle as CFG_VEH
+import gui.cfg_geolocation as CFG_GEO
+import gui.cfg_power as CFG_POW
+import gui.cfg_sensors as CFG_SENS
 
 class SimGUI:
     """
@@ -35,6 +36,8 @@ class SimGUI:
 
         # Initialize the variable to store the json path
         self.json_path = None
+
+        self.root.bind('<F11>', self.toggle_fullscreen)
 
         # Create the top-level notebook
         self.top_notebook = ttk.Notebook(self.root)
@@ -88,6 +91,8 @@ class SimGUI:
         # Inside the second-level notebook, create a tab for configuring the vehicle geometry
         cfg_tab_vehicle = ttk.Frame(self.config_level_notebook)
         self.config_level_notebook.add(cfg_tab_vehicle, text="Vehicle")
+        # Append the VehicleEditorGUI gui to the tab
+        self.cfg_veh_gui = CFG_VEH.VehicleEditorGUI(cfg_tab_vehicle, False)
 
         # Inside the second-level notebook, create a tab for configuring the actuators
         cfg_tab_act = ttk.Frame(self.config_level_notebook)
@@ -122,6 +127,8 @@ class SimGUI:
         # Initialize the current tab variable
         self.current_tab = [self.top_notebook.index(self.top_notebook.select()), self.config_level_notebook.index(self.config_level_notebook.select())]
 
+        self.pre_load_json()
+
     def tab_changed(self,event):
         """
         Tab to handle action that need to occur when the selected tab changes
@@ -143,9 +150,8 @@ class SimGUI:
         # Get the object of the gui in the previous tab
         old_tab_gui = self.tab_map(prev_tab)
         if (old_tab_gui):
-            # Get the updated data from the previous gui
-            data = old_tab_gui.get_data()
-            self.data = data
+            # Cleanup when exiting a gui
+            old_tab_gui.viz_exit()
 
         # Get the object of the gui in the current tab
         new_tab_gui = self.tab_map(self.current_tab)
@@ -173,7 +179,7 @@ class SimGUI:
             if(ids[1] == 1):
                 return self.cfg_sens_gui
             if(ids[1] == 2):
-                return None
+                return self.cfg_veh_gui
             if(ids[1] == 3):
                 return self.cfg_act_gui
             if(ids[1] == 4):
@@ -198,8 +204,25 @@ class SimGUI:
         self.cfg_act_gui.on_closing()
         # Make sure matplotlib.pyplot is terminated
         self.cfg_pow_gui.on_closing()
+
+        self.cfg_veh_gui.on_closing()
+
+        self.root.quit()
+        for widget in self.root.winfo_children():
+            widget.destroy()
+        self.root.destroy()
         
 
+    def pre_load_json(self):
+        path = os.path.normpath(os.path.abspath(__file__).rsplit('/', 1)[0]+'/../../config/sim_params.json')
+        # Store the path and display it
+        self.json_path = path
+        self.path_label.config(text="JSON path: "+self.json_path)
+
+        with open(self.json_path, "r") as json_file:
+            self.data = json.load(json_file)
+
+        self.home_gui.set_data(self.data, self.json_path)
 
     def load_json(self):
         """
@@ -255,6 +278,8 @@ class SimGUI:
             # Throw an error message there was a problem in saving the file
             messagebox.showerror("Error", "A problem ocurred when saving the file")
 
+    def toggle_fullscreen(self,event):
+        self.root.attributes('-fullscreen', not root.attributes('-fullscreen'))
 
 if __name__ == "__main__":
     """
@@ -281,8 +306,8 @@ if __name__ == "__main__":
     # Call the function to terminate the matplotlib.pyplot when window is closed 
     root.protocol("WM_DELETE_WINDOW", app.on_closing)
 
-    # Maximize the window
-    root.attributes('-zoomed', 1)
+    # # Maximize the window
+    # root.attributes('-zoomed', 1)
 
     # Run the tkinter event loop
     root.mainloop()

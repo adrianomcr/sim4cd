@@ -231,7 +231,7 @@ data["VEH_ACT0_POS_X"] = {
     "type":          "float",
     "unit":          "[m]"}
 data["VEH_ACT0_POS_Y"] = {
-    "description":   "Y component (right) of the position of actuator 0 in the vehicle frame. Value in meters.",
+    "description":   "Y component (left) of the position of actuator 0 in the vehicle frame. Value in meters.",
     "value":         -0.15,
     "default":       -0.15,
     "options":       [],
@@ -253,7 +253,7 @@ data["VEH_ACT1_POS_X"] = {
     "type":          "float",
     "unit":          "[m]"}
 data["VEH_ACT1_POS_Y"] = {
-    "description":   "Y component (right) of the position of actuator 1 in the vehicle frame. Value in meters.",
+    "description":   "Y component (left) of the position of actuator 1 in the vehicle frame. Value in meters.",
     "value":         0.15,
     "default":       0.15,
     "options":       [],
@@ -275,7 +275,7 @@ data["VEH_ACT2_POS_X"] = {
     "type":          "float",
     "unit":          "[m]"}
 data["VEH_ACT2_POS_Y"] = {
-    "description":   "Y component (right) of the position of actuator 2 in the vehicle frame. Value in meters.",
+    "description":   "Y component (left) of the position of actuator 2 in the vehicle frame. Value in meters.",
     "value":         0.15,
     "default":       0.15,
     "options":       [],
@@ -297,7 +297,7 @@ data["VEH_ACT3_POS_X"] = {
     "type":          "float",
     "unit":          "[m]"}
 data["VEH_ACT3_POS_Y"] = {
-    "description":   "Y component (right) of the position of actuator 3 in the vehicle frame. Value in meters.",
+    "description":   "Y component (left) of the position of actuator 3 in the vehicle frame. Value in meters.",
     "value":         -0.15,
     "default":       -0.15,
     "options":       [],
@@ -319,7 +319,7 @@ data["VEH_ACT4_POS_X"] = {
     "type":          "float",
     "unit":          "[m]"}
 data["VEH_ACT4_POS_Y"] = {
-    "description":   "Y component (right) of the position of actuator 4 in the vehicle frame. Value in meters.",
+    "description":   "Y component (left) of the position of actuator 4 in the vehicle frame. Value in meters.",
     "value":         0.0,
     "default":       0.0,
     "options":       [],
@@ -341,7 +341,7 @@ data["VEH_ACT5_POS_X"] = {
     "type":          "float",
     "unit":          "[m]"}
 data["VEH_ACT5_POS_Y"] = {
-    "description":   "Y component (right) of the position of actuator 5 in the vehicle frame. Value in meters.",
+    "description":   "Y component (left) of the position of actuator 5 in the vehicle frame. Value in meters.",
     "value":         0.0,
     "default":       0.0,
     "options":       [],
@@ -363,7 +363,7 @@ data["VEH_ACT6_POS_X"] = {
     "type":          "float",
     "unit":          "[m]"}
 data["VEH_ACT6_POS_Y"] = {
-    "description":   "Y component (right) of the position of actuator 6 in the vehicle frame. Value in meters.",
+    "description":   "Y component (left) of the position of actuator 6 in the vehicle frame. Value in meters.",
     "value":         0.0,
     "default":       0.0,
     "options":       [],
@@ -385,7 +385,7 @@ data["VEH_ACT7_POS_X"] = {
     "type":          "float",
     "unit":          "[m]"}
 data["VEH_ACT7_POS_Y"] = {
-    "description":   "Y component (right) of the position of actuator 7 in the vehicle frame. Value in meters.",
+    "description":   "Y component (left) of the position of actuator 7 in the vehicle frame. Value in meters.",
     "value":         0.0,
     "default":       0.0,
     "options":       [],
@@ -408,7 +408,7 @@ for n in range(8):
         "type":          "float",
         "unit":          "[m]"}
     data[f"VEH_ACT{n}_DIR_Y"] = {
-        "description":   f"Y component (right) of the direction of action of actuator {n} in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT{n}_DIR_X and VEH_ACT{n}_DIR_Z.",
+        "description":   f"Y component (left) of the direction of action of actuator {n} in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT{n}_DIR_X and VEH_ACT{n}_DIR_Z.",
         "value":         0.0,
         "default":       0.0,
         "options":       [],
@@ -766,6 +766,50 @@ data["PWR_EFF"] = {
     "type":          "int",
     "unit":          "[%]"}
 
+#Visualization
+for n in range(8):
+    data[f"VIZ_ACT{n}_BASE_X"] = {
+        "description":   f"X component (forward) os the position of the base of the arm that holds actuator {n}.",
+        "value":         0.0,
+        "default":       0.0,
+        "options":       [],
+        "type":          "float",
+        "unit":          "[m]"}
+    data[f"VIZ_ACT{n}_BASE_Y"] = {
+        "description":   f"Y component (left) os the position of the base of the arm that holds actuator {n}.",
+        "value":         0.0,
+        "default":       0.0,
+        "options":       [],
+        "type":          "float",
+        "unit":          "[m]"}
+    data[f"VIZ_ACT{n}_BASE_Z"] = {
+        "description":   f"Z component (up) os the position of the base of the arm that holds actuator {n}.",
+        "value":         0.0,
+        "default":       0.0,
+        "options":       [],
+        "type":          "float",
+        "unit":          "[m]"}
+data[f"VIZ_SIZE_X"] = {
+    "description":   f"Length in the x direction of the box that represents the drone's body",
+    "value":         0.1,
+    "default":       0.1,
+    "options":       [],
+    "type":          "float",
+    "unit":          "[m]"}
+data[f"VIZ_SIZE_Y"] = {
+    "description":   f"Length in the y direction of the box that represents the drone's body",
+    "value":         0.1,
+    "default":       0.1,
+    "options":       [],
+    "type":          "float",
+    "unit":          "[m]"}
+data[f"VIZ_SIZE_Z"] = {
+    "description":   f"Length in the z direction of the box that represents the drone's body",
+    "value":         0.02,
+    "default":       0.02,
+    "options":       [],
+    "type":          "float",
+    "unit":          "[m]"}
 
 
 sorted_items = [(key, value) for key, value in sorted(data.items())]

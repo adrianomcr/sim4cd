@@ -13,10 +13,10 @@ import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-import poly_estimator as PEST
+import gui.poly_estimator as PEST
 import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import polynomial as POLY
+# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import sim4cd.polynomial as POLY
 
 class ActuatorsEditorGUI:
     """
@@ -163,11 +163,11 @@ class ActuatorsEditorGUI:
         poly_label_2 = ttk.Label(act_poly_frame, text="u²")
         poly_label_2.grid(row=0, column=6)
 
-        # Add button to apply the estimated coefficients to the current actuator
+        # Add button to set the estimated coefficients to the current actuator configuration parameters
         self.set_button = ttk.Button(self.left_frame, text="Set values", padding=(4, 4), command=self.set_values)
         self.set_button.pack(pady=2, side=tk.TOP)
 
-        # Add button to apply the estimated coefficients to the current actuator
+        # Add button to apply the estimated coefficients and see the plot
         self.apply_est_button = ttk.Button(self.left_frame, text="Apply estimated coefficients", padding=(4, 4), command=self.apply_coefs)
         self.apply_est_button.pack(pady=5, side=tk.BOTTOM)
 
@@ -470,6 +470,11 @@ class ActuatorsEditorGUI:
         # Close matplotlib.pyplot to avoid gui to keep alive after it is closed
         plt.close()
 
+        self.root.quit()
+        for widget in self.root.winfo_children():
+            widget.destroy()
+        self.root.destroy()
+
 
     def set_data(self, d, path):
         """
@@ -503,6 +508,13 @@ class ActuatorsEditorGUI:
         """
         # Just call the update_displayed_data() function
         self.update_displayed_data()
+
+
+    def viz_exit(self):
+        """
+        Function to clean up gui when its tab is switched off
+        """
+        return
 
 
     def update_actuator_options(self):

@@ -16,7 +16,7 @@ from math import pi, sin, cos, asin, sqrt, atan2
 from magnetic_field_calculator import MagneticFieldCalculator
 from datetime import datetime
 
-import poly_estimator as PEST
+import gui.poly_estimator as PEST
 
 
 class GeolocationEditorGUI:
@@ -515,6 +515,11 @@ class GeolocationEditorGUI:
         # Close matplotlib.pyplot to avoid gui to keep alive after it is closed
         plt.close()
 
+        self.root.quit()
+        for widget in self.root.winfo_children():
+            widget.destroy()
+        self.root.destroy()
+
 
     def set_data(self, d, path):
         """
@@ -548,6 +553,13 @@ class GeolocationEditorGUI:
         """
         # Just call the update_displayed_data() function
         self.update_displayed_data()
+
+
+    def viz_exit(self):
+        """
+        Function to clean up gui when its tab is switched off
+        """
+        return
 
  
 if __name__ == "__main__":

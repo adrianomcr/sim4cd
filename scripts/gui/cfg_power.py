@@ -11,9 +11,9 @@ import os
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import polynomial as POLY
+# import sys
+# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import sim4cd.polynomial as POLY
 
 class PowerEditorGUI:
     """
@@ -318,6 +318,11 @@ class PowerEditorGUI:
         # Close matplotlib.pyplot to avoid gui to keep alive after it is closed
         plt.close()
 
+        self.root.quit()
+        for widget in self.root.winfo_children():
+            widget.destroy()
+        self.root.destroy()
+
 
     def set_data(self, d, path):
         """
@@ -351,6 +356,13 @@ class PowerEditorGUI:
         """
         # Just call the update_displayed_data() function
         self.update_displayed_data()
+
+
+    def viz_exit(self):
+        """
+        Function to clean up gui when its tab is switched off
+        """
+        return
 
  
 if __name__ == "__main__":
