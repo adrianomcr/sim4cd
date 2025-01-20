@@ -164,6 +164,13 @@ class JsonEditorGUI:
         return
 
 
+    def viz_exit(self):
+        """
+        Function to clean up gui when its tab is switched off
+        """
+        return
+
+
     def on_option_selected(self, event):
         """
         Function that calls the set_value function when a value from the parameter dropdown is selected

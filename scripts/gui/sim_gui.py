@@ -150,13 +150,8 @@ class SimGUI:
         # Get the object of the gui in the previous tab
         old_tab_gui = self.tab_map(prev_tab)
         if (old_tab_gui):
-            # Get the updated data from the previous gui
-            data = old_tab_gui.get_data()
-            self.data = data
-            if(prev_tab[0]==1):
-                if(prev_tab[1]==2):
-                    old_tab_gui.close_vtk_window()
-                    print('close_vtk')
+            # Cleanup when exiting a gui
+            old_tab_gui.viz_exit()
 
         # Get the object of the gui in the current tab
         new_tab_gui = self.tab_map(self.current_tab)

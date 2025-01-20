@@ -357,6 +357,13 @@ class PowerEditorGUI:
         # Just call the update_displayed_data() function
         self.update_displayed_data()
 
+
+    def viz_exit(self):
+        """
+        Function to clean up gui when its tab is switched off
+        """
+        return
+
  
 if __name__ == "__main__":
     """

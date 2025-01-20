@@ -510,6 +510,13 @@ class ActuatorsEditorGUI:
         self.update_displayed_data()
 
 
+    def viz_exit(self):
+        """
+        Function to clean up gui when its tab is switched off
+        """
+        return
+
+
     def update_actuator_options(self):
         """
         Function to update available actuators on the dropdown

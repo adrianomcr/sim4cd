@@ -19,11 +19,9 @@ import time
 import zmq
 
 import gui.vtk_vehicle as VTK
-
 import gui.poly_estimator as PEST
-# import sys
-# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import sim4cd.polynomial as POLY
+import gui.gui_utils as GU
 
 class VehicleEditorGUI:
     """
@@ -96,6 +94,12 @@ class VehicleEditorGUI:
 
 
     def build_dynamics_pannel(self,parent_frame):
+        """
+        Function to build the widgets into the panel used to configure dynamics properties
+
+        Parameters:
+            parent_frame (tk.Frame): Parent frame in which the panel will be built.
+        """
 
         dyn_frame = ttk.Frame(parent_frame)
         dyn_frame.pack(side=tk.TOP, padx=5, pady=5, fill=tk.X, expand=False)
@@ -153,10 +157,14 @@ class VehicleEditorGUI:
         self.entry_ang_drag = ttk.Entry(ang_drag_frame,width=11)
         self.entry_ang_drag.grid(row=0, column=2)
 
-        return
-
 
     def build_geometry_pannel(self,parent_frame):
+        """
+        Function to build the widgets into the panel used to configure geometry properties
+
+        Parameters:
+            parent_frame (tk.Frame): Parent frame in which the panel will be built.
+        """
 
         geometry_frame = ttk.Frame(parent_frame)
         geometry_frame.pack(side=tk.TOP, padx=5, pady=5, fill=tk.X, expand=False)
@@ -181,7 +189,6 @@ class VehicleEditorGUI:
         self.actuator_menu.pack(side=tk.LEFT, padx=10)
         # # Bind the function to update the data displayed in the gui
         self.act_id_var.trace("w", lambda *args: self.update_geometry_properties())
-
 
         # Subframe for the position of the selected actuator
         pos_frame = ttk.Label(geometry_frame, text="Actuators position [m]:")
@@ -267,12 +274,13 @@ class VehicleEditorGUI:
         self.entry_size_z = ttk.Entry(size_frame,width=11)
         self.entry_size_z.grid(row=0, column=6)
 
-        return
-
 
     def build_left_panel(self,parent_frame):
         """
         Function to build the widgets into the left panel
+
+        Parameters:
+            parent_frame (tk.Frame): Parent frame in which the panel will be built.
         """
 
         self.build_dynamics_pannel(parent_frame)
@@ -285,82 +293,28 @@ class VehicleEditorGUI:
         set_button = ttk.Button(button_frame, text="Set values", padding=(4, 4), command=self.set_values)
         set_button.pack(padx=5, side=tk.LEFT)
 
+
     def build_right_panel(self,parent_frame):
         """
         Function to build the widgets into the right panel
+
+        Parameters:
+            parent_frame (tk.Frame): Parent frame in which the panel will be built.
         """
 
         button = ttk.Button(parent_frame, text="Show vehicle", command=self.create_and_position_vtk_window)
         button.pack()
 
-        return
-
-
-    def move_window_to_frame(self,window_id, top_left, width, height):
-        x, y = top_left
-        height = height-38  
-        command = f'wmctrl -i -r {window_id} -e 0,{x},{y},{width},{height}'
-        os.system(command)
-        command = f'wmctrl -i -r {window_id} -b add,above'
-        os.system(command)
-
-
-    def get_frame_corners(self,frame):
-        # Get frame position relative to the root window
-        frame_x = frame.winfo_rootx()
-        frame_y = frame.winfo_rooty()
-        
-        # Get frame size
-        frame_width = frame.winfo_width()
-        frame_height = frame.winfo_height()
-        
-        # Corners of the frame
-        top_left = (frame_x, frame_y)
-        top_right = (frame_x + frame_width, frame_y)
-        bottom_left = (frame_x, frame_y + frame_height)
-        bottom_right = (frame_x + frame_width, frame_y + frame_height)
-        
-        return top_left, top_right, bottom_left, bottom_right
 
     def create_and_position_vtk_window(self):
-        if(not self.get_window_id(self.vtk_window_title)):
+        """
+        Function to create and position a vtk window
+        """
+
+        if(not GU.get_window_id(self.vtk_window_title)):
             self.proc = multiprocessing.Process(target=self.run_external_vtk_viz, args=())
             self.proc.start()
-
-        corners = self.get_frame_corners(self.right_frame)
-        top_left, _, _, _ = corners
-        width = self.right_frame.winfo_width()
-        height = self.right_frame.winfo_height()
-
-        for attempts in range(10):
-            window_id = self.get_window_id(self.vtk_window_title)
-            if window_id:
-                self.move_window_to_frame(window_id, top_left, width, height)
-                break
-            else:
-                print("Window not found")
-                time.sleep(0.1)
-
-    def get_window_id(self, title):
-
-        result = subprocess.run(['wmctrl', '-l'], stdout=subprocess.PIPE)
-        lines = result.stdout.decode('utf-8').splitlines()
-        for line in lines:
-            if title in line:
-                return line.split()[0]
-        return None
-
-
-    def close_vtk_window(self):
-        window_id = self.get_window_id(self.vtk_window_title)
-        if(not window_id):
-            return
-        
-        command = f'wmctrl -ic {window_id}'
-        os.system(command)
-
-
-
+        GU.position_external_window(self.vtk_window_title, self.right_frame)
 
 
     def set_values(self):
@@ -373,8 +327,6 @@ class VehicleEditorGUI:
             messagebox.showerror("Error", "There is no parameter file loaded")
             return
 
-        # with self.data_lock:
-        # print('with self.data_lock')
         # Set mass of the vehicle
         self.data['DYN_MASS']['value'] = float(self.entry_mass.get())
         # Set moment of inertia of the vehicle
@@ -412,7 +364,6 @@ class VehicleEditorGUI:
             self.data[f"VIZ_ACT{act_id}_BASE_X"]['value'] = float(self.entry_base_x.get())
             self.data[f"VIZ_ACT{act_id}_BASE_Y"]['value'] = float(self.entry_base_y.get())
             self.data[f"VIZ_ACT{act_id}_BASE_Z"]['value'] = float(self.entry_base_z.get())
-        
 
         # Update displayed data
         self.update_displayed_data()
@@ -422,9 +373,11 @@ class VehicleEditorGUI:
         self.socket.send_string(data_json)  # Send the JSON-encoded dictionary
 
 
-
     def update_dynamic_properties(self):
-
+        """
+        Function to update the dynamics data displayed on the gui
+        """
+        
         # If there is no data 
         if (not self.data):
             return
@@ -444,12 +397,12 @@ class VehicleEditorGUI:
         self.entry_lin_drag.insert(0, str(self.data['DYN_DRAG_V']['value']))
         self.entry_ang_drag.delete(0, tk.END)
         self.entry_ang_drag.insert(0, str(self.data['DYN_DRAG_W']['value']))
-
-
-        return
     
 
     def update_geometry_properties(self):
+        """
+        Function to update the geometry data displayed on the gui
+        """
 
         # If there is no data 
         if (not self.data):
@@ -490,8 +443,6 @@ class VehicleEditorGUI:
         self.entry_base_z.delete(0, tk.END)
         self.entry_base_z.insert(0, str(self.data[f"VIZ_ACT{act_id}_BASE_Z"]['value']))
 
-        return
-
 
     def update_displayed_data(self, *args):
         """
@@ -507,8 +458,6 @@ class VehicleEditorGUI:
         self.update_dynamic_properties()
 
         self.update_geometry_properties()
-
-        return
 
 
     def saveas_json(self):
@@ -547,6 +496,7 @@ class VehicleEditorGUI:
         """
         Function to show a file dialog to load a json file
         """
+
         path = filedialog.askopenfilename(filetypes=[("JSON Files", "*.json")])
         if path:
             self.file_path = path
@@ -564,7 +514,7 @@ class VehicleEditorGUI:
         # Close matplotlib.pyplot to avoid gui to keep alive after it is closed
         plt.close()
 
-        self.close_vtk_window()
+        GU.close_window(self.vtk_window_title)
         self.root.quit()
         for widget in self.root.winfo_children():
             widget.destroy()
@@ -582,6 +532,7 @@ class VehicleEditorGUI:
             d (dict): Updated dictionary with the parameters data edited in other guis
             path (str): path for the json file that stores the parameters
         """
+        
         # Set data dictionary and file path
         self.data = d
         self.file_path = path
@@ -601,19 +552,14 @@ class VehicleEditorGUI:
 
 
     def run_external_vtk_viz(self):
-        # self.visualization = VTK.Visualization(self.data, self.data_lock)
+        """
+        Function to run an external VTK window
+        """
+
         self.visualization = VTK.Visualization(self.data)
         
         self.visualization.start()
 
-    def viz_return(self):
-        """
-        Function to update the visualization of the gui
-        """
-        # Just call the update_displayed_data() function
-        self.update_displayed_data()
-
-        self.create_and_position_vtk_window()
 
     def update_actuator_options(self):
         """
@@ -631,8 +577,25 @@ class VehicleEditorGUI:
             # Add the updated options to the dropdown
             for opt in options:
                 self.actuator_menu['menu'].add_command(label=opt, command=tk._setit(self.act_id_var, opt))
+    
 
- 
+    def viz_return(self):
+        """
+        Function to update the visualization of the gui
+        """
+        # Just call the update_displayed_data() function
+        self.update_displayed_data()
+
+        self.create_and_position_vtk_window()
+
+
+    def viz_exit(self):
+        """
+        Function to clean up gui when its tab is switched off
+        """
+        GU.close_window(self.vtk_window_title)
+
+
 if __name__ == "__main__":
     """
     Main to run a detached VehicleEditorGUI window
