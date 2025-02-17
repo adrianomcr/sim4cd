@@ -25,6 +25,10 @@
         <rosparam command="load" file="$(find sim4cd)/config/quad_params.yaml" />
     </node>
 
+    <!-- Run the node that controls the robot in the acro mode  with vector fields -->
+    <node pkg="sim4cd" name="unity_bridge" type="update_unity_cam_pose.py" args="" output="screen">
+    </node>
+
     <!-- Run mavros to control the drone o the acro mode -->
     <include file="$(find mavros)/launch/node.launch">
         <!-- MAVROS configs -->
