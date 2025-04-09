@@ -7,30 +7,26 @@
     <node pkg = "sim4cd" name = "px4_stil" type = "px4_stil.sh" args="$(find px4)" output="screen">
     </node>
 
-    <!--Run rviz to visualize the drone-->
-    <node pkg = "rviz" name = "rviz" type = "rviz" args="-d $(find sim4cd)/rviz/basic.rviz">
-    </node>
-
     <!--Run the node that will simulate the drone-->
-    <node pkg="sim4cd" name="sim4cd" type="sim4cd.py" args="$(arg parameters_path)" output="screen">
+    <node pkg="sim4cd" name="sim4cd" type="sim4cd_main.py" args="$(arg parameters_path)" output="screen">
     </node>
 
     <!--Run the node that will generate an example path-->
-    <node pkg = "examples" name = "path_generator" type = "example_path.py" output="screen">
+    <!-- <node pkg = "examples" name = "path_generator" type = "example_path.py" output="screen">
         <rosparam command="load" file="$(find sim4cd)/config/pub_path.yaml" />
-    </node>
+    </node> -->
 
     <!-- Run the node that controls the robot in the acro mode  with vector fields -->
-    <node pkg="quad_robot" name="quad_node" type="quad_node.py" args="" output="screen">
+    <!-- <node pkg="quad_robot" name="quad_node" type="quad_node.py" args="" output="screen">
         <rosparam command="load" file="$(find sim4cd)/config/quad_params.yaml" />
-    </node>
+    </node> -->
 
     <!-- Run mavros to control the drone o the acro mode -->
-    <include file="$(find mavros)/launch/node.launch">
-        <!-- MAVROS configs -->
+    <!-- <include file="$(find mavros)/launch/node.launch">
+        <!- - MAVROS configs - ->
         <arg name="pluginlists_yaml" value="$(find mavros)/launch/px4_pluginlists.yaml"/>
         <arg name="config_yaml" value="$(find sim4cd)/config/px4_config.yaml"/>
-        <!-- pass FCU -->
+        <!- - pass FCU - ->
         <arg name="fcu_url" value="udp://:14540@localhost:14557"/>
         <arg name="gcs_url" value=""/>
         <arg name="tgt_system" value="1"/>
@@ -39,7 +35,7 @@
         <arg name="fcu_protocol" value="v2.0"/>
         <arg name="respawn_mavros" default="true"/>
     </include>
-    <node pkg="tf2_ros" type="static_transform_publisher" name="static_tf_publisher" args="0 0 0 0 0 0 world map"/>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="static_tf_publisher" args="0 0 0 0 0 0 world map"/> -->
 
 </launch>
 

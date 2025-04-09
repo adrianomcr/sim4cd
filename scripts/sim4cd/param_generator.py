@@ -31,15 +31,15 @@ PARAM_FILE = os.path.expanduser('~')+"/simulation_ws/src/sim4cd/config/sim_param
 data = {}
 
 # Simulation parameters
-data["SIM_ROS_EN"] ={
-    "description":   "Flag to enable the publishing of sim data in ROS topics.",
+data["SIM_VIZ_EN"] ={
+    "description":   "Flag to enable the publishing of sim data for vizualization in the GUI.",
     "value":         True,
     "default":       True,
     "options":       [True, False],
     "type":          "bool",
     "unit":          "[ ]"}
-data["SIM_ROS_HZ"] ={
-    "description":   "Frequency of publication of sim data in ROS topics.",
+data["SIM_VIZ_HZ"] ={
+    "description":   "Frequency of publication of sim data for vizualization in the GUI.",
     "value":         20,
     "default":       20,
     "options":       [],

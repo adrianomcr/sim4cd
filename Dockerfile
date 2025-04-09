@@ -47,6 +47,11 @@ RUN pip3 install \
     psutil \
     pyros-genmsg
 
+
+# pip install PyQt5 vtk
+# pip install pyqt5-tools
+# sudo apt install qttools5-dev-tools
+
 # Clone PX4
 WORKDIR /root/catkin_ws/src
 RUN git clone --depth 1 --branch v1.13.3 https://github.com/PX4/PX4-Autopilot.git PX4-Autopilot

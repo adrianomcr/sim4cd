@@ -1,8 +1,7 @@
-from distutils.core import setup
-from catkin_pkg.python_setup import generate_distutils_setup
+from setuptools import setup, find_packages
 
-d = generate_distutils_setup(
-    packages=['sim4cd','gui'],
-    package_dir={'': 'scripts'}
+setup(
+    name="sim4cd_project",
+    version="0.0.1",
+    packages=find_packages(),
 )
-setup(**d)

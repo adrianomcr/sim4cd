@@ -1247,7 +1247,7 @@
     },
     "SENS_ALT_ORIGIN": {
         "description": "Altitude above average sea level, in meters, of the origin of the local simulated frame.",
-        "value": 372.0,
+        "value": 215.0,
         "default": 372.0,
         "options": [],
         "type": "float",
@@ -1359,7 +1359,7 @@
     },
     "SENS_LAT_ORIGIN": {
         "description": "Latitude coordinate of the origin of the local simulated frame in degrees.",
-        "value": 40.448985,
+        "value": 50.938132,
         "default": 40.448985,
         "options": [],
         "type": "float",
@@ -1367,7 +1367,7 @@
     },
     "SENS_LON_ORIGIN": {
         "description": "Longitude coordinate of the origin of the local simulated frame in degrees.",
-        "value": -79.898025,
+        "value": 14.091152,
         "default": -79.898025,
         "options": [],
         "type": "float",
@@ -1399,7 +1399,7 @@
     },
     "SENS_MAG_FIELD_E": {
         "description": "Local magnetic field in the East direction in Gauss.",
-        "value": -0.03313,
+        "value": 0.01749,
         "default": -0.03313,
         "options": [],
         "type": "float",
@@ -1407,7 +1407,7 @@
     },
     "SENS_MAG_FIELD_N": {
         "description": "Local magnetic field in the North direction in Gauss.",
-        "value": 0.20188,
+        "value": 0.19411,
         "default": 0.20188,
         "options": [],
         "type": "float",
@@ -1415,7 +1415,7 @@
     },
     "SENS_MAG_FIELD_U": {
         "description": "Local magnetic field in the up direction in Gauss.",
-        "value": -0.47534,
+        "value": -0.45718,
         "default": -0.47534,
         "options": [],
         "type": "float",
@@ -1539,8 +1539,8 @@
         "type": "int",
         "unit": "[Hz]"
     },
-    "SIM_ROS_EN": {
-        "description": "Flag to enable the publishing of sim data in ROS topics.",
+    "SIM_VIZ_EN": {
+        "description": "Flag to enable the publishing of sim data for vizualization in the GUI.",
         "value": true,
         "default": true,
         "options": [
@@ -1550,8 +1550,8 @@
         "type": "bool",
         "unit": "[ ]"
     },
-    "SIM_ROS_HZ": {
-        "description": "Frequency of publication of sim data in ROS topics.",
+    "SIM_VIZ_HZ": {
+        "description": "Frequency of publication of sim data for vizualization in the GUI.",
         "value": 20,
         "default": 20,
         "options": [],
@@ -1568,7 +1568,7 @@
     },
     "VEH_ACT0_DIR_X": {
         "description": "X component (forward) of the direction of action of actuator 0 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT0_DIR_Y and VEH_ACT0_DIR_Z.",
-        "value": -0.19245008972987526,
+        "value": -0.1925,
         "default": 0.0,
         "options": [],
         "type": "float",
@@ -1576,7 +1576,7 @@
     },
     "VEH_ACT0_DIR_Y": {
         "description": "Y component (left) of the direction of action of actuator 0 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT0_DIR_X and VEH_ACT0_DIR_Z.",
-        "value": 0.19245008972987526,
+        "value": 0.1925,
         "default": 0.0,
         "options": [],
         "type": "float",
@@ -1584,7 +1584,7 @@
     },
     "VEH_ACT0_DIR_Z": {
         "description": "Z component (up) of the direction of action of actuator 0 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT0_DIR_X and VEH_ACT0_DIR_Y.",
-        "value": 0.9622504486493763,
+        "value": 0.9623,
         "default": 1.0,
         "options": [],
         "type": "float",
@@ -1616,7 +1616,7 @@
     },
     "VEH_ACT1_DIR_X": {
         "description": "X component (forward) of the direction of action of actuator 1 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT1_DIR_Y and VEH_ACT1_DIR_Z.",
-        "value": 0.19245008972987526,
+        "value": 0.1925,
         "default": 0.0,
         "options": [],
         "type": "float",
@@ -1624,7 +1624,7 @@
     },
     "VEH_ACT1_DIR_Y": {
         "description": "Y component (left) of the direction of action of actuator 1 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT1_DIR_X and VEH_ACT1_DIR_Z.",
-        "value": -0.19245008972987526,
+        "value": -0.1925,
         "default": 0.0,
         "options": [],
         "type": "float",
@@ -1632,7 +1632,7 @@
     },
     "VEH_ACT1_DIR_Z": {
         "description": "Z component (up) of the direction of action of actuator 1 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT1_DIR_X and VEH_ACT1_DIR_Y.",
-        "value": 0.9622504486493763,
+        "value": 0.9623,
         "default": 1.0,
         "options": [],
         "type": "float",
@@ -1664,7 +1664,7 @@
     },
     "VEH_ACT2_DIR_X": {
         "description": "X component (forward) of the direction of action of actuator 2 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT2_DIR_Y and VEH_ACT2_DIR_Z.",
-        "value": -0.19245008972987526,
+        "value": -0.1925,
         "default": 0.0,
         "options": [],
         "type": "float",
@@ -1672,7 +1672,7 @@
     },
     "VEH_ACT2_DIR_Y": {
         "description": "Y component (left) of the direction of action of actuator 2 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT2_DIR_X and VEH_ACT2_DIR_Z.",
-        "value": -0.19245008972987526,
+        "value": -0.1925,
         "default": 0.0,
         "options": [],
         "type": "float",
@@ -1680,7 +1680,7 @@
     },
     "VEH_ACT2_DIR_Z": {
         "description": "Z component (up) of the direction of action of actuator 2 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT2_DIR_X and VEH_ACT2_DIR_Y.",
-        "value": 0.9622504486493763,
+        "value": 0.9623,
         "default": 1.0,
         "options": [],
         "type": "float",
@@ -1712,7 +1712,7 @@
     },
     "VEH_ACT3_DIR_X": {
         "description": "X component (forward) of the direction of action of actuator 3 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT3_DIR_Y and VEH_ACT3_DIR_Z.",
-        "value": 0.19245008972987526,
+        "value": 0.1925,
         "default": 0.0,
         "options": [],
         "type": "float",
@@ -1720,7 +1720,7 @@
     },
     "VEH_ACT3_DIR_Y": {
         "description": "Y component (left) of the direction of action of actuator 3 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT3_DIR_X and VEH_ACT3_DIR_Z.",
-        "value": 0.19245008972987526,
+        "value": 0.1925,
         "default": 0.0,
         "options": [],
         "type": "float",
@@ -1728,7 +1728,7 @@
     },
     "VEH_ACT3_DIR_Z": {
         "description": "Z component (up) of the direction of action of actuator 3 in the vehicle frame. Value in meters. Should form a unit vector with values VEH_ACT3_DIR_X and VEH_ACT3_DIR_Y.",
-        "value": 0.9622504486493763,
+        "value": 0.9623,
         "default": 1.0,
         "options": [],
         "type": "float",
@@ -2161,8 +2161,8 @@
     },
     "VIZ_SIZE_X": {
         "description": "Length in the x direction of the box that represents the drone's body",
-        "value": 0.1,
-        "default": 0.1,
+        "value": 0.12,
+        "default": 0.12,
         "options": [],
         "type": "float",
         "unit": "[m]"
