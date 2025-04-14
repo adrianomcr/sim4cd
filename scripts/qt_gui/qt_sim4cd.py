@@ -9,15 +9,16 @@ into one QTabWidget inside a QMainWindow, all using a shared_data dictionary.
 import sys
 import webbrowser
 import json
+import os
 
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTabWidget, QWidget, QAction, QMessageBox, QFileDialog, QVBoxLayout, QLabel
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtCore import Qt
 
-from tab_home.tab_home import HomeTab
-from tab_config.tab_config import ConfigTab
-from tab_interaction.tab_interaction import InteractionTab
-from tab_all_params.tab_all_params import AllParamsTab
+from tab_home.home_tab import HomeTab
+
+from tab_all_params.all_params_tab import AllParamsTab
+from tab_geolocation.geolocation_tab import GeolocationTab
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -36,8 +37,8 @@ class MainWindow(QMainWindow):
 
         self.add_menubar()
 
-        # self.load_config("/root/catkin_ws/src/sim4cd/config/sim_params.json")
-        self.load_config("/home/adrianomcr/catkin_ws/src/sim4cd/config/sim_params.json")
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        self.load_config(os.path.join(script_dir, "../../config/sim_params.json"))
 
         # Create the tab widget
         self.tabs = QTabWidget()
@@ -46,11 +47,13 @@ class MainWindow(QMainWindow):
 
         # Create each tab's widget
         self.tab_home = HomeTab(shared_data=self.shared_data)
+        self.tab_geolocation = GeolocationTab(shared_data=self.shared_data)
         self.tab_all_params = AllParamsTab(shared_data=self.shared_data)
         
         
         # Add them to the QTabWidget
         self.tabs.addTab(self.tab_home, "Simulate")
+        self.tabs.addTab(self.tab_geolocation, "Geolocation")
         self.tabs.addTab(self.tab_all_params, "All parameters list")
 
         # # --- Second (top-level) tab with nested tabs ---
@@ -180,8 +183,35 @@ class MainWindow(QMainWindow):
     def save_config(self):
         print("Save config")
 
+        # If we already have a path, save to that file
+        current_path = self.shared_data.get("config_file_path")
+        if current_path:
+            try:
+                with open(current_path, "w") as json_file:
+                    json.dump(self.shared_data.get('config', {}), json_file, indent=4)
+                QMessageBox.information(self, "Success", f"Successfully saved to:\n{current_path}")
+            except Exception as e:
+                QMessageBox.critical(self, "Error", f"Failed to save JSON file:\n{str(e)}")
+        else:
+            self.saveas_config()
+
+
     def saveas_config(self):
         print("SaveAs config")
+
+        # Prompt the user for a file path
+        options = QFileDialog.Options()
+        path, _ = QFileDialog.getSaveFileName(self, "Save JSON File", "", "JSON Files (*.json);;All Files (*)", options=options)
+
+        if path:
+            try:
+                with open(path, "w") as json_file:
+                    json.dump(self.shared_data.get('config', {}), json_file, indent=4)
+                self.shared_data['config_file_path'] = path
+                QMessageBox.information(self, "Success", f"Successfully saved to:\n{path}")
+            except Exception as e:
+                QMessageBox.critical(self, "Error", f"Failed to save JSON file:\n{str(e)}")
+
 
 
 def main():

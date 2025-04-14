@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-tab_home.py
+home_tab.py
 -----------
 Defines the "Home" tab widget that includes the embedded VTK render window,
-loading its UI layout from tab_home.ui.
+loading its UI layout from home_tab.ui.
 Allows running standalone if needed.
 """
 import sys
@@ -14,7 +14,7 @@ import psutil
 from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QMessageBox
 # Import the new VTK widget
-from sim_vtk.scene_widget import VTKSceneWidget
+from tab_home.main_scene import VTKMainSceneWidget
 
 
 class HomeTab(QWidget):
@@ -24,7 +24,7 @@ class HomeTab(QWidget):
 
         # Load the .ui file
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        uic.loadUi(os.path.join(script_dir,"tab_home.ui"), self)
+        uic.loadUi(os.path.join(script_dir,"home_tab.ui"), self)
 
         # Now we can access widgets by the names set in tab_home.ui
         self.btn_start = self.findChild(type(self.btnStart), "btnStart")
@@ -38,7 +38,7 @@ class HomeTab(QWidget):
         self.init_vtk_scene()
 
         self.process = None
-        # return
+
         # Connect signals
         self.btn_start.clicked.connect(self.on_start_clicked)
         self.btn_stop.clicked.connect(self.on_stop_clicked)
@@ -46,8 +46,7 @@ class HomeTab(QWidget):
     def init_vtk_scene(self):
         
         # Create our custom VTK widget and add it to the frame's layout
-        self.vtk_scene_widget = VTKSceneWidget(parent=self.vtk_frame, config=self.shared_data['config'])
-        # return
+        self.vtk_scene_widget = VTKMainSceneWidget(parent=self.vtk_frame, config=self.shared_data['config'])
         self.vtk_frame.layout().addWidget(self.vtk_scene_widget)
         
 

@@ -11,9 +11,7 @@ import os
 
 import sim4cd.math_utils as MU
 
-_OPACITY_ = 0.8
-
-class VTKSceneWidget(QWidget):
+class VTKMainSceneWidget(QWidget):
     def __init__(self, parent=None, config=None):
         """
         If 'config' is not None, we'll call add_shapes(**config)
@@ -42,17 +40,17 @@ class VTKSceneWidget(QWidget):
 
         # Tell the camera that Z is up
         self.camera = self.renderer.GetActiveCamera()
-        self.camera.SetPosition(5, 5, 5)    # Example vantage point
+        self.camera.SetPosition(-5, 0, 2)    # Example vantage point
         self.camera.SetFocalPoint(0, 0, 0)  # Looking at origin
         self.camera.SetViewUp(0, 0, 1)      # Z is "up"
         self.camera.SetViewAngle(45)        # Camera FOV
 
         # A vtkAssembly to group shapes so we can transform them as one unit
-        self.assembly = vtk.vtkAssembly()
-        self.renderer.AddActor(self.assembly)
+        self.drone_assembly = vtk.vtkAssembly()
+        self.renderer.AddActor(self.drone_assembly)
 
-        self.assembly2 = vtk.vtkAssembly()
-        self.renderer.AddActor(self.assembly2)
+        self.shadow_assembly = vtk.vtkAssembly()
+        self.renderer.AddActor(self.shadow_assembly)
 
         # Optional timer for periodic pose updates
         self.update_timer = None
@@ -82,7 +80,7 @@ class VTKSceneWidget(QWidget):
         # Load an equirectangular texture for the skybox
         #texture_reader = vtk.vtkJPEGReader()
         texture_reader = vtk.vtkPNGReader()
-        texture_reader.SetFileName(os.path.dirname(__file__)+"/skybox.png")
+        texture_reader.SetFileName(os.path.join(os.path.dirname(__file__),"../resources/skybox.png"))
         texture_reader.Update()
 
         skybox_texture = vtk.vtkTexture()
@@ -100,10 +98,8 @@ class VTKSceneWidget(QWidget):
 
         self.focal_point = [0,0,0]
 
-
         # Initialize the interactor & do initial camera fit
         self.interactor.Initialize()
-        # self.renderer.ResetCamera()
         self.set_camera_pose([-5,0,2], [0,0,0], [0,0,1])
 
         # Set up a timer to update the data periodically
@@ -121,8 +117,6 @@ class VTKSceneWidget(QWidget):
             # No message received
             return
 
-        # self.update_renderer(data_dict)
-        # self.reset_group_pose(pose=[0,0,0, 0,0,0])
         self.reset_group_pose(pose=data_dict['pose'])
         self.focal_point = [0.9*self.focal_point[k] + 0.1*data_dict['pose'][k] for k in range(3)]
         self.set_camera_pose([-5,0,2], self.focal_point, [0,0,1])
@@ -130,7 +124,7 @@ class VTKSceneWidget(QWidget):
         
     def add_shapes(self, config):
         """
-        All actors are added to self.assembly to allow group transforms.
+        All actors are added to self.drone_assembly to allow group transforms.
         """
 
         if (config is None):
@@ -138,16 +132,14 @@ class VTKSceneWidget(QWidget):
 
         # Build the box
         box_size = [config['VIZ_SIZE_X']['value'], config['VIZ_SIZE_Y']['value'], config['VIZ_SIZE_Z']['value']]
-        box_opacity = _OPACITY_
-        # box_color = [1, 1, 1]
         box_color = [0.2, 0.2, 0.2]
         box_pose = [0, 0, 0, 0, 0, 0]
         box_actor = self.create_box_actor(box_size, 1, box_color)
         self.set_actor_pose(box_actor, box_pose)
-        self.assembly.AddPart(box_actor)
+        self.drone_assembly.AddPart(box_actor)
 
         box_actor_shadow = self.create_box_actor([config['VIZ_SIZE_X']['value'], config['VIZ_SIZE_Y']['value'], 0], 1, [0,0,0], 0.3, [0,0,-0.03])
-        self.assembly2.AddPart(box_actor_shadow)
+        self.shadow_assembly.AddPart(box_actor_shadow)
 
 
         for k in range(config['VEH_ACT_NUM']['value']):
@@ -182,7 +174,7 @@ class VTKSceneWidget(QWidget):
                 height=box_size[2] / 10,
                 color=color
             )
-            self.assembly.AddPart(disk_actor)
+            self.drone_assembly.AddPart(disk_actor)
 
             disk_actor_shadow = self.create_cylinder_actor(
                 center=[c[0],c[1],-0.03],
@@ -192,10 +184,10 @@ class VTKSceneWidget(QWidget):
                 color=[0,0,0],
                 alpha=0.3
             )
-            self.assembly2.AddPart(disk_actor_shadow)
+            self.shadow_assembly.AddPart(disk_actor_shadow)
 
 
-            # Add arms
+            # Add arm
             c = np.array(c)
             d = np.array(d)
             b = np.array(b)
@@ -212,7 +204,7 @@ class VTKSceneWidget(QWidget):
                 height=h_arm,
                 color=[0.3, 0.3, 0.3]
             )
-            self.assembly.AddPart(arm_actor)
+            self.drone_assembly.AddPart(arm_actor)
 
             arm_actor_shadow = self.create_cylinder_actor(
                 center=[c_arm[0],c_arm[1],-0.03],
@@ -222,7 +214,7 @@ class VTKSceneWidget(QWidget):
                 color=[0, 0, 0],
                 alpha = 0.3
             )
-            self.assembly2.AddPart(arm_actor_shadow)
+            self.shadow_assembly.AddPart(arm_actor_shadow)
 
         # Re-render
         self.vtk_widget.GetRenderWindow().Render()
@@ -308,10 +300,10 @@ class VTKSceneWidget(QWidget):
     def reset_group_pose(self, pose=(0, 0, 0, 0, 0, 0)):
         """Set the entire assembly's position/orientation."""
         px, py, pz, rx, ry, rz = pose
-        self.assembly.SetPosition(px, py, pz)
-        self.assembly.SetOrientation(rx, ry, rz)
-        self.assembly2.SetPosition(px+0.1*pz, py+0.8*pz, -0.03)
-        self.assembly2.SetOrientation(rx*0, ry*0, rz)
+        self.drone_assembly.SetPosition(px, py, pz)
+        self.drone_assembly.SetOrientation(rx, ry, rz)
+        self.shadow_assembly.SetPosition(px+0.1*pz, py+0.8*pz, -0.03)
+        self.shadow_assembly.SetOrientation(rx*0, ry*0, rz)
         self.vtk_widget.GetRenderWindow().Render()
 
 
@@ -339,8 +331,6 @@ class VTKSceneWidget(QWidget):
         self.camera.SetPosition(*position)
         self.camera.SetFocalPoint(*focal_point)
         self.camera.SetViewUp(*view_up)
-        # self.renderer.ResetCameraClippingRange()
-        # self.vtk_widget.GetRenderWindow().Render()
 
 
 

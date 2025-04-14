@@ -28,7 +28,7 @@ class AllParamsTab(QWidget):
 
         # Load the .ui file
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        ui_path = os.path.join(script_dir, "tab_all_params.ui")
+        ui_path = os.path.join(script_dir, "all_params_tab.ui")
         uic.loadUi(ui_path, self)
 
         # Hide the combo box for editing values unless needed
