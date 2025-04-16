@@ -2,8 +2,7 @@
 """
 geolocation_tab.py
 -----------
-Example PyQt5 tab containing a VTK-based globe and some placeholder input fields
-and push buttons, using findChild(...) to access UI objects after loading the .ui file.
+PyQt5 tab containing a VTK-based globe. Allows the user to set simulation location and local magnetic field.
 """
 
 import os
@@ -15,19 +14,17 @@ from PyQt5.QtWidgets import (
     QFrame,
     QLineEdit,
     QPushButton,
-    QVBoxLayout
+    QVBoxLayout,
+    QMessageBox,
+    QLabel
 )
-
 import json
 import zmq
-
-# VTK imports
-import vtk
-# from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
-
-
+from magnetic_field_calculator import MagneticFieldCalculator
+from datetime import datetime
 
 from tab_geolocation.globe_scene import VTKGlobeSceneWidget
+import utils as UT
 
 
 class GeolocationTab(QWidget):
@@ -50,43 +47,46 @@ class GeolocationTab(QWidget):
         self.line_edit_longitude = self.findChild(QLineEdit, "lineEdit_lon")
         self.line_edit_altitude = self.findChild(QLineEdit, "lineEdit_alt")
 
-        self.line_edit_east = self.findChild(QLineEdit, "lineEdit_mag_east")
-        self.line_edit_north = self.findChild(QLineEdit, "lineEdit_mag_north")
-        self.line_edit_up = self.findChild(QLineEdit, "lineEdit_mag_up")
+        self.line_edit_mag_east = self.findChild(QLineEdit, "lineEdit_mag_east")
+        self.line_edit_mag_north = self.findChild(QLineEdit, "lineEdit_mag_north")
+        self.line_edit_mag_up = self.findChild(QLineEdit, "lineEdit_mag_up")
 
         self.push_button_set_values = self.findChild(QPushButton, "pushButton_set_values")
         self.push_button_compute = self.findChild(QPushButton, "pushButton_compute_field")
         self.push_button_apply = self.findChild(QPushButton, "pushButton_apply_field")
+
+        self.label_computed_field = self.findChild(QLabel, "label_computed_field")
+        # Initialize the variable to store the estimated local magnetic field
+        self.estimated_mag_field = None
 
         # Create a ZeroMQ context
         self.context = zmq.Context()
 
         # Create a PUB socket
         self.socket = self.context.socket(zmq.PUB)
-        self.socket.bind("tcp://*:5565")  # Bind to port 5555
-
+        self.socket.bind("tcp://*:5565")
 
         # VTK setup in a separate function
         self.init_vtk_scene()
 
+        # if self.shared_data['config']:
+        #     LLA = [self.shared_data['config']['SENS_LAT_ORIGIN']['value'],
+        #            self.shared_data['config']['SENS_LON_ORIGIN']['value'],
+        #            self.shared_data['config']['SENS_ALT_ORIGIN']['value']]
+        #     # Optional defaults for line edits:
+        #     self.line_edit_latitude.setText(str(LLA[0]))
+        #     self.line_edit_longitude.setText(str(LLA[1]))
+        #     self.line_edit_altitude.setText(str(LLA[2]))
 
-        if self.shared_data['config']:
-            LLA = [self.shared_data['config']['SENS_LAT_ORIGIN']['value'],
-                   self.shared_data['config']['SENS_LON_ORIGIN']['value'],
-                   self.shared_data['config']['SENS_ALT_ORIGIN']['value']]
-            # Optional defaults for line edits:
-            self.line_edit_latitude.setText(str(self.shared_data['config']['SENS_LAT_ORIGIN']['value']))
-            self.line_edit_longitude.setText(str(self.shared_data['config']['SENS_LON_ORIGIN']['value']))
-            self.line_edit_altitude.setText(str(self.shared_data['config']['SENS_ALT_ORIGIN']['value']))
+        #     MAG = [self.shared_data['config']['SENS_MAG_FIELD_E']['value'],
+        #            self.shared_data['config']['SENS_MAG_FIELD_N']['value'],
+        #            self.shared_data['config']['SENS_MAG_FIELD_U']['value']]
+        #     self.line_edit_mag_east.setText(str(MAG[0]))
+        #     self.line_edit_mag_north.setText(str(MAG[1]))
+        #     self.line_edit_mag_up.setText(str(MAG[2]))
 
-            MAG = [self.shared_data['config']['SENS_MAG_FIELD_E']['value'],
-                   self.shared_data['config']['SENS_MAG_FIELD_N']['value'],
-                   self.shared_data['config']['SENS_MAG_FIELD_U']['value']]
-            self.line_edit_east.setText(str(self.shared_data['config']['SENS_MAG_FIELD_E']['value']))
-            self.line_edit_north.setText(str(self.shared_data['config']['SENS_MAG_FIELD_N']['value']))
-            self.line_edit_up.setText(str(self.shared_data['config']['SENS_MAG_FIELD_U']['value']))
-
-            self.socket.send_string(json.dumps({'LLA':LLA, 'MAG':MAG}))
+        #     # Update visualization
+        #     self.socket.send_string(json.dumps({'LLA':LLA, 'MAG':MAG}))
 
         # ----------------------------------------------------------------------
         # Connect signals
@@ -94,6 +94,26 @@ class GeolocationTab(QWidget):
         self.push_button_set_values.clicked.connect(self.set_values)
         self.push_button_compute.clicked.connect(self.compute_local_field)
         self.push_button_apply.clicked.connect(self.apply_computed_field)
+
+    def on_tab_selected(self):
+        if self.shared_data['config']:
+            LLA = [self.shared_data['config']['SENS_LAT_ORIGIN']['value'],
+                   self.shared_data['config']['SENS_LON_ORIGIN']['value'],
+                   self.shared_data['config']['SENS_ALT_ORIGIN']['value']]
+            # Optional defaults for line edits:
+            self.line_edit_latitude.setText(str(LLA[0]))
+            self.line_edit_longitude.setText(str(LLA[1]))
+            self.line_edit_altitude.setText(str(LLA[2]))
+
+            MAG = [self.shared_data['config']['SENS_MAG_FIELD_E']['value'],
+                   self.shared_data['config']['SENS_MAG_FIELD_N']['value'],
+                   self.shared_data['config']['SENS_MAG_FIELD_U']['value']]
+            self.line_edit_mag_east.setText(str(MAG[0]))
+            self.line_edit_mag_north.setText(str(MAG[1]))
+            self.line_edit_mag_up.setText(str(MAG[2]))
+
+            # Update visualization
+            self.socket.send_string(json.dumps({'LLA':LLA, 'MAG':MAG}))
 
     def init_vtk_scene(self):
         """
@@ -114,33 +134,124 @@ class GeolocationTab(QWidget):
         
         return
 
-    # --------------------------------------------------------------------------
-    # Button placeholder functions
-    # --------------------------------------------------------------------------
-    def set_values(self):
-        print("Set values clicked.")
 
-        # TODO: Check for valid values
-
+    def get_values_from_widget(self):
         # Update data
-        self.shared_data['config']['SENS_LAT_ORIGIN']['value'] = float(self.line_edit_latitude.text())
-        self.shared_data['config']['SENS_LON_ORIGIN']['value'] = float(self.line_edit_longitude.text())
-        self.shared_data['config']['SENS_ALT_ORIGIN']['value'] = float(self.line_edit_altitude.text())
+        if (not UT.validate_value(self.line_edit_latitude.text(),'float')):
+            QMessageBox.critical(self, "Error", "Invalid latitude.")
+            return False, [], []
+        if (not UT.validate_value(self.line_edit_longitude.text(),'float')):            
+            QMessageBox.critical(self, "Error", "Invalid longitude.")
+            return False, [], []
+        if (not UT.validate_value(self.line_edit_altitude.text(),'float')):
+            QMessageBox.critical(self, "Error", "Invalid altitude.")
+            return False, [], []
+        if (not UT.validate_value(self.line_edit_mag_east.text(),'float')):
+            QMessageBox.critical(self, "Error", "Invalid East magnetic field.")
+            return False, [], []
+        if (not UT.validate_value(self.line_edit_mag_north.text(),'float')):
+            QMessageBox.critical(self, "Error", "Invalid North magnetic field.")
+            return False, [], []
+        if (not UT.validate_value(self.line_edit_mag_up.text(),'float')):
+            QMessageBox.critical(self, "Error", "Invalid Up magnetic field.")
+            return False, [], []
 
-        # Update vizualozation
-        LLA = [float(self.line_edit_latitude.text()),
-               float(self.line_edit_longitude.text()),
-               float(self.line_edit_altitude.text())]
+        LLA = [UT.parse_value(self.line_edit_latitude.text(),'float'),
+               UT.parse_value(self.line_edit_longitude.text(),'float'),
+               UT.parse_value(self.line_edit_altitude.text(),'float')]
+        mag = [UT.parse_value(self.line_edit_mag_east.text(),'float'),
+               UT.parse_value(self.line_edit_mag_north.text(),'float'),
+               UT.parse_value(self.line_edit_mag_up.text(),'float')]
+    
+        return True, LLA, mag
+
+    def set_values(self):
+
+        valid, LLA, mag = self.get_values_from_widget()
+        if (not valid):
+            # QMessageBox.critical(self, "Error", "Invalid inputs.")
+            return
+
+        self.shared_data['config']['SENS_LAT_ORIGIN']['value'] = LLA[0]
+        self.shared_data['config']['SENS_LON_ORIGIN']['value'] = LLA[1]
+        self.shared_data['config']['SENS_ALT_ORIGIN']['value'] = LLA[2]
+
+        self.shared_data['config']['SENS_MAG_FIELD_E']['value'] = mag[0]
+        self.shared_data['config']['SENS_MAG_FIELD_N']['value'] = mag[1]
+        self.shared_data['config']['SENS_MAG_FIELD_U']['value'] = mag[2]
+
+        # Update visualization
         self.socket.send_string(json.dumps({'LLA':LLA}))
 
 
     def compute_local_field(self):
+        """
+        Function to compute the magnetic field at the origin geolocation set on the entry boxes
+
+        Parameters:
+            *args (list): Unused arguments passed by the function when it is binded to a widget action.
+        """
+
         print("Compute local field clicked.")
-        # Your logic here
+
+        # # Return if there is parameter file loaded
+        # if(not self.shared_data):
+        #     QMessageBox.critical(self, "Error", "There is data parameter file loaded")
+        #     return
+        
+        # Use the label to display that the magnetic field is being computed
+        self.label_computed_field.setText("Computing magnetic field ...\n\n\n\n")
+        QApplication.processEvents()
+
+        try:
+            # Create a MagneticFieldCalculator object
+            calculator = MagneticFieldCalculator(
+                model='wmm',
+                revision='2020',
+                sub_revision='2'
+            )
+            print("A")
+            # Get the geolocation where the field will be computed
+            valid, LLA, _ = self.get_values_from_widget()
+            if (not valid):
+                QMessageBox.critical(self, "Error", "Invalid inputs for LLA.")
+                return
+            # Compute the magnetic field
+            result = calculator.calculate(
+                latitude=LLA[0],                    # latitude in degrees
+                longitude=LLA[1],                   # longitude in degrees
+                altitude=LLA[2]/1000.0,             # altitude in km
+                date=datetime.now().strftime("%Y-%m-%d")    # date
+            )
+            print("B")
+            # Store the computed magnetic field in the ENU frame in Gauss
+            self.estimated_mag_field = [
+                round(result['field-value']['east-intensity']['value']*1e-5,8),
+                round(result['field-value']['north-intensity']['value']*1e-5,8),
+                round(-result['field-value']['vertical-intensity']['value']*1e-5,8)
+            ]
+            # Update the label that displays the computed field
+            result_str = ("[lat,lon,alt] = [%.3f°, %.3f°, %.0fm]\n\n  Field East: %.5f [Gauss]\nField North: %.5f [Gauss]\n    Field Up: %.5f [Gauss]" % tuple(LLA+self.estimated_mag_field))
+            self.label_computed_field.setText(result_str)
+            print("D")
+        except:
+            # Use the label to display that there was an error in the magnetic field computation
+            # self.estimated_mag_label.config(text="Error in the computation of magnetic field\n\n\n\n")
+            # self.root.update()
+            print("E")
+            return
 
     def apply_computed_field(self):
         print("Apply computed field clicked.")
-        # Your logic here
+
+        # Return if there is no estimated magnetic field
+        if(not self.estimated_mag_field):
+            QMessageBox.critical(self, "Error", "There is no magnetic field computed")
+            return
+        
+        self.line_edit_mag_east.setText(str(self.estimated_mag_field[0]))
+        self.line_edit_mag_north.setText(str(self.estimated_mag_field[1]))
+        self.line_edit_mag_up.setText(str(self.estimated_mag_field[2]))
 
 
 # ------------------------------------------------------------------------------
@@ -158,118 +269,3 @@ if __name__ == "__main__":
     sys.exit(app.exec_())
 
 
-
-# #!/usr/bin/env python3
-# """
-# tab_geolocation.py
-# -----------
-# Example PyQt5 tab containing a VTK-based globe and some placeholder input fields
-# and push buttons.  A matching .ui file (tab_geolocation.ui) is also provided.
-# """
-# import os
-
-# from PyQt5 import uic
-# from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow
-# import vtk
-# from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
-
-
-# class GeolocationTab(QWidget):
-#     def __init__(self, shared_data=None, parent=None):
-#         super().__init__(parent)
-#         self.shared_data = shared_data if shared_data is not None else {}
-
-#         # Load the .ui file (make sure the .ui file is in the same directory, or update path)
-#         script_dir = os.path.dirname(os.path.abspath(__file__))
-#         uic.loadUi(os.path.join(script_dir, "tab_geolocation.ui"), self)
-
-#         return
-
-#         #--------------------------------------------------------------------------
-#         # Set up VTK Globe in the frameGlobe widget
-#         #--------------------------------------------------------------------------
-#         # We assume there is a QFrame (or QWidget) in the .ui named frameGlobe.
-#         # We place a QVTKRenderWindowInteractor there.
-#         self.vtkWidget = QVTKRenderWindowInteractor(self.vtkFrame)
-#         # In the .ui, frameGlobe has a layout (QVBoxLayout) already, so we can
-#         # add the vtkWidget directly.  If you see a layout error, ensure the .ui
-#         # has a layout set on frameGlobe.
-#         self.frameGlobe.layout().addWidget(self.vtkWidget)
-
-#         # Create a renderer and attach it to the render window
-#         self.renderer = vtk.vtkRenderer()
-#         self.vtkWidget.GetRenderWindow().AddRenderer(self.renderer)
-
-#         # Create a sphere source for the globe
-#         sphere_source = vtk.vtkTexturedSphereSource()
-#         sphere_source.SetRadius(1.0)
-
-#         # Create the Earth texture from a local file (e.g., 'earth.jpg')
-#         # Adjust the file path/name as needed. This example expects 'earth.jpg'
-#         # in the same directory as tab_geolocation.py.
-#         earth_texture = vtk.vtkTexture()
-#         earth_reader = vtk.vtkJPEGReader()
-#         earth_reader.SetFileName(os.path.join(script_dir, "earth.jpg"))
-#         earth_texture.SetInputConnection(earth_reader.GetOutputPort())
-#         earth_texture.InterpolateOn()
-
-#         # Create mapper and actor
-#         globe_mapper = vtk.vtkPolyDataMapper()
-#         globe_mapper.SetInputConnection(sphere_source.GetOutputPort())
-
-#         globe_actor = vtk.vtkActor()
-#         globe_actor.SetMapper(globe_mapper)
-#         globe_actor.SetTexture(earth_texture)
-
-#         # Add the globe actor to the scene
-#         self.renderer.AddActor(globe_actor)
-#         self.renderer.ResetCamera()
-#         self.renderer.SetBackground(0, 0, 0)  # black background
-
-#         # Initialize and start the VTK widget
-#         self.vtkWidget.Initialize()
-#         self.vtkWidget.Start()
-
-#         #--------------------------------------------------------------------------
-#         # Connect Button Signals -> Slot Functions
-#         #--------------------------------------------------------------------------
-#         # These placeholders simply print. Replace with real code as needed.
-#         self.pushButton_compute_field.clicked.connect(self.estimate_local_magnetic_field)
-#         self.pushButton_apply_field.clicked.connect(self.compute_local_field)
-#         self.pushButton_set_values.clicked.connect(self.apply_computed_field)
-
-#         # Initialize line edits (optional example defaults)
-#         self.lineEdit_latitude.setText("40.448985")
-#         self.lineEdit_longitude.setText("-79.898025")
-#         self.lineEdit_altitude.setText("372.0")
-
-#         self.lineEdit_mag_east.setText("0.03313")
-#         self.lineEdit_mag_north.setText("0.20188")
-#         self.lineEdit_mag_up.setText("0.47534")
-
-#     #--------------------------------------------------------------------------
-#     # Placeholder functions for the three buttons
-#     #--------------------------------------------------------------------------
-#     def estimate_local_magnetic_field(self):
-#         print("Estimate local magnetic field clicked.")
-
-#     def compute_local_field(self):
-#         print("Compute local field clicked.")
-
-#     def apply_computed_field(self):
-#         print("Apply computed field clicked.")
-
-
-# #------------------------------------------------------------------------------
-# # If you want to test this tab as a standalone window:
-# #------------------------------------------------------------------------------
-# if __name__ == "__main__":
-#     import sys
-
-#     app = QApplication(sys.argv)
-#     window = QMainWindow()
-#     tab = GeolocationTab()
-#     window.setCentralWidget(tab)
-#     window.resize(1200, 800)
-#     window.show()
-#     sys.exit(app.exec_())

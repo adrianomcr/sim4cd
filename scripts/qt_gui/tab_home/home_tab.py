@@ -29,6 +29,7 @@ class HomeTab(QWidget):
         # Now we can access widgets by the names set in tab_home.ui
         self.btn_start = self.findChild(type(self.btnStart), "btnStart")
         self.btn_stop = self.findChild(type(self.btnStop), "btnStop")
+        self.btn_collapse = self.findChild(type(self.btnCollapse), "btnCollapse")
         self.status_label = self.findChild(type(self.statusLabel), "statusLabel")
 
         # The frame where we'll insert the QVTKRenderWindowInteractor
@@ -42,6 +43,8 @@ class HomeTab(QWidget):
         # Connect signals
         self.btn_start.clicked.connect(self.on_start_clicked)
         self.btn_stop.clicked.connect(self.on_stop_clicked)
+        self.btn_collapse.clicked.connect(self.on_colapse_clicked)
+        self.colapsed = False
 
     def init_vtk_scene(self):
         
@@ -49,6 +52,20 @@ class HomeTab(QWidget):
         self.vtk_scene_widget = VTKMainSceneWidget(parent=self.vtk_frame, config=self.shared_data['config'])
         self.vtk_frame.layout().addWidget(self.vtk_scene_widget)
         
+
+    def on_colapse_clicked(self):
+        if not self.colapsed:
+            self.btn_start.hide()
+            self.btn_stop.hide()
+            self.status_label.hide()
+            self.btn_collapse.setText(">")
+            self.colapsed = True
+        else:
+            self.btn_start.show()
+            self.btn_stop.show()
+            self.status_label.show()
+            self.btn_collapse.setText("<")
+            self.colapsed = False
 
     def on_start_clicked(self):
 

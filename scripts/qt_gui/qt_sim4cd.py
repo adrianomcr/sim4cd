@@ -77,8 +77,27 @@ class MainWindow(QMainWindow):
         # # Add the two main tabs
         # self.tabs.addTab(config_tab, "BKP tabs")
 
-
         # self.showFullScreen()
+
+
+
+        # Connect tab selection signal
+        self.tabs.currentChanged.connect(self.on_tab_changed)
+
+        # Trigger initial selection logic for the first tab
+        if hasattr(self.tab_home, 'on_tab_selected'):
+            self.tab_home.on_tab_selected()
+
+
+    def on_tab_changed(self, index):
+        # Get the current widget (selected tab)
+        current_widget = self.tabs.widget(index)
+
+        # Check if the widget has the on_tab_selected method and call it
+        if hasattr(current_widget, 'on_tab_selected'):
+            current_widget.on_tab_selected()
+        else:
+            print("Not available")
 
 
     def keyPressEvent(self, event):
@@ -181,8 +200,6 @@ class MainWindow(QMainWindow):
 
 
     def save_config(self):
-        print("Save config")
-
         # If we already have a path, save to that file
         current_path = self.shared_data.get("config_file_path")
         if current_path:
@@ -197,8 +214,6 @@ class MainWindow(QMainWindow):
 
 
     def saveas_config(self):
-        print("SaveAs config")
-
         # Prompt the user for a file path
         options = QFileDialog.Options()
         path, _ = QFileDialog.getSaveFileName(self, "Save JSON File", "", "JSON Files (*.json);;All Files (*)", options=options)

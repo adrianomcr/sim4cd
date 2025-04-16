@@ -40,9 +40,10 @@ class VTKGlobeSceneWidget(QWidget):
 
         # Camera
         self.camera = self.renderer.GetActiveCamera()
-        self.camera.SetPosition(5, 0, 0)    # Example vantage point
-        self.camera.SetFocalPoint(0, 0, 0)  # Looking at origin
-        self.camera.SetViewUp(0, 0, 1)      # Z is "up"
+        self.set_camera_pose(position=[5, 0, 0], focal_point=[0,0,0], view_up=[0,0,1])
+        # self.camera.SetPosition(5, 0, 0)    # Example vantage point
+        # self.camera.SetFocalPoint(0, 0, 0)  # Looking at origin
+        # self.camera.SetViewUp(0, 0, 1)      # Z is "up"
         self.camera.SetViewAngle(30)        # Camera FOV
 
         # Add Earth view
@@ -108,6 +109,7 @@ class VTKGlobeSceneWidget(QWidget):
 
         pos = [5*x_surf, 5*y_surf, 5*z_surf]
         focal_point = [0,0,0]
+        focal_point = [x_surf, y_surf, z_surf]
         up = [0,0,1]
         self.set_camera_pose(pos, focal_point, up)
 

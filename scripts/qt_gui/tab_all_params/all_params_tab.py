@@ -10,20 +10,19 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QBrush
 
+import utils as UT
 
 class AllParamsTab(QWidget):
     def __init__(self, shared_data=None, parent=None):
         super().__init__(parent)
         self.shared_data = shared_data if shared_data is not None else {}
 
-        # Ensure our shared_data has the needed keys
+        # Ensure shared_data has the needed keys
         if 'config' not in self.shared_data:
             self.shared_data['config'] = {}
         if 'config_file_path' not in self.shared_data:
             self.shared_data['config_file_path'] = ""
 
-        # We no longer keep a separate self.params variable. We directly use self.shared_data['config'].
-        # We'll keep a filtered list of keys for display in the table:
         self.filtered_keys = []
 
         # Load the .ui file
@@ -40,7 +39,6 @@ class AllParamsTab(QWidget):
         self.btnFilter.clicked.connect(self.filter_params)
 
         self.tableParams.currentCellChanged.connect(self.on_table_selection_changed)
-        # self.tableParams.cellClicked.connect(self.on_table_selection_changed)
 
         self.btnSetParam.clicked.connect(self.on_set_param)
         self.btnRestoreDefault.clicked.connect(self.on_restore_default)
@@ -50,25 +48,7 @@ class AllParamsTab(QWidget):
         self.tableParams.setColumnCount(4)
         self.tableParams.setHorizontalHeaderLabels(["Parameter", "Value", "Unit", "Description"])
 
-        # self.tableParams.setFocusPolicy(Qt.StrongFocus)
-        # self.tableParams.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
-        # self.tableParams.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
-
-
-        # # somewhere in your table-setup code
-        # self.tableParams.setFocusPolicy(Qt.ClickFocus)  # or Qt.ClickFocus, if you still want it focusable
-        # self.tableParams.setStyleSheet("""
-        #     /* Keep the highlight visible even if the table loses focus: */
-        #     QTableView::item:selected {
-        #         background: #3399FF;  /* pick the color you want */
-        #         color: white;
-        #     }
-        #     QTableView::item:selected:!active {
-        #         background: #3399FF;  /* same color for unfocused state */
-        #         color: white;
-        #     }
-        # # """)
-
+        self.editFilterParam.returnPressed.connect(self.filter_params)
 
         # If config already has data, show it
         if(not self.shared_data['config'] == None):
@@ -78,9 +58,12 @@ class AllParamsTab(QWidget):
         self.clear_details()
 
 
-    # ----------------------------------------------------------------
-    # File Load / Save
-    # ----------------------------------------------------------------
+    def on_tab_selected(self):
+        # Refresh table
+        self.populate_table()
+        self.clear_details()
+
+
     def load_json_file(self):
         filepath, _ = QFileDialog.getOpenFileName(
             self, "Open JSON file", "", "JSON Files (*.json);;All Files (*)"
@@ -103,6 +86,7 @@ class AllParamsTab(QWidget):
         self.populate_table()
         self.clear_details()
 
+
     def save_json_file(self):
         if not self.shared_data['config']:
             QMessageBox.warning(self, "No data", "No parameters to save.")
@@ -122,9 +106,7 @@ class AllParamsTab(QWidget):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to save JSON:\n{str(e)}")
 
-    # ----------------------------------------------------------------
-    # Table / Filtering
-    # ----------------------------------------------------------------
+
     def filter_params(self):
         """Filter the table by substring match in param name."""
         text = self.editFilterParam.text().strip()
@@ -139,6 +121,7 @@ class AllParamsTab(QWidget):
 
         self.populate_table()
         self.clear_details()
+
 
     def populate_table(self):
         """Populate the table with self.filtered_keys."""
@@ -173,6 +156,7 @@ class AllParamsTab(QWidget):
         self.tableParams.resizeColumnsToContents()
         self.tableParams.blockSignals(False)
 
+
     def apply_color_if_changed(self, key, row):
         """Color row if value != default."""
         data = self.shared_data['config'][key]
@@ -189,6 +173,7 @@ class AllParamsTab(QWidget):
             if item:
                 item.setBackground(QBrush(color))
 
+
     # ----------------------------------------------------------------
     # Details Panel
     # ----------------------------------------------------------------
@@ -202,6 +187,7 @@ class AllParamsTab(QWidget):
         self.editValue.show()
         self.comboValue.clear()
         self.comboValue.hide()
+
 
     def on_table_selection_changed(self, currentRow, currentCol, prevRow, prevCol):
     # def on_table_selection_changed(self, currentRow):
@@ -248,8 +234,6 @@ class AllParamsTab(QWidget):
             self.editValue.setText(str(current_val))
 
 
-        
-
     def on_set_param(self):
         """User clicked 'Set Parameter'. Validate and store the new value."""
         key = self.lblParamName.text()
@@ -273,18 +257,19 @@ class AllParamsTab(QWidget):
                                 f"'{new_val_str}' is not one of the allowed options.")
             return
 
-        if not self.validate_value(new_val_str, ptype):
+        if not UT.validate_value(new_val_str, ptype):
             QMessageBox.warning(self, "Invalid Value",
                                 f"'{new_val_str}' is not a valid {ptype} value.")
             return
 
-        parsed_val = self.parse_value(new_val_str, ptype)
+        parsed_val = UT.parse_value(new_val_str, ptype)
         data["value"] = parsed_val
         cfg[key] = data  # update shared_data['config']
 
         # Update row in table
         self.update_table_row(key)
         QMessageBox.information(self, "Updated", f"Parameter '{key}' updated.")
+
 
     def on_restore_default(self):
         """Restore parameter's default value."""
@@ -317,6 +302,7 @@ class AllParamsTab(QWidget):
         # Update row in table
         self.update_table_row(key)
 
+
     def update_table_row(self, key):
         """Update the 'value' column and row color for the given key."""
         if key not in self.filtered_keys:
@@ -333,44 +319,9 @@ class AllParamsTab(QWidget):
 
         self.apply_color_if_changed(key, row_index)
 
-    # ----------------------------------------------------------------
-    # Type Handling
-    # ----------------------------------------------------------------
-    def validate_value(self, val_str, ptype):
-        """Check whether val_str can be interpreted as ptype (int, float, bool)."""
-        if ptype == "int":
-            try:
-                f = float(val_str)
-                if not f.is_integer():
-                    return False
-            except ValueError:
-                return False
-        elif ptype == "float":
-            try:
-                float(val_str)
-            except ValueError:
-                return False
-        elif ptype == "bool":
-            if val_str.lower() not in ("true", "false"):
-                return False
-        # fallback: no strict check
-        return True
 
-    def parse_value(self, val_str, ptype):
-        """Convert val_str to the correct Python type."""
-        if ptype == "int":
-            return int(float(val_str))
-        elif ptype == "float":
-            return float(val_str)
-        elif ptype == "bool":
-            return (val_str.lower() == "true")
-        return val_str
-
-# ---------------------------------------------------------------
-# Standalone test harness
-# ---------------------------------------------------------------
 if __name__ == "__main__":
-    # Example usage: suppose we have an existing shared_data dict
+
     example_shared_data = {
         'config': {
             "MY_INT_PARAM": {

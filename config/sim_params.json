@@ -1399,7 +1399,7 @@
     },
     "SENS_MAG_FIELD_E": {
         "description": "Local magnetic field in the East direction in Gauss.",
-        "value": 0.01749,
+        "value": -0.033,
         "default": -0.03313,
         "options": [],
         "type": "float",
@@ -1407,7 +1407,7 @@
     },
     "SENS_MAG_FIELD_N": {
         "description": "Local magnetic field in the North direction in Gauss.",
-        "value": 0.19411,
+        "value": 0.20251,
         "default": 0.20188,
         "options": [],
         "type": "float",
@@ -1415,7 +1415,7 @@
     },
     "SENS_MAG_FIELD_U": {
         "description": "Local magnetic field in the up direction in Gauss.",
-        "value": -0.45718,
+        "value": -0.47347,
         "default": -0.47534,
         "options": [],
         "type": "float",
