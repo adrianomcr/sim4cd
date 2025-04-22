@@ -19,6 +19,7 @@ from tab_home.home_tab import HomeTab
 
 from tab_all_params.all_params_tab import AllParamsTab
 from tab_geolocation.geolocation_tab import GeolocationTab
+from tab_vehicle.vehicle_tab import VehicleTab
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -48,12 +49,14 @@ class MainWindow(QMainWindow):
         # Create each tab's widget
         self.tab_home = HomeTab(shared_data=self.shared_data)
         self.tab_geolocation = GeolocationTab(shared_data=self.shared_data)
+        self.tab_vehicle = VehicleTab(shared_data=self.shared_data)
         self.tab_all_params = AllParamsTab(shared_data=self.shared_data)
         
         
         # Add them to the QTabWidget
         self.tabs.addTab(self.tab_home, "Simulate")
         self.tabs.addTab(self.tab_geolocation, "Geolocation")
+        self.tabs.addTab(self.tab_vehicle, "Vehicle")
         self.tabs.addTab(self.tab_all_params, "All parameters list")
 
         # # --- Second (top-level) tab with nested tabs ---

@@ -69,31 +69,13 @@ class GeolocationTab(QWidget):
         # VTK setup in a separate function
         self.init_vtk_scene()
 
-        # if self.shared_data['config']:
-        #     LLA = [self.shared_data['config']['SENS_LAT_ORIGIN']['value'],
-        #            self.shared_data['config']['SENS_LON_ORIGIN']['value'],
-        #            self.shared_data['config']['SENS_ALT_ORIGIN']['value']]
-        #     # Optional defaults for line edits:
-        #     self.line_edit_latitude.setText(str(LLA[0]))
-        #     self.line_edit_longitude.setText(str(LLA[1]))
-        #     self.line_edit_altitude.setText(str(LLA[2]))
-
-        #     MAG = [self.shared_data['config']['SENS_MAG_FIELD_E']['value'],
-        #            self.shared_data['config']['SENS_MAG_FIELD_N']['value'],
-        #            self.shared_data['config']['SENS_MAG_FIELD_U']['value']]
-        #     self.line_edit_mag_east.setText(str(MAG[0]))
-        #     self.line_edit_mag_north.setText(str(MAG[1]))
-        #     self.line_edit_mag_up.setText(str(MAG[2]))
-
-        #     # Update visualization
-        #     self.socket.send_string(json.dumps({'LLA':LLA, 'MAG':MAG}))
-
         # ----------------------------------------------------------------------
         # Connect signals
         # ----------------------------------------------------------------------
         self.push_button_set_values.clicked.connect(self.set_values)
         self.push_button_compute.clicked.connect(self.compute_local_field)
         self.push_button_apply.clicked.connect(self.apply_computed_field)
+
 
     def on_tab_selected(self):
         if self.shared_data['config']:
@@ -114,6 +96,7 @@ class GeolocationTab(QWidget):
 
             # Update visualization
             self.socket.send_string(json.dumps({'LLA':LLA, 'MAG':MAG}))
+
 
     def init_vtk_scene(self):
         """
@@ -165,6 +148,7 @@ class GeolocationTab(QWidget):
     
         return True, LLA, mag
 
+
     def set_values(self):
 
         valid, LLA, mag = self.get_values_from_widget()
@@ -210,7 +194,6 @@ class GeolocationTab(QWidget):
                 revision='2020',
                 sub_revision='2'
             )
-            print("A")
             # Get the geolocation where the field will be computed
             valid, LLA, _ = self.get_values_from_widget()
             if (not valid):
@@ -223,7 +206,6 @@ class GeolocationTab(QWidget):
                 altitude=LLA[2]/1000.0,             # altitude in km
                 date=datetime.now().strftime("%Y-%m-%d")    # date
             )
-            print("B")
             # Store the computed magnetic field in the ENU frame in Gauss
             self.estimated_mag_field = [
                 round(result['field-value']['east-intensity']['value']*1e-5,8),
@@ -233,13 +215,12 @@ class GeolocationTab(QWidget):
             # Update the label that displays the computed field
             result_str = ("[lat,lon,alt] = [%.3f°, %.3f°, %.0fm]\n\n  Field East: %.5f [Gauss]\nField North: %.5f [Gauss]\n    Field Up: %.5f [Gauss]" % tuple(LLA+self.estimated_mag_field))
             self.label_computed_field.setText(result_str)
-            print("D")
         except:
             # Use the label to display that there was an error in the magnetic field computation
             # self.estimated_mag_label.config(text="Error in the computation of magnetic field\n\n\n\n")
             # self.root.update()
-            print("E")
             return
+
 
     def apply_computed_field(self):
         print("Apply computed field clicked.")
