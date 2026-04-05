@@ -10,21 +10,28 @@ import sys
 import webbrowser
 import json
 import os
+import signal
 
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTabWidget, QWidget, QAction, QMessageBox, QFileDialog, QVBoxLayout, QLabel
-from PyQt5.QtGui import QKeySequence
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTabWidget, QWidget, QAction, QMessageBox, QFileDialog, QVBoxLayout, QLabel, QSplashScreen
+from PyQt5.QtGui import QKeySequence, QIcon, QPixmap
+from PyQt5.QtCore import Qt, QTimer
+
+
 
 from tab_home.home_tab import HomeTab
 
-from tab_all_params.all_params_tab import AllParamsTab
 from tab_geolocation.geolocation_tab import GeolocationTab
 from tab_vehicle.vehicle_tab import VehicleTab
+from tab_actuators.actuators_tab import ActuatorsTab
+from tab_all_params.all_params_tab import AllParamsTab
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Custom Copter Simulator")
+        self.setWindowIcon(QIcon("resources/icon.png"))  # Sets the window's icon
+
+
 
         # Shared dictionary for all tabs
         self.shared_data = {
@@ -50,57 +57,58 @@ class MainWindow(QMainWindow):
         self.tab_home = HomeTab(shared_data=self.shared_data)
         self.tab_geolocation = GeolocationTab(shared_data=self.shared_data)
         self.tab_vehicle = VehicleTab(shared_data=self.shared_data)
+        self.tab_actuators = ActuatorsTab(shared_data=self.shared_data)
         self.tab_all_params = AllParamsTab(shared_data=self.shared_data)
         
         
         # Add them to the QTabWidget
         self.tabs.addTab(self.tab_home, "Simulate")
-        self.tabs.addTab(self.tab_geolocation, "Geolocation")
-        self.tabs.addTab(self.tab_vehicle, "Vehicle")
-        self.tabs.addTab(self.tab_all_params, "All parameters list")
-
-        # # --- Second (top-level) tab with nested tabs ---
-        # config_tab = QWidget()
-        # config_layout = QVBoxLayout()
-        
-        # # Create a nested tab widget inside the config tab
-        # bkp_tabs = QTabWidget()
-        
-        # self.tab_config = ConfigTab(shared_data=self.shared_data)
-        # self.tab_interaction = InteractionTab(shared_data=self.shared_data)
-        
-        # # Add the sub-tabs to the nested tab widget
-        # bkp_tabs.addTab(self.tab_config, "Configuration")
-        # bkp_tabs.addTab(self.tab_interaction, "Interaction")
-
-        # # Place the nested tabs inside the config tab
-        # config_layout.addWidget(bkp_tabs)
-        # config_tab.setLayout(config_layout)
-
-        # # Add the two main tabs
-        # self.tabs.addTab(config_tab, "BKP tabs")
-
-        # self.showFullScreen()
+        # self.tabs.addTab(self.tab_geolocation, "Geolocation")
+        # self.tabs.addTab(self.tab_vehicle, "Vehicle")
+        # self.tabs.addTab(self.tab_actuators, "Actuators")
+        # self.tabs.addTab(self.tab_all_params, "All parameters list")
 
 
+        self.sim_config_tab = QWidget()
+        config_layout = QVBoxLayout()
+        self.sim_config_tabs = QTabWidget()
+        # self.sim_config_tabs.setTabPosition(QTabWidget.West)
+        self.sim_config_tabs.addTab(self.tab_geolocation, "Geolocation")
+        self.sim_config_tabs.addTab(self.tab_vehicle, "Vehicle")
+        self.sim_config_tabs.addTab(self.tab_actuators, "Actuators")
+        self.sim_config_tabs.addTab(self.tab_all_params, "All parameters list")
+        config_layout.addWidget(self.sim_config_tabs)
+        self.sim_config_tab.setLayout(config_layout)
+        self.tabs.addTab(self.sim_config_tab, "Simulation config")
+
+        # # self.showFullScreen()
 
         # Connect tab selection signal
         self.tabs.currentChanged.connect(self.on_tab_changed)
+        self.sim_config_tabs.currentChanged.connect(self.on_tab_changed)
 
         # Trigger initial selection logic for the first tab
         if hasattr(self.tab_home, 'on_tab_selected'):
             self.tab_home.on_tab_selected()
 
 
+
+
     def on_tab_changed(self, index):
+
         # Get the current widget (selected tab)
-        current_widget = self.tabs.widget(index)
+        tabs_id = self.tabs.currentIndex() 
+        if tabs_id == 0:
+            current_widget = self.tabs.currentWidget()
+        elif tabs_id == 1:
+            current_widget = self.sim_config_tabs.currentWidget()
 
         # Check if the widget has the on_tab_selected method and call it
         if hasattr(current_widget, 'on_tab_selected'):
             current_widget.on_tab_selected()
         else:
-            print("Not available")
+            print("on_tab_selected method is not available")
+
 
 
     def keyPressEvent(self, event):
@@ -231,11 +239,37 @@ class MainWindow(QMainWindow):
                 QMessageBox.critical(self, "Error", f"Failed to save JSON file:\n{str(e)}")
 
 
+    def closeEvent(self, event):
+        
+        confirm_close = self.tab_home.close_when_running_action()
+        
+        if(confirm_close):
+            event.accept()
+        else:
+            event.ignore()
 
 def main():
+    
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
+
     app = QApplication(sys.argv)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    icon = QIcon(os.path.join(script_dir, "resources/icon.png"))
+    app.setWindowIcon(icon)
+
+
+    # Create and show splash screen
+    splash_pix = QPixmap(os.path.join(script_dir, "resources/splash_image.png")).scaled(400, 400, Qt.KeepAspectRatio, Qt.SmoothTransformation)  # Replace with your image path
+    print(os.path.join(script_dir, "resources/splash_image.png"))
+    splash = QSplashScreen(splash_pix, Qt.WindowStaysOnTopHint)
+    splash.show()
+    splash.showMessage("Loading...", Qt.AlignBottom | Qt.AlignCenter, Qt.white)
+
     window = MainWindow()
-    window.show()
+    window.setWindowIcon(icon)
+    # window.show()
+    QTimer.singleShot(1000, lambda: (splash.close(), window.showMaximized()))
+    # QTimer.singleShot(1000, lambda: (splash.close(), window.showMaximized()))
     sys.exit(app.exec_())
 
 if __name__ == "__main__":
