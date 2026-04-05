@@ -24,8 +24,8 @@ C_bar = (T0*R0)/(g*M)
 # # Check Earth magnetic field at: http://www.geomag.bgs.ac.uk/data_service/models_compass/wmm_calc.html
 
 # Local environmental values defined for NEA parking
-lat0 = 40.448985 # initial latitude (degrees)
-lon0 = -79.898025 # initial longitude (degrees)
+lat0 = 40.44163 # initial latitude (degrees)
+lon0 = -80.01095 # initial longitude (degrees)
 h0 = 372.0 # initial altitude (meters above average sea level)
 earth_mag_field = [-0.02559, 0.16928, -0.39550] # Local Earth magnetic field (East, North, UP) in Gauss
 # Check Earth magnetic field at: http://www.geomag.bgs.ac.uk/data_service/models_compass/wmm_calc.html

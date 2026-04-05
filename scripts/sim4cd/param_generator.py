@@ -537,22 +537,22 @@ data[f"ACT7_SPIN"] = {
 #Sensors
 data["SENS_LAT_ORIGIN"] = {
     "description":   "Latitude coordinate of the origin of the local simulated frame in degrees.",
-    "value":         40.448985,
-    "default":       40.448985,
+    "value":         40.44163,
+    "default":       40.44163,
     "options":       [],
     "type":          "float",
     "unit":          "[degrees]"}
 data["SENS_LON_ORIGIN"] = {
     "description":   "Longitude coordinate of the origin of the local simulated frame in degrees.",
-    "value":         -79.898025,
-    "default":       -79.898025,
+    "value":         -80.01095,
+    "default":       -80.01095,
     "options":       [],
     "type":          "float",
     "unit":          "[degrees]"}
 data["SENS_ALT_ORIGIN"] = {
     "description":   "Altitude above average sea level, in meters, of the origin of the local simulated frame.",
-    "value":         372.0,
-    "default":       372.0,
+    "value":         315.0,
+    "default":       315.0,
     "options":       [],
     "type":          "float",
     "unit":          "[m]"}
