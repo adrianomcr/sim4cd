@@ -1248,7 +1248,7 @@
     "SENS_ALT_ORIGIN": {
         "description": "Altitude above average sea level, in meters, of the origin of the local simulated frame.",
         "value": 315.0,
-        "default": 372.0,
+        "default": 315.0,
         "options": [],
         "type": "float",
         "unit": "[m]"
@@ -1360,7 +1360,7 @@
     "SENS_LAT_ORIGIN": {
         "description": "Latitude coordinate of the origin of the local simulated frame in degrees.",
         "value": 40.44163,
-        "default": 40.448985,
+        "default": 40.44163,
         "options": [],
         "type": "float",
         "unit": "[degrees]"
@@ -1368,7 +1368,7 @@
     "SENS_LON_ORIGIN": {
         "description": "Longitude coordinate of the origin of the local simulated frame in degrees.",
         "value": -80.01095,
-        "default": -79.898025,
+        "default": -80.01095,
         "options": [],
         "type": "float",
         "unit": "[degrees]"
