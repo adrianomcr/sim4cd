@@ -1,0 +1,12 @@
+# Python dependencies for the Qt GUI (scripts/qt_gui/qt_sim4cd.py)
+# Install inside a virtualenv on Ubuntu 24.04 (PEP 668).
+
+numpy
+PyQt5
+vtk
+pyzmq
+psutil
+pyqtgraph
+matplotlib
+ttkthemes
+magnetic_field_calculator
