@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout
 from PyQt5.QtCore import QTimer
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 import numpy as np
-from math import asin, atan2, cos, sin, pi
+from math import asin, atan2, cos, sin, pi, sqrt
 import zmq
 import json
 import os
@@ -71,10 +71,16 @@ class VTKMainSceneWidget(QWidget):
         # Create a ZeroMQ context
         self.context = zmq.Context()
         # Create a SUB socket
-        self.socket = self.context.socket(zmq.SUB)
-        self.socket.connect("tcp://localhost:5545")  # Connect to the publisher
-        self.socket.setsockopt_string(zmq.SUBSCRIBE, '')  # Subscribe to all messages
-        self.socket.setsockopt(zmq.RCVTIMEO, 50)  # Timeout in milliseconds
+        self.socket_camera = self.context.socket(zmq.SUB)
+        self.socket_camera.connect("tcp://localhost:5545")  # Connect to the publisher
+        self.socket_camera.setsockopt_string(zmq.SUBSCRIBE, '')  # Subscribe to all messages
+        self.socket_camera.setsockopt(zmq.RCVTIMEO, 50)  # Timeout in milliseconds
+        # Create another SUB socket
+        self.socket_vehicle = self.context.socket(zmq.SUB)
+        self.socket_vehicle.connect("tcp://localhost:5585")  # Connect to the publisher
+        self.socket_vehicle.setsockopt_string(zmq.SUBSCRIBE, '')  # Subscribe to all messages
+        self.socket_vehicle.setsockopt(zmq.RCVTIMEO, 50)  # Timeout in milliseconds
+
 
 
         # Load an equirectangular texture for the skybox
@@ -103,23 +109,51 @@ class VTKMainSceneWidget(QWidget):
         self.set_camera_pose([-5,0,2], [0,0,0], [0,0,1])
 
         # Set up a timer to update the data periodically
-        self.interactor.AddObserver('TimerEvent', self.timer_callback)
+
         self.timer_id = self.interactor.CreateRepeatingTimer(10)  # Update every 10 ms
+        self.interactor.AddObserver('TimerEvent', self.timer_callback)
 
         self.interactor.Start()
 
 
-    def timer_callback(self, obj, event):
+    def timer_callback(self, caller, event):
         try:
-            message = self.socket.recv_string(flags=zmq.NOBLOCK)
+            message = self.socket_camera.recv_string(flags=zmq.NOBLOCK)
             data_dict = json.loads(message)
+            self.reset_group_pose(pose=data_dict['pose'])
+            self.focal_point = [0.9*self.focal_point[k] + 0.1*data_dict['pose'][k] for k in range(3)]
+            self.set_camera_pose([-5,0,2], self.focal_point, [0,0,1])
         except zmq.Again as e:
             # No message received
-            return
+            pass
 
-        self.reset_group_pose(pose=data_dict['pose'])
-        self.focal_point = [0.9*self.focal_point[k] + 0.1*data_dict['pose'][k] for k in range(3)]
-        self.set_camera_pose([-5,0,2], self.focal_point, [0,0,1])
+        try:
+            message = self.socket_vehicle.recv_string(flags=zmq.NOBLOCK)
+            data_dict = json.loads(message)
+            self.add_shapes(data_dict)
+        except zmq.Again as e:
+            # No message received
+            pass
+
+
+    def clear_assembly(self, assembly: vtk.vtkAssembly):
+        """
+        Remove every child (vtkProp3D) from the given assembly.
+        """
+        # Collect the current parts first – you cannot modify a collection
+        # while you traverse it.
+        parts = []
+        collection = assembly.GetParts()           # vtkPropCollection
+        collection.InitTraversal()
+        for _ in range(collection.GetNumberOfItems()):
+            parts.append(collection.GetNextProp())
+
+        # Now remove them
+        for part in parts:
+            assembly.RemovePart(part)
+
+        # Mark modified so VTK knows to redraw
+        assembly.Modified()
 
         
     def add_shapes(self, config):
@@ -129,6 +163,11 @@ class VTKMainSceneWidget(QWidget):
 
         if (config is None):
             return
+        
+        # Clear previous geometry  ---------------------------------
+        self.clear_assembly(self.drone_assembly)
+        self.clear_assembly(self.shadow_assembly)
+        
 
         # Build the box
         box_size = [config['VIZ_SIZE_X']['value'], config['VIZ_SIZE_Y']['value'], config['VIZ_SIZE_Z']['value']]
@@ -195,6 +234,7 @@ class VTKMainSceneWidget(QWidget):
             c_arm = (c + b) / 2.0
             d_arm = c - b
             h_arm = np.linalg.norm(d_arm)
+            h_arm_shadow = sqrt(d_arm[0]**2+d_arm[1]**2)
             d_arm = d_arm / h_arm
 
             arm_actor = self.create_cylinder_actor(
@@ -208,9 +248,9 @@ class VTKMainSceneWidget(QWidget):
 
             arm_actor_shadow = self.create_cylinder_actor(
                 center=[c_arm[0],c_arm[1],-0.03],
-                direction=d_arm,
+                direction=[d_arm[0],d_arm[1],0.0],
                 radius=(box_size[0] + box_size[1]) / 30,
-                height=h_arm,
+                height=h_arm_shadow,
                 color=[0, 0, 0],
                 alpha = 0.3
             )
@@ -302,7 +342,10 @@ class VTKMainSceneWidget(QWidget):
         px, py, pz, rx, ry, rz = pose
         self.drone_assembly.SetPosition(px, py, pz)
         self.drone_assembly.SetOrientation(rx, ry, rz)
-        self.shadow_assembly.SetPosition(px+0.1*pz, py+0.8*pz, -0.03)
+
+        dir = -np.array([0.6560265121249956, -0.1834744908992891, 0.7320972111532454]) # from light to object
+        gamma = -pz/dir[2]
+        self.shadow_assembly.SetPosition(px+gamma*dir[0], py+gamma*dir[1], pz+gamma*dir[2])
         self.shadow_assembly.SetOrientation(rx*0, ry*0, rz)
         self.vtk_widget.GetRenderWindow().Render()
 
@@ -331,9 +374,6 @@ class VTKMainSceneWidget(QWidget):
         self.camera.SetPosition(*position)
         self.camera.SetFocalPoint(*focal_point)
         self.camera.SetViewUp(*view_up)
-
-
-
 
 
     # -------------------------------------------------------------------------

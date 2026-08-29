@@ -10,6 +10,8 @@ import sys
 import os
 import subprocess
 import psutil
+import zmq
+import json
 
 from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QMessageBox
@@ -38,6 +40,13 @@ class HomeTab(QWidget):
         # Instead of directly doing VTK setup here, we just embed our custom widget
         self.init_vtk_scene()
 
+        # Create a ZeroMQ context
+        self.context = zmq.Context()
+
+        # Create a PUB socket
+        self.socket = self.context.socket(zmq.PUB)
+        self.socket.bind("tcp://*:5585")
+
         self.process = None
 
         # Connect signals
@@ -45,6 +54,32 @@ class HomeTab(QWidget):
         self.btn_stop.clicked.connect(self.on_stop_clicked)
         self.btn_collapse.clicked.connect(self.on_colapse_clicked)
         self.colapsed = False
+
+    
+    def close_when_running_action(self):
+
+        if self.process is None:
+            return True
+
+        reply = QMessageBox.question(
+            self,
+            "Confirm Exit",
+            "Simulation is currently running.\nDo you want to terminate it and exit?",
+            QMessageBox.Yes | QMessageBox.Cancel,
+            QMessageBox.Cancel
+        )
+
+        if reply == QMessageBox.Yes:
+            # Terminate the simulator subprocess and all its children
+            parent = psutil.Process(self.process.pid)
+            for child in parent.children(recursive=True):
+                child.terminate()
+            parent.terminate()
+            self.process = None
+            return True
+        else:
+            return False
+
 
     def init_vtk_scene(self):
         
@@ -127,6 +162,10 @@ class HomeTab(QWidget):
         self.status_label.setText("Simulator stopped")
         self.status_label.setStyleSheet("color: red; font-weight: bold;")
 
+
+    def on_tab_selected(self):
+        # print("TODO: Update vtk drone view")
+        self.socket.send_string(json.dumps(self.shared_data['config']))
 
 
 # Standalone runner
