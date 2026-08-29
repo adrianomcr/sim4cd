@@ -1,6 +1,7 @@
-# Python dependencies for the Qt GUI (scripts/qt_gui/qt_sim4cd.py)
-# Install inside a virtualenv on Ubuntu 24.04 (PEP 668).
+# Python dependencies for the Qt GUI and the sim4cd process
+# started by "Start Simulator". Install inside a virtualenv.
 
+# GUI
 numpy
 PyQt5
 vtk
@@ -10,3 +11,6 @@ pyqtgraph
 matplotlib
 ttkthemes
 magnetic_field_calculator
+
+# Simulator (scripts/sim4cd/sim4cd_main.py)
+pymavlink
