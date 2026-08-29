@@ -4,12 +4,8 @@
 # Useful operations related to the GUI
 
 import json
-from ttkthemes import ThemedTk
 import os
 from fnmatch import fnmatch
-import matplotlib.pyplot as plt
-from mpl_toolkits import mplot3d
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
 import subprocess
 import multiprocessing
