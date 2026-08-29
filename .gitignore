@@ -1,3 +1,19 @@
 scripts/qt_gui/resources/bkp
 bkp
 sim4cd_project.egg-info
+
+# Python / packaging
+__pycache__/
+*.py[cod]
+build/
+dist/
+*.egg
+*.egg-info/
+
+# Local backups
+*.zip
+*.BKP
+*.bak
+
+# Unity Linux player export (large binaries)
+unity/
