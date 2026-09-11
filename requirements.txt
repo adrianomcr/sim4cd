@@ -2,15 +2,15 @@
 # started by "Start Simulator". Install inside a virtualenv.
 
 # GUI
-numpy
-PyQt5
-vtk
-pyzmq
-psutil
-pyqtgraph
-matplotlib
-ttkthemes
-magnetic_field_calculator
+numpy==2.2.6
+PyQt5==5.15.11
+vtk==9.4.1
+pyzmq==27.2.0
+psutil==7.2.2
+pyqtgraph==0.14.0
+matplotlib==3.10.9
+ttkthemes==3.3.0
+magnetic_field_calculator==1.0.2
 
 # Simulator (scripts/sim4cd/sim4cd_main.py)
-pymavlink
+pymavlink==2.4.49
