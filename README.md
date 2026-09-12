@@ -171,33 +171,27 @@ sim4cd-gui
 
 PX4 SITL is expected at `~/catkin_ws/src/PX4` (see `scripts/sim4cd/start_sim.sh`). QGroundControl is used as the GCS.
 
+### Screenshots
+
+Simulate tab: start and stop the simulator and follow the vehicle in the 3D scene  
+![Qt GUI Simulate tab](.media/qt_home.png)
+
+Simulation config: geographic location of the simulation origin and local magnetic field  
+![Qt GUI Geolocation tab](.media/qt_config_geolocation.png)
+
+Simulation config: vehicle dynamics and geometry, with the actuator layout rendered as it is edited  
+![Qt GUI Vehicle tab](.media/qt_config_vehicle.png)
+
+Simulation config: actuator dynamics and curve maps, with the polynomial estimator  
+![Qt GUI Actuators tab](.media/qt_config_actuators.png)
+
+Simulation config: full list of simulator parameters  
+![Qt GUI All parameters tab](.media/qt_config_full_parameter_set.png)
+
+QGroundControl connected to the running simulation, at the configured geolocation  
+![QGroundControl](.media/qgc.png)
+
 ## Legacy Tk GUI
 
-The older Tk GUI is still in `scripts/gui/sim_gui.py`.
-
-```bash
-sudo apt-get install wmctrl
-pip3 install ttkthemes magnetic_field_calculator
-```
-
-```bash
-rosrun sim4cd sim_gui.py
-```
-
-GUI Home tab  
-![GUI Home tab](.media/home.png)
-
-GUI Configuration: geographic location and local magnetic field  
-![GUI Config Geolocation tab](.media/config_geolocation.png)
-
-GUI Configuration: sensors properties  
-![GUI Config Sensors tab](.media/config_sensors.png)
-
-GUI Configuration: actuators properties  
-![GUI Config Actuators tab](.media/config_actuators.png)
-
-GUI Configuration: battery and efficiency properties  
-![GUI Config Power tab](.media/config_power.png)
-
-GUI Configuration: full list of simulator parameters  
-![GUI Config Full list of parameters tab](.media/config_full_parameter_set.png)
+The original Tk GUI is still available in `scripts/gui/`. It is superseded by the Qt GUI, but it works and
+uses the same JSON parameter files. See [scripts/gui/README.md](scripts/gui/README.md).
