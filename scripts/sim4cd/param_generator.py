@@ -31,15 +31,15 @@ PARAM_FILE = os.path.expanduser('~')+"/simulation_ws/src/sim4cd/config/sim_param
 data = {}
 
 # Simulation parameters
-data["SIM_ROS_EN"] ={
-    "description":   "Flag to enable the publishing of sim data in ROS topics.",
+data["SIM_VIZ_EN"] ={
+    "description":   "Flag to enable the publishing of sim data for vizualization in the GUI.",
     "value":         True,
     "default":       True,
     "options":       [True, False],
     "type":          "bool",
     "unit":          "[ ]"}
-data["SIM_ROS_HZ"] ={
-    "description":   "Frequency of publication of sim data in ROS topics.",
+data["SIM_VIZ_HZ"] ={
+    "description":   "Frequency of publication of sim data for vizualization in the GUI.",
     "value":         20,
     "default":       20,
     "options":       [],
@@ -537,22 +537,22 @@ data[f"ACT7_SPIN"] = {
 #Sensors
 data["SENS_LAT_ORIGIN"] = {
     "description":   "Latitude coordinate of the origin of the local simulated frame in degrees.",
-    "value":         40.448985,
-    "default":       40.448985,
+    "value":         40.44163,
+    "default":       40.44163,
     "options":       [],
     "type":          "float",
     "unit":          "[degrees]"}
 data["SENS_LON_ORIGIN"] = {
     "description":   "Longitude coordinate of the origin of the local simulated frame in degrees.",
-    "value":         -79.898025,
-    "default":       -79.898025,
+    "value":         -80.01095,
+    "default":       -80.01095,
     "options":       [],
     "type":          "float",
     "unit":          "[degrees]"}
 data["SENS_ALT_ORIGIN"] = {
     "description":   "Altitude above average sea level, in meters, of the origin of the local simulated frame.",
-    "value":         372.0,
-    "default":       372.0,
+    "value":         315.0,
+    "default":       315.0,
     "options":       [],
     "type":          "float",
     "unit":          "[m]"}

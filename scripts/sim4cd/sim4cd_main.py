@@ -4,19 +4,20 @@
 # Copter simulation integrated with PX4
 
 import time
-import threading
 import signal
 import numpy as np
 from math import pi, sin, cos
 import os
 import sys
+import zmq
+import json
 
 import silsim_comm as COM
-import ros_viz as VIZ
 import dynamics as DYN
 import parameter_server as PRM
 import timer as TIM
 # import joystick as JOY
+import math_utils as MU
 
 
 class sim4cd(object):
@@ -44,9 +45,6 @@ class sim4cd(object):
         # Register the custom_handler function to be called when Ctrl+C is pressed
         signal.signal(signal.SIGINT, self.custom_handler)
 
-        # Create an object responsible by providing ROS  wih the simulated information
-        self.ros_aux = VIZ.drone_show()
-
         # Create a object that is able to connect to px4_sitl
         self.PX4 = COM.px4_connection("tcpin", "localhost", "4560")
         # Connect to px4_sitl
@@ -62,22 +60,24 @@ class sim4cd(object):
         self.timer_gps = TIM.timer(frequency=self.gps_hz)
         self.timer_gt = TIM.timer(frequency=self.gt_hz, enabled=self.gt_en)
         # self.timer_rc = TIM.timer(frequency=self.rc_hz)
-        self.timer_ros_viz = TIM.timer(frequency=self.ros_hz, enabled=self.ros_en)
+        self.timer_visualization = TIM.timer(frequency=self.viz_hz, enabled=self.viz_en)
         self.timer_print = TIM.timer(frequency=self.print_hz, enabled=self.print_en)
 
         # Variable that stores the actuator PWMs
         self.actuator_commands = [0]*8
 
+        # Create a ZeroMQ context
+        self.context = zmq.Context()
+        # Create a PUB socket
+        self.socket = self.context.socket(zmq.PUB)
+        self.socket.bind("tcp://*:5545")  # Bind to port 5555
+
 
     def custom_handler(self, signal, frame):
         """
-        ROS cleanup  function
+        Cleanup  function
         """
-
         print("\33[92mCtrl+C pressed. Running cleanup function\33[0m")
-        # Terminate ROS node
-        del self.ros_aux
-
         # Terminate sim4cd
         print("\33[92mExiting\33[0m") 
         exit()
@@ -136,10 +136,12 @@ class sim4cd(object):
             # if (self.timer_rc.tick()):
             #     self.PX4.send_rc_commands(channels)
             
-            # Update ROS visualization
-            if (self.timer_ros_viz.tick()):
+            # Update visualization
+            if (self.timer_visualization.tick()):
                 p, v, q, w = self.quad.get_states()
-                self.ros_aux.update_ros_info(p,v,q,w,self.p0,self.q0)
+                # Sending state to vtk scene
+                rpy = MU.quat2rpy(q)
+                self.socket.send_string(json.dumps({'pose':[p[0],p[1],p[2],(180/pi)*rpy[0],(180/pi)*rpy[1],(180/pi)*rpy[2]]}))
 
             # Print info
             if (self.timer_print.tick()):
@@ -176,8 +178,8 @@ class sim4cd(object):
         """
 
         # Load parameters
-        self.ros_en = params.get_parameter_value('SIM_ROS_EN')
-        self.ros_hz = params.get_parameter_value('SIM_ROS_HZ')
+        self.viz_en = params.get_parameter_value('SIM_VIZ_EN')
+        self.viz_hz = params.get_parameter_value('SIM_VIZ_HZ')
         self.sens_hz = params.get_parameter_value('SIM_SENS_HZ')
         self.gps_hz = params.get_parameter_value('SIM_GPS_HZ')
         self.gt_en = params.get_parameter_value('SIM_GT_EN')

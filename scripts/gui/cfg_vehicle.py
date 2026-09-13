@@ -357,6 +357,7 @@ class VehicleEditorGUI:
             direction = np.array([float(self.entry_dir_x.get()), float(self.entry_dir_y.get()), float(self.entry_dir_z.get())])
             direction = direction/np.linalg.norm(direction)
             direction = direction.tolist()
+            direction = [round(d,4) for d in direction]
             self.data[f"VEH_ACT{act_id}_DIR_X"]['value'] = direction[0]
             self.data[f"VEH_ACT{act_id}_DIR_Y"]['value'] = direction[1]
             self.data[f"VEH_ACT{act_id}_DIR_Z"]['value'] = direction[2]
@@ -368,7 +369,7 @@ class VehicleEditorGUI:
         # Update displayed data
         self.update_displayed_data()
 
-        # Sending tate to vtk
+        # Sending state to vtk
         data_json = json.dumps(self.data)
         self.socket.send_string(data_json)  # Send the JSON-encoded dictionary
 
