@@ -16,7 +16,13 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QTabWidget, QWidget, QAct
 from PyQt5.QtGui import QKeySequence, QIcon, QPixmap
 from PyQt5.QtCore import Qt, QTimer
 
-
+# The tabs import each other as top level modules ("tab_home.home_tab", "utils") and the simulator
+# as "sim4cd.*", so both this directory and "scripts/" have to be importable, no matter whether the
+# GUI was started as a script or through the sim4cd-gui entry point.
+for _path in (os.path.dirname(os.path.abspath(__file__)),
+              os.path.dirname(os.path.dirname(os.path.abspath(__file__)))):
+    if _path not in sys.path:
+        sys.path.insert(0, _path)
 
 from tab_home.home_tab import HomeTab
 
@@ -29,7 +35,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Custom Copter Simulator")
-        self.setWindowIcon(QIcon("resources/icon.png"))  # Sets the window's icon
+        self.setWindowIcon(QIcon(os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources/icon.png")))  # Sets the window's icon
 
 
 

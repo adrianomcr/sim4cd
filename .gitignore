@@ -17,3 +17,6 @@ dist/
 
 # Unity Linux player export (large binaries)
 unity/
+
+# Local Python virtual environment
+.venv/

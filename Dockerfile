@@ -1,5 +1,5 @@
-# Use the official ROS Noetic image based on Ubuntu 20.04
-FROM ros:noetic-ros-base-focal
+# This image provides Ubuntu with Python, the PX4 SITL build, and the Qt GUI.
+FROM ubuntu:24.04
 
 # Set environment variables for non-interactive installation
 ENV DEBIAN_FRONTEND=noninteractive
@@ -9,78 +9,94 @@ ENV DISPLAY=:0
 ENV XDG_RUNTIME_DIR=/tmp/runtime-root
 RUN mkdir -p /tmp/runtime-root && chmod 0700 /tmp/runtime-root
 
-# Update and install necessary tools and system libraries for pip packages
-RUN apt-get update && apt-get install -y \
+# Toolchain for the PX4 SITL build, plus the X11/OpenGL libraries PyQt5 and VTK load at runtime
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
     git \
+    rsync \
+    file \
+    zip \
+    unzip \
     build-essential \
     cmake \
-    python3-pip \
-    python3-catkin-tools \
-    ros-noetic-rviz \
-    ros-noetic-tf2-ros \
-    ros-noetic-rosbridge-suite \
-    ros-noetic-dynamic-reconfigure \
-    ros-noetic-mavros \
-    wmctrl \
-    libgl1-mesa-glx \
-    libglib2.0-0 \
-    libzmq3-dev \
-    libvtk7-dev \
-    python3-pil \
-    python3-pil.imagetk \
+    ninja-build \
+    ccache \
+    gawk \
+    genromfs \
+    libtool \
+    libxml2-dev \
+    libxslt1-dev \
+    zlib1g-dev \
+    python3 \
+    python3-dev \
+    python3-venv \
     python3-tk \
+    libgl1 \
+    libglx-mesa0 \
+    libgl1-mesa-dri \
+    libegl1 \
+    libglib2.0-0t64 \
+    libxkbcommon-x11-0 \
+    libxrender1 \
+    libxt6 \
+    libfontconfig1 \
+    libdbus-1-3 \
+    libxcb-xinerama0 \
+    libxcb-cursor0 \
+    libxcb-icccm4 \
+    libxcb-image0 \
+    libxcb-keysyms1 \
+    libxcb-randr0 \
+    libxcb-render-util0 \
+    libxcb-shape0 \
+    wmctrl \
     x11-apps \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
-RUN pip3 install \
-    ttkthemes \
-    magnetic_field_calculator \
-    pymavlink \
-    vtk \
-    zmq \
-    kconfiglib \
-    packaging \
-    jinja2 \
-    jsonschema \
-    toml \
-    psutil \
-    pyros-genmsg
-
-
-# pip install PyQt5 vtk
-# pip install pyqt5-tools
-# sudo apt install qttools5-dev-tools
+# Ubuntu 24.04 marks the system Python as externally managed (PEP 668), so everything Python
+# goes into a virtualenv that is first on PATH, including for the PX4 build's code generation.
+ENV VIRTUAL_ENV=/opt/venv
+RUN python3 -m venv ${VIRTUAL_ENV}
+ENV PATH=${VIRTUAL_ENV}/bin:${PATH}
 
 # Clone PX4
-WORKDIR /root/catkin_ws/src
-RUN git clone --depth 1 --branch v1.13.3 https://github.com/PX4/PX4-Autopilot.git PX4-Autopilot
-RUN git -C PX4-Autopilot submodule update --depth 1 --init --recursive
+ARG PX4_VERSION=v1.13.3
+WORKDIR /root/sim4cd_ws/src
+RUN git clone --depth 1 --branch ${PX4_VERSION} https://github.com/PX4/PX4-Autopilot.git PX4
 
-# Install geographiclib
-RUN /opt/ros/noetic/lib/mavros/install_geographiclib_datasets.sh
+# SITL does not build the NuttX platform, and a shallow clone of that submodule carries no tags,
+# which makes PX4's git version header generation fail. Leave it out.
+RUN git -C PX4 config submodule."platforms/nuttx/NuttX/nuttx".update none \
+    && git -C PX4 config submodule."platforms/nuttx/NuttX/apps".update none \
+    && git -C PX4 submodule update --depth 1 --init --recursive
 
-# Build PX4
-RUN ["/bin/bash", "-c", " \
-    cd PX4-Autopilot && \
-    make distclean && \
-    DONT_RUN=1 make px4_sitl none_iris"]
-    
-# Source the environment when starting a container
-RUN echo "source /root/catkin_ws/devel/setup.bash" >> ~/.bashrc
+WORKDIR /root/sim4cd_ws/src/PX4
+
+# v1.13.3 predates this toolchain on three points: pip 24+ rejects the "matplotlib>=3.0.*"
+# specifier, empy 4.x breaks the uORB code generation, and GCC 13 reports a false positive
+# -Warray-bounds in src/lib/matrix that -Werror turns into a build failure.
+RUN sed -i 's|matplotlib>=3.0\.\*|matplotlib>=3.0|' Tools/setup/requirements.txt \
+    && sed -i 's|^\(\s*\)-Werror$|\1-Wno-error|' cmake/px4_add_common_flags.cmake \
+    && pip install --no-cache-dir -r Tools/setup/requirements.txt \
+    && pip install --no-cache-dir 'empy==3.3.4'
+
+# Build SITL
+RUN DONT_RUN=1 make px4_sitl none_iris
+
+# Install the Python dependencies before the sources, so editing the repo does not redo this layer
+WORKDIR /root/sim4cd_ws/src/sim4cd
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the repo to the docker image
-COPY . /root/catkin_ws/src/sim4cd
+COPY . .
+RUN pip install --no-cache-dir -e .
 
-# Build the ROS workspace
-WORKDIR /root/catkin_ws/
-RUN /bin/bash -c "source /opt/ros/noetic/setup.bash && catkin build"
+# Where scripts/sim4cd/start_sim.sh looks for the PX4 binary
+ENV PX4_DIR=/root/sim4cd_ws/src/PX4
 
-# Set the entry point to start a bash session with ROS environment sourced
-CMD ["/bin/bash", "-c", "source /opt/ros/noetic/setup.bash && source ~/.bashrc && bash"]
-
-# Needed for running source
-SHELL ["/bin/bash", "-c"]
+# Start the Qt GUI
+CMD ["sim4cd-gui"]
 
 # Reset DEBIAN_FRONTEND (optional but good practice)
 ENV DEBIAN_FRONTEND=dialog

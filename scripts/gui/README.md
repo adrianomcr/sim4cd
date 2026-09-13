@@ -9,20 +9,26 @@ with one can be opened with the other.
 ## Dependencies
 
 ```bash
-sudo apt-get install wmctrl
-pip3 install ttkthemes magnetic_field_calculator
+sudo apt-get install wmctrl python3-tk
+pip install ttkthemes magnetic_field_calculator
 ```
+
+`ttkthemes` and `magnetic_field_calculator` are already in the repository's `requirements.txt`, so a
+virtualenv set up for the Qt GUI covers this one too.
 
 ## Run
 
+From `scripts/`:
+
 ```bash
-rosrun sim4cd sim_gui.py
+python3 -m gui.sim_gui
 ```
 
-The Docker image in the repository root packages this GUI, so the same command works inside the container.
+The Docker image in the repository root also carries this GUI, so the same command works inside the
+container (from `/root/sim4cd_ws/src/sim4cd/scripts`).
 
 Each configuration editor can also be opened on its own window, which is useful when editing a single group
-of parameters. From `scripts/`:
+of parameters. Again from `scripts/`:
 
 ```bash
 python3 -m gui.cfg_actuators
