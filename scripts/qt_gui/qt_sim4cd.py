@@ -30,6 +30,7 @@ from tab_geolocation.geolocation_tab import GeolocationTab
 from tab_vehicle.vehicle_tab import VehicleTab
 from tab_actuators.actuators_tab import ActuatorsTab
 from tab_all_params.all_params_tab import AllParamsTab
+import utils as UT
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -44,9 +45,13 @@ class MainWindow(QMainWindow):
             "simulator_status": "idle",
             "config_file_path": None,
             "config": None,
+            "config_dirty": False,
             "feature_a": False,
             "feature_b": False,
-            "last_interaction": ""
+            "last_interaction": "",
+            # Optional hook used by utils/tabs (via shared_data only) to refresh
+            # the title when the loaded file or unsaved-edit flag changes.
+            "on_config_state_changed": self.update_window_title,
         }
 
         self.add_menubar()
@@ -190,6 +195,14 @@ class MainWindow(QMainWindow):
         help_menu.addAction(source_action)
 
 
+    def update_window_title(self):
+        """Show the loaded filename, with '*' if parameters are unsaved."""
+        path = self.shared_data.get("config_file_path")
+        name = os.path.basename(path) if path else "untitled"
+        dirty = "*" if self.shared_data.get("config_dirty") else ""
+        self.setWindowTitle(f"Custom Copter Simulator - {name}{dirty}")
+
+
     def load_config(self, path):
         try:
             # Store the path and display it
@@ -198,6 +211,9 @@ class MainWindow(QMainWindow):
             # Load JSON data
             with open(path, "r") as json_file:
                 self.shared_data['config'] = json.load(json_file)
+
+            self.shared_data['config_dirty'] = False
+            self.update_window_title()
 
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to load JSON file:\n{str(e)}")
@@ -208,6 +224,9 @@ class MainWindow(QMainWindow):
         Function to show a file dialog to load a JSON file in PyQt5.
         """
 
+        if not UT.prompt_save_if_dirty(self, self.shared_data, context="open"):
+            return
+
         print("Open config")
         options = QFileDialog.Options()
         path, _ = QFileDialog.getOpenFileName(self, "Open JSON File", "", "JSON Files (*.json);;All Files (*)", options=options)
@@ -217,42 +236,24 @@ class MainWindow(QMainWindow):
 
 
     def save_config(self):
-        # If we already have a path, save to that file
-        current_path = self.shared_data.get("config_file_path")
-        if current_path:
-            try:
-                with open(current_path, "w") as json_file:
-                    json.dump(self.shared_data.get('config', {}), json_file, indent=4)
-                QMessageBox.information(self, "Success", f"Successfully saved to:\n{current_path}")
-            except Exception as e:
-                QMessageBox.critical(self, "Error", f"Failed to save JSON file:\n{str(e)}")
-        else:
-            self.saveas_config()
+        UT.save_shared_config(self, self.shared_data)
 
 
     def saveas_config(self):
-        # Prompt the user for a file path
-        options = QFileDialog.Options()
-        path, _ = QFileDialog.getSaveFileName(self, "Save JSON File", "", "JSON Files (*.json);;All Files (*)", options=options)
-
-        if path:
-            try:
-                with open(path, "w") as json_file:
-                    json.dump(self.shared_data.get('config', {}), json_file, indent=4)
-                self.shared_data['config_file_path'] = path
-                QMessageBox.information(self, "Success", f"Successfully saved to:\n{path}")
-            except Exception as e:
-                QMessageBox.critical(self, "Error", f"Failed to save JSON file:\n{str(e)}")
+        UT.save_shared_config(self, self.shared_data, force_dialog=True)
 
 
     def closeEvent(self, event):
-        
-        confirm_close = self.tab_home.close_when_running_action()
-        
-        if(confirm_close):
-            event.accept()
-        else:
+        if not UT.prompt_save_if_dirty(self, self.shared_data, context="close"):
             event.ignore()
+            return
+
+        confirm_close = self.tab_home.close_when_running_action()
+        if not confirm_close:
+            event.ignore()
+            return
+
+        event.accept()
 
 def main():
     
