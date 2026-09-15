@@ -65,6 +65,9 @@ class AllParamsTab(QWidget):
 
 
     def load_json_file(self):
+        if not UT.prompt_save_if_dirty(self, self.shared_data, context="open"):
+            return
+
         filepath, _ = QFileDialog.getOpenFileName(
             self, "Open JSON file", "", "JSON Files (*.json);;All Files (*)"
         )
@@ -80,6 +83,8 @@ class AllParamsTab(QWidget):
         # Update shared_data with the loaded config
         self.shared_data['config'] = data
         self.shared_data['config_file_path'] = filepath
+        self.shared_data['config_dirty'] = False
+        UT.notify_config_state_changed(self.shared_data)
 
         # Reset filter and refresh table
         self.filtered_keys = sorted(self.shared_data['config'].keys())
@@ -92,19 +97,7 @@ class AllParamsTab(QWidget):
             QMessageBox.warning(self, "No data", "No parameters to save.")
             return
 
-        filepath, _ = QFileDialog.getSaveFileName(
-            self, "Save JSON file", "", "JSON Files (*.json);;All Files (*)"
-        )
-        if not filepath:
-            return
-
-        try:
-            with open(filepath, "w") as f:
-                json.dump(self.shared_data['config'], f, indent=4)
-            self.shared_data['config_file_path'] = filepath
-            QMessageBox.information(self, "Success", "File saved successfully.")
-        except Exception as e:
-            QMessageBox.critical(self, "Error", f"Failed to save JSON:\n{str(e)}")
+        UT.save_shared_config(self, self.shared_data, force_dialog=True)
 
 
     def filter_params(self):
@@ -265,6 +258,7 @@ class AllParamsTab(QWidget):
         parsed_val = UT.parse_value(new_val_str, ptype)
         data["value"] = parsed_val
         cfg[key] = data  # update shared_data['config']
+        UT.mark_config_dirty(self.shared_data)
 
         # Update row in table
         self.update_table_row(key)
@@ -286,6 +280,7 @@ class AllParamsTab(QWidget):
 
         data["value"] = default_val
         cfg[key] = data  # store updated data back
+        UT.mark_config_dirty(self.shared_data)
 
         # Update left panel
         if options:

@@ -15,8 +15,5 @@ dist/
 *.BKP
 *.bak
 
-# Unity Linux player export (large binaries)
-unity/
-
 # Local Python virtual environment
 .venv/

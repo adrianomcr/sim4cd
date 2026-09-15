@@ -17,6 +17,7 @@ from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QMessageBox
 # Import the new VTK widget
 from tab_home.main_scene import VTKMainSceneWidget
+import utils as UT
 
 
 class HomeTab(QWidget):
@@ -108,32 +109,26 @@ class HomeTab(QWidget):
         script_path = os.path.dirname(__file__)+"/../../sim4cd"
         # Check the status of the process before start
         if self.process is None or self.process.poll() is not None:
-            # Create the string command to start the simulator
-            cmd = os.path.join(script_path,"start_sim.sh")
-            if(self.shared_data['config_file_path']):
-                cmd = cmd + " " + self.shared_data['config_file_path']
-                # print("self.shared_data['config_file_path']: ", self.shared_data['config_file_path'])
-            else:
+            if not self.shared_data.get('config'):
                 msg = QMessageBox()
                 msg.setWindowTitle("Error")
-                msg.setText('Missing simulator configuration file. Please load a config file.')
+                msg.setText('Missing simulator configuration. Please load a config file.')
                 msg.setStandardButtons(QMessageBox.Ok)
                 msg.exec_()
                 return
 
-            # # Define a log file in the temporary folder
-            # log_file_path = '/tmp/start_sim.log'
-            # # Start a subprocess to run the simulator
-            # with open(log_file_path, "a") as log_file:
-            #     # Create a subprocess, redirect stdout and stderr to the log file
-            #     self.process = subprocess.Popen(
-            #         cmd.split(),                # Command string splitted
-            #         stdout=log_file,            # Redirect stdout to the log file
-            #         stderr=subprocess.STDOUT,   # Redirect stderr to stdout (merged)
-            #         text=True,                  # Interpret output as text (Python 3.5+)
-            #     )
+            if not UT.prompt_save_if_dirty(self, self.shared_data, context="start"):
+                return
+
+            try:
+                runtime_path = UT.write_runtime_config(self.shared_data)
+            except Exception as e:
+                QMessageBox.critical(self, "Error", f"Failed to write runtime parameters:\n{str(e)}")
+                return
+
+            cmd = [os.path.join(script_path, "start_sim.sh"), runtime_path]
             self.process = subprocess.Popen(
-                    cmd.split(),                # Command string splitted
+                    cmd,
                     stderr=subprocess.STDOUT,   # Redirect stderr to stdout (merged)
                     text=True,                  # Interpret output as text (Python 3.5+)
                 )

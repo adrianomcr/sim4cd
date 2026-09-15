@@ -255,6 +255,8 @@ class ActuatorsTab(QWidget):
         for k in range(3):
             self.shared_data['config'][f'ACT{act_id}_{curve_name}_{k}']['value'] = coefs[k]
 
+        UT.mark_config_dirty(self.shared_data)
+
         # Update the displayed data with the values that were set
         self.update_widgets_data()
         self.update_coeff_widgets_data()
