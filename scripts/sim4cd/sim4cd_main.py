@@ -139,9 +139,10 @@ class sim4cd(object):
             # Update visualization
             if (self.timer_visualization.tick()):
                 p, v, q, w = self.quad.get_states()
-                # Sending state to vtk scene
+                # Sending state to the vtk scene and to the Unity bridge
                 rpy = MU.quat2rpy(q)
-                self.socket.send_string(json.dumps({'pose':[p[0],p[1],p[2],(180/pi)*rpy[0],(180/pi)*rpy[1],(180/pi)*rpy[2]]}))
+                self.socket.send_string(json.dumps({'pose':[p[0],p[1],p[2],(180/pi)*rpy[0],(180/pi)*rpy[1],(180/pi)*rpy[2]],
+                                                    'quat':[q[0],q[1],q[2],q[3]]}))
 
             # Print info
             if (self.timer_print.tick()):

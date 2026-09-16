@@ -164,6 +164,8 @@ class GeolocationTab(QWidget):
         self.shared_data['config']['SENS_MAG_FIELD_N']['value'] = mag[1]
         self.shared_data['config']['SENS_MAG_FIELD_U']['value'] = mag[2]
 
+        UT.mark_config_dirty(self.shared_data)
+
         # Update visualization
         self.socket.send_string(json.dumps({'LLA':LLA}))
 

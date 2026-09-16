@@ -207,6 +207,8 @@ class VehicleTab(QWidget):
         
         self.normalize_act_dir()
 
+        UT.mark_config_dirty(self.shared_data)
+
         # Update visualization
         self.socket.send_string(json.dumps(self.shared_data['config']))
 

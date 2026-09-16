@@ -53,7 +53,7 @@ The Qt GUI lives on the `add-python-qt-gui` branch.
 ```bash
 mkdir -p ~/sim4cd_ws/src
 cd ~/sim4cd_ws/src
-git clone -b add-python-qt-gui https://github.com/adrianomcr/sim4cd.git
+git clone -b main https://github.com/adrianomcr/sim4cd.git
 ```
 
 ### System packages
@@ -132,6 +132,23 @@ repo. If you cloned it somewhere else, point `PX4_DIR` at it:
 export PX4_DIR=/path/to/PX4-Autopilot
 ```
 
+### Optional: Unity visualization
+
+`scripts/sim4cd/start_sim.sh` also starts a Unity player export (`sim4cdExample.x86_64`) and
+`scripts/unity/update_unity_cam_pose.py`, which forwards the simulated vehicle pose to the camera in the
+Unity scene (`scripts/unity/CameraController.cs`). The bridge reads the state from the same ZMQ socket the
+Qt GUI uses, so it needs `SIM_VIZ_EN` enabled in the parameter file.
+
+The export is not in the repository, since it is too large to track. The script looks for a `unity`
+directory in or next to the repo, and skips the visualization when it finds nothing. To use an export kept
+somewhere else, point `SIM4CD_UNITY_BIN` at the executable:
+
+```bash
+export SIM4CD_UNITY_BIN=/path/to/sim4cdExample.x86_64
+```
+
+`SIM4CD_UNITY_DIR` works too, and expects a directory containing `sim4cdExample.x86_64`.
+
 ### Install QGroundControl
 
 QGroundControl is used as the ground control station.
@@ -203,7 +220,7 @@ To use it, clone the repo into a catkin workspace and build it there:
 ```bash
 mkdir -p ~/catkin_ws/src
 cd ~/catkin_ws/src
-git clone -b add-python-qt-gui https://github.com/adrianomcr/sim4cd.git
+git clone -b main https://github.com/adrianomcr/sim4cd.git
 cd ~/catkin_ws
 catkin build
 ```
