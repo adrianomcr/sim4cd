@@ -220,7 +220,7 @@ To use it, clone the repo into a catkin workspace and build it there:
 ```bash
 mkdir -p ~/catkin_ws/src
 cd ~/catkin_ws/src
-git clone -b add-python-qt-gui https://github.com/adrianomcr/sim4cd.git
+git clone -b main https://github.com/adrianomcr/sim4cd.git
 cd ~/catkin_ws
 catkin build
 ```
