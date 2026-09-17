@@ -188,6 +188,19 @@ pip install -e .
 sim4cd-gui
 ```
 
+### Skybox
+
+`View > Skybox...` replaces the sky of the 3D scene with any equirectangular (2:1) image.
+The dialog shows the image so that two marks can be clicked on it:
+
+- the column where north (or east) is, which turns the sky so that north in the scene is
+  north in the picture;
+- the sun, anywhere in the sky half, which sets the direction the shadows are cast in
+  instead of a fixed one.
+
+Both marks are previewed live in the scene and remembered for the next session;
+`Use default` goes back to `scripts/qt_gui/resources/skybox.png`.
+
 ### Screenshots
 
 Simulate tab: start and stop the simulator and follow the vehicle in the 3D scene  

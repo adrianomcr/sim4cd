@@ -12,7 +12,7 @@ import json
 import os
 import signal
 
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTabWidget, QWidget, QAction, QMessageBox, QFileDialog, QVBoxLayout, QLabel, QSplashScreen
+from PyQt5.QtWidgets import QApplication, QDialog, QMainWindow, QTabWidget, QWidget, QAction, QMessageBox, QFileDialog, QVBoxLayout, QLabel, QSplashScreen
 from PyQt5.QtGui import QKeySequence, QIcon, QPixmap
 from PyQt5.QtCore import Qt, QTimer
 
@@ -30,6 +30,7 @@ from tab_geolocation.geolocation_tab import GeolocationTab
 from tab_vehicle.vehicle_tab import VehicleTab
 from tab_actuators.actuators_tab import ActuatorsTab
 from tab_all_params.all_params_tab import AllParamsTab
+from skybox_dialog import SkyboxDialog
 import utils as UT
 
 class MainWindow(QMainWindow):
@@ -53,6 +54,10 @@ class MainWindow(QMainWindow):
             # the title when the loaded file or unsaved-edit flag changes.
             "on_config_state_changed": self.update_window_title,
         }
+
+        # Kept while the modeless skybox editor is open so it can be raised instead of
+        # opened a second time.
+        self.skybox_dialog = None
 
         self.add_menubar()
 
@@ -183,6 +188,10 @@ class MainWindow(QMainWindow):
         fullscreen_action.triggered.connect(self.toggle_fullscreen)
         view_menu.addAction(fullscreen_action)
 
+        skybox_action = QAction("Skybox...", self)
+        skybox_action.triggered.connect(self.open_skybox_dialog)
+        view_menu.addAction(skybox_action)
+
         # Add "Help" menu
         help_menu = menubar.addMenu("Help")
 
@@ -193,6 +202,40 @@ class MainWindow(QMainWindow):
         source_action = QAction("Source code", self)
         source_action.triggered.connect(self.open_source_code)
         help_menu.addAction(source_action)
+
+
+    def open_skybox_dialog(self):
+        """
+        Open the editor that picks the skybox image and marks north and the sun on it.
+
+        The dialog is modeless and previews straight into the 3D scene, so the user can
+        watch the sky turn and the shadow swing while dragging the marks.
+        """
+        scene = getattr(self.tab_home, "vtk_scene_widget", None)
+        if scene is None:
+            return
+
+        if self.skybox_dialog is not None:
+            self.skybox_dialog.raise_()
+            self.skybox_dialog.activateWindow()
+            return
+
+        self.skybox_dialog = SkyboxDialog(scene.skybox_settings, parent=self,
+                                          preview_callback=scene.apply_skybox_settings)
+        self.skybox_dialog.finished.connect(self.on_skybox_dialog_finished)
+        self.skybox_dialog.show()
+
+
+    def on_skybox_dialog_finished(self, result):
+        """Keep the skybox for the next session when the editor was accepted."""
+        dialog = self.skybox_dialog
+        self.skybox_dialog = None
+        if dialog is None:
+            return
+
+        if result == QDialog.Accepted:
+            dialog.settings().save()
+        dialog.deleteLater()
 
 
     def update_window_title(self):
