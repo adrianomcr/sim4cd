@@ -258,12 +258,6 @@ export SIM4CD_UNITY_ENABLE=0   # skip Unity even when an export is present
 `SIM4CD_UNITY_DIR` works too, and expects a directory containing `sim4cdExample.x86_64`.
 `SIM4CD_UNITY_ENABLE` defaults to `1` when unset.
 
-`Simulation > Unity...` sets the player executable and can launch it on its own so the
-export can be checked before a simulation. The player must have its camera configured
-to receive pose updates from sim4cd (the bundled `CameraController`). Start Simulator
-honours the enable flag by passing `SIM4CD_UNITY_ENABLE` and `SIM4CD_UNITY_BIN` to
-`start_sim.sh`.
-
 
 
 ## Optional: ROS integration
