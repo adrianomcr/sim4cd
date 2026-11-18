@@ -10,8 +10,6 @@ from math import asin, atan2, cos, degrees, hypot, pi, radians, sin
 
 import numpy as np
 
-from PyQt5.QtCore import QSettings
-
 # The scene frame is ENU: +X east, +Y north, +Z up.
 #
 # vtkSkybox with SetProjectionToSphere() samples the texture as
@@ -37,10 +35,6 @@ MIN_SUN_ELEVATION_DEG = 3.0
 
 # Sun markers are restricted to the sky, so their elevation is always positive.
 MIN_PICKABLE_SUN_V = 0.5 - MIN_SUN_ELEVATION_DEG / 180.0
-
-_SETTINGS_ORG = "sim4cd"
-_SETTINGS_APP = "gui"
-_SETTINGS_GROUP = "skybox"
 
 
 def north_u_to_floor_right_angle(north_u):
@@ -218,41 +212,42 @@ class SkyboxSettings(object):
         return -gamma * d[0], -gamma * d[1]
 
     # -------------------------------------------------------------------------
-    # Persistence
+    # Serialization
     # -------------------------------------------------------------------------
-    @staticmethod
-    def load():
-        """
-        Read the skybox choice saved by a previous session.
+    def to_dict(self):
+        """These settings as plain values, for the GUI cache to store."""
+        return {
+            "path": os.path.abspath(self.path),
+            "north_u": self.north_u,
+            "sun_u": self.sun_u,
+            "sun_v": self.sun_v,
+        }
 
-        Falls back to the bundled skybox when nothing was saved yet or when the saved
-        image is no longer readable.
+    @staticmethod
+    def from_dict(values):
+        """
+        Rebuild settings from what 'to_dict' produced.
+
+        The marks only mean something on the image they were picked on, so an image that
+        is missing or unreadable falls back to the bundled skybox and its own marks.
+
+        Parameters:
+            values (dict): Mapping as returned by 'to_dict', possibly incomplete.
 
         Returns:
             (SkyboxSettings): The restored settings.
         """
-        settings = QSettings(_SETTINGS_ORG, _SETTINGS_APP)
-        settings.beginGroup(_SETTINGS_GROUP)
-        path = settings.value("path", type=str)
-        north_u = settings.value("north_u", DEFAULT_NORTH_U, type=float)
-        sun_u = settings.value("sun_u", DEFAULT_SUN_U, type=float)
-        sun_v = settings.value("sun_v", DEFAULT_SUN_V, type=float)
-        settings.endGroup()
-
+        path = values.get("path")
         if not path or not os.path.isfile(path):
             return SkyboxSettings()
-        return SkyboxSettings(path, north_u, sun_u, sun_v)
 
-    def save(self):
-        """Remember this skybox choice for the next session."""
-        settings = QSettings(_SETTINGS_ORG, _SETTINGS_APP)
-        settings.beginGroup(_SETTINGS_GROUP)
-        settings.setValue("path", self.path)
-        settings.setValue("north_u", self.north_u)
-        settings.setValue("sun_u", self.sun_u)
-        settings.setValue("sun_v", self.sun_v)
-        settings.endGroup()
-        settings.sync()
+        try:
+            return SkyboxSettings(path,
+                                  float(values.get("north_u", DEFAULT_NORTH_U)),
+                                  float(values.get("sun_u", DEFAULT_SUN_U)),
+                                  float(values.get("sun_v", DEFAULT_SUN_V)))
+        except (TypeError, ValueError):
+            return SkyboxSettings()
 
 
 def is_vtk_readable(path):

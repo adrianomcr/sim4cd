@@ -17,8 +17,7 @@ class VTKMainSceneWidget(QWidget):
         If 'config' is not None, we'll call add_shapes(**config)
         to insert shapes (box + 2 sets of cylinders) into the scene.
 
-        'skybox_settings' is a SkyboxSettings; when omitted the one saved by the previous
-        session is restored.
+        'skybox_settings' is a SkyboxSettings object; when omitted the bundled skybox is used.
         """
         super().__init__(parent)
 
@@ -70,7 +69,7 @@ class VTKMainSceneWidget(QWidget):
         self._skybox_reader = None
         self._skybox_texture = None
         self.skybox_settings = SB.SkyboxSettings()
-        self.apply_skybox_settings(skybox_settings if skybox_settings is not None else SB.SkyboxSettings.load(),
+        self.apply_skybox_settings(skybox_settings if skybox_settings is not None else SB.SkyboxSettings(),
                                    fallback_to_default=True)
 
         # If config was given, add shapes automatically

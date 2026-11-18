@@ -22,9 +22,10 @@ def notify_config_state_changed(shared_data):
     """Notify the main window that the config path or dirty flag changed.
 
     Tabs and these helpers only share the ``shared_data`` dict; they have no
-    ``MainWindow`` reference. The window registers ``update_window_title`` as
-    ``shared_data['on_config_state_changed']`` so the title can show the
-    filename and a '*' while there are unsaved edits.
+    ``MainWindow`` reference. The window registers its
+    ``on_config_state_changed`` under that key in ``shared_data`` so the title
+    can show the filename and a '*' while there are unsaved edits, and so the
+    file gets cached as the one to reopen next session.
 
     ``callable()`` skips the hook when a tab is run standalone without a
     main window (no callback is registered).

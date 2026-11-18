@@ -44,7 +44,11 @@ Or get a shell in the container instead
 docker compose -f docker-compose.yaml run --rm sim4cd bash
 ```
 
+
+
 ## Native setup
+
+
 
 ### Clone the repo
 
@@ -55,6 +59,8 @@ mkdir -p ~/sim4cd_ws/src
 cd ~/sim4cd_ws/src
 git clone -b main https://github.com/adrianomcr/sim4cd.git
 ```
+
+
 
 ### System packages
 
@@ -97,6 +103,7 @@ make distclean
 ```
 
 Install the build-time Python dependencies from PX4's own requirements file. One line in it uses a version specifier that pip 24+ rejects (`matplotlib>=3.0.*`), so patch it first:
+
 ```bash
 sed -i 's|matplotlib>=3.0\.\*|matplotlib>=3.0|' Tools/setup/requirements.txt
 ```
@@ -108,18 +115,20 @@ pip install -r Tools/setup/requirements.txt
 pip install 'empy==3.3.4'
 ```
 
-The virtualenv must stay **activated while running `make`**, since the PX4 build shells out to `python3`
+The virtualenv must stay **activated while running** `make`, since the PX4 build shells out to `python3`
 for code generation. Installing into the system Python works too on Ubuntu 20.04/22.04; on 23.04 and later
 add `--user --break-system-packages`, which installs into `~/.local` without touching any apt-owned file.
 
 The second `empy` command is required on every distro. v1.13.3 asks for `empy>=3.3`, which now resolves to 4.x, and 4.x breaks the PX4 uORB code generation with `module 'em' has no attribute 'RAW_OPT'`.
 
 Build SITL
+
 ```bash
 DONT_RUN=1 make px4_sitl none_iris
 ```
 
 On GCC 12 and newer (Ubuntu 22.04 ships GCC 11, 24.04 ships GCC 13), this fails in `src/lib/matrix` with `error: array subscript 1 is above array bounds of 'float [1][1]' [-Werror=array-bounds]`. It is a false positive in an unreachable branch of `matrix::inv()`, fixed in later PX4 releases. Stop v1.13.3 from treating warnings as errors and rebuild:
+
 ```bash
 sed -i 's|^\(\s*\)-Werror$|\1-Wno-error|' cmake/px4_add_common_flags.cmake
 DONT_RUN=1 make px4_sitl none_iris
@@ -132,22 +141,6 @@ repo. If you cloned it somewhere else, point `PX4_DIR` at it:
 export PX4_DIR=/path/to/PX4-Autopilot
 ```
 
-### Optional: Unity visualization
-
-`scripts/sim4cd/start_sim.sh` also starts a Unity player export (`sim4cdExample.x86_64`) and
-`scripts/unity/update_unity_cam_pose.py`, which forwards the simulated vehicle pose to the camera in the
-Unity scene (`scripts/unity/CameraController.cs`). The bridge reads the state from the same ZMQ socket the
-Qt GUI uses, so it needs `SIM_VIZ_EN` enabled in the parameter file.
-
-The export is not in the repository, since it is too large to track. The script looks for a `unity`
-directory in or next to the repo, and skips the visualization when it finds nothing. To use an export kept
-somewhere else, point `SIM4CD_UNITY_BIN` at the executable:
-
-```bash
-export SIM4CD_UNITY_BIN=/path/to/sim4cdExample.x86_64
-```
-
-`SIM4CD_UNITY_DIR` works too, and expects a directory containing `sim4cdExample.x86_64`.
 
 ### Install QGroundControl
 
@@ -167,6 +160,8 @@ Download the AppImage from [https://docs.qgroundcontrol.com/master/en/qgc-user-g
 cd ~/Downloads
 chmod +x ./QGroundControl.AppImage
 ```
+
+
 
 ## Qt GUI
 
@@ -188,18 +183,29 @@ pip install -e .
 sim4cd-gui
 ```
 
+
+
 ### Skybox
 
-`View > Skybox...` replaces the sky of the 3D scene with any equirectangular (2:1) image.
+`Simulation > Skybox...` replaces the sky of the 3D scene with any equirectangular (2:1) image.
 The dialog shows the image so that two marks can be clicked on it:
 
 - the column where north (or east) is, which turns the sky so that north in the scene is
-  north in the picture;
+north in the picture;
 - the sun, anywhere in the sky half, which sets the direction the shadows are cast in
-  instead of a fixed one.
+instead of a fixed one.
 
-Both marks are previewed live in the scene and remembered for the next session;
-`Use default` goes back to `scripts/qt_gui/resources/skybox.png`.
+Both marks are previewed live in the scene; `Use default` goes back to
+`scripts/qt_gui/resources/skybox.png`.
+
+### GUI cache
+
+The GUI remembers its own state between sessions, separately from the simulation
+parameter file. For now that is the last-opened `*.json` parameter file, the skybox
+image with the east/north and sun marks picked on it, and the Unity player path plus
+whether to launch it with the simulation. The cache lives in the per-user config
+directory (`~/.config/sim4cd/` on Linux). A missing or unreadable cached file
+falls back to the bundled defaults instead of blocking startup.
 
 ### Screenshots
 
@@ -220,6 +226,45 @@ Simulation config: full list of simulator parameters
 
 QGroundControl connected to the running simulation, at the configured geolocation  
 ![QGroundControl](.media/qgc.png)
+
+
+
+### Optional: Unity visualization
+
+When Unity is enabled, `scripts/sim4cd/start_sim.sh` starts a Unity player export
+(`sim4cdExample.x86_64`) and `scripts/unity/update_unity_cam_pose.py`, which forwards the
+simulated vehicle pose to the camera in the Unity scene (`scripts/unity/CameraController.cs`).
+The bridge reads the state from the same ZMQ socket the Qt GUI uses, so it needs `SIM_VIZ_EN`
+enabled in the parameter file. The player itself must have that camera controller (or equivalent)
+installed: otherwise the export will run, but the view will not follow the vehicle.
+
+From the Qt GUI, `Simulation > Unity...` is the usual way to set this up. The dialog picks the
+player executable, enables or disables launching it with **Start Simulator**, and can start the
+export on its own (**Test executable**) to check that it runs. Those choices are stored in the
+GUI cache (`~/.config/sim4cd/` on Linux) and passed to `start_sim.sh` as `SIM4CD_UNITY_BIN` and
+`SIM4CD_UNITY_ENABLE`. Unchecking launch sets `SIM4CD_UNITY_ENABLE=0`, so the player is not
+started even if an export is on disk.
+
+The export is not in the repository, since it is too large to track. If you start the simulator
+from the shell instead of the GUI, `start_sim.sh` still looks for a `unity` directory in or next
+to the repo and skips the visualization when it finds nothing. To use an export kept somewhere
+else, or to turn Unity off from the environment:
+
+```bash
+export SIM4CD_UNITY_BIN=/path/to/sim4cdExample.x86_64
+export SIM4CD_UNITY_ENABLE=0   # skip Unity even when an export is present
+```
+
+`SIM4CD_UNITY_DIR` works too, and expects a directory containing `sim4cdExample.x86_64`.
+`SIM4CD_UNITY_ENABLE` defaults to `1` when unset.
+
+`Simulation > Unity...` sets the player executable and can launch it on its own so the
+export can be checked before a simulation. The player must have its camera configured
+to receive pose updates from sim4cd (the bundled `CameraController`). Start Simulator
+honours the enable flag by passing `SIM4CD_UNITY_ENABLE` and `SIM4CD_UNITY_BIN` to
+`start_sim.sh`.
+
+
 
 ## Optional: ROS integration
 
