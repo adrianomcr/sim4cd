@@ -7,15 +7,17 @@ import numpy as np
 from math import asin, atan2, cos, sin, pi, sqrt
 import zmq
 import json
-import os
 
 import sim4cd.math_utils as MU
+import skybox as SB
 
 class VTKMainSceneWidget(QWidget):
-    def __init__(self, parent=None, config=None):
+    def __init__(self, parent=None, config=None, skybox_settings=None):
         """
         If 'config' is not None, we'll call add_shapes(**config)
         to insert shapes (box + 2 sets of cylinders) into the scene.
+
+        'skybox_settings' is a SkyboxSettings object; when omitted the bundled skybox is used.
         """
         super().__init__(parent)
 
@@ -56,6 +58,20 @@ class VTKMainSceneWidget(QWidget):
         self.update_timer = None
         self.update_frequency_ms = 1000
 
+        # Equirectangular skybox. The image, the column that holds north and the sun
+        # position all come from the skybox settings, which also aim the shadows, so it
+        # has to be in place before any pose is applied.
+        self.skybox = vtk.vtkSkybox()
+        self.skybox.SetFloorPlane(0,0,1,0)
+        self.skybox.SetProjectionToSphere()  # For equirectangular images
+        self.renderer.AddActor(self.skybox)
+
+        self._skybox_reader = None
+        self._skybox_texture = None
+        self.skybox_settings = SB.SkyboxSettings()
+        self.apply_skybox_settings(skybox_settings if skybox_settings is not None else SB.SkyboxSettings(),
+                                   fallback_to_default=True)
+
         # If config was given, add shapes automatically
         if config is not None:
             self.add_shapes(config)
@@ -81,27 +97,6 @@ class VTKMainSceneWidget(QWidget):
         self.socket_vehicle.setsockopt_string(zmq.SUBSCRIBE, '')  # Subscribe to all messages
         self.socket_vehicle.setsockopt(zmq.RCVTIMEO, 50)  # Timeout in milliseconds
 
-
-
-        # Load an equirectangular texture for the skybox
-        #texture_reader = vtk.vtkJPEGReader()
-        texture_reader = vtk.vtkPNGReader()
-        texture_reader.SetFileName(os.path.join(os.path.dirname(__file__),"../resources/skybox.png"))
-        texture_reader.Update()
-
-        skybox_texture = vtk.vtkTexture()
-        skybox_texture.SetInputConnection(texture_reader.GetOutputPort())
-        skybox_texture.InterpolateOn()  # Smooth the texture if desired
-
-        # Create skybox actor
-        skybox = vtk.vtkSkybox()
-        skybox.SetTexture(skybox_texture)
-        skybox.SetFloorPlane(0,0,1,0)
-        skybox.SetProjectionToSphere()  # For equirectangular images
-
-        # Add the skybox to the scene
-        self.renderer.AddActor(skybox)
-
         self.focal_point = [0,0,0]
 
         # Initialize the interactor & do initial camera fit
@@ -114,6 +109,48 @@ class VTKMainSceneWidget(QWidget):
         self.interactor.AddObserver('TimerEvent', self.timer_callback)
 
         self.interactor.Start()
+
+
+    def apply_skybox_settings(self, settings, fallback_to_default=False):
+        """
+        Put a new skybox in the scene and re-aim the shadows at its sun.
+
+        The texture is only re-read when the image file actually changes, so dragging the
+        sun or the north mark around stays cheap.
+
+        Parameters:
+            settings (skybox.SkyboxSettings): Image and the marks picked on it.
+            fallback_to_default (bool): Load the bundled skybox instead of raising when
+                                        'settings' points at an image that cannot be read.
+
+        Raises:
+            ValueError: If the image cannot be read and 'fallback_to_default' is False.
+        """
+        if self._skybox_texture is None or settings.path != self.skybox_settings.path:
+            try:
+                reader, texture = SB.load_vtk_texture(settings.path)
+            except ValueError:
+                if not fallback_to_default or settings.is_default_image():
+                    raise
+                print(f"Skybox image '{settings.path}' could not be read, using the default one")
+                settings = SB.SkyboxSettings()
+                reader, texture = SB.load_vtk_texture(settings.path)
+
+            # The reader stays connected as the texture's input, so both have to be kept.
+            self._skybox_reader = reader
+            self._skybox_texture = texture
+            self.skybox.SetTexture(texture)
+
+        self.skybox_settings = settings.copy()
+        self.skybox.SetFloorRight(*self.skybox_settings.floor_right())
+
+        # Re-project the shadow with the new sun, keeping the pose the drone is already in.
+        self.reset_group_pose(self.get_group_pose())
+
+
+    def get_group_pose(self):
+        """Current pose of the drone assembly as [x, y, z, roll, pitch, yaw]."""
+        return list(self.drone_assembly.GetPosition()) + list(self.drone_assembly.GetOrientation())
 
 
     def timer_callback(self, caller, event):
@@ -343,9 +380,9 @@ class VTKMainSceneWidget(QWidget):
         self.drone_assembly.SetPosition(px, py, pz)
         self.drone_assembly.SetOrientation(rx, ry, rz)
 
-        dir = -np.array([0.6560265121249956, -0.1834744908992891, 0.7320972111532454]) # from light to object
-        gamma = -pz/dir[2]
-        self.shadow_assembly.SetPosition(px+gamma*dir[0], py+gamma*dir[1], pz+gamma*dir[2])
+        # The shadow lies on the ground, offset away from the sun marked on the skybox.
+        offset_x, offset_y = self.skybox_settings.shadow_offset(pz)
+        self.shadow_assembly.SetPosition(px+offset_x, py+offset_y, 0.0)
         self.shadow_assembly.SetOrientation(rx*0, ry*0, rz)
         self.vtk_widget.GetRenderWindow().Render()
 

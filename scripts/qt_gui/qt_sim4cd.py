@@ -12,7 +12,7 @@ import json
 import os
 import signal
 
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTabWidget, QWidget, QAction, QMessageBox, QFileDialog, QVBoxLayout, QLabel, QSplashScreen
+from PyQt5.QtWidgets import QApplication, QDialog, QMainWindow, QTabWidget, QWidget, QAction, QMessageBox, QFileDialog, QVBoxLayout, QLabel, QSplashScreen
 from PyQt5.QtGui import QKeySequence, QIcon, QPixmap
 from PyQt5.QtCore import Qt, QTimer
 
@@ -30,7 +30,13 @@ from tab_geolocation.geolocation_tab import GeolocationTab
 from tab_vehicle.vehicle_tab import VehicleTab
 from tab_actuators.actuators_tab import ActuatorsTab
 from tab_all_params.all_params_tab import AllParamsTab
+from skybox_dialog import SkyboxDialog
+from unity_settings import UnityDialog
+from gui_cache import GuiCache
 import utils as UT
+
+# Parameter file opened when nothing usable was cached from a previous session.
+DEFAULT_CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../config/sim_params.json")
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -50,14 +56,23 @@ class MainWindow(QMainWindow):
             "feature_b": False,
             "last_interaction": "",
             # Optional hook used by utils/tabs (via shared_data only) to refresh
-            # the title when the loaded file or unsaved-edit flag changes.
-            "on_config_state_changed": self.update_window_title,
+            # the title and the cache when the loaded file or unsaved-edit flag changes.
+            "on_config_state_changed": self.on_config_state_changed,
         }
+
+        # GUI state left over from the previous session: which parameter file to reopen
+        # and how the skybox was set up. Tabs read it through 'shared_data'.
+        self.gui_cache = GuiCache.load()
+        self.shared_data["gui_cache"] = self.gui_cache
+
+        # Kept while a modeless Simulation-menu editor is open so it can be raised
+        # instead of opened a second time.
+        self.skybox_dialog = None
+        self.unity_dialog = None
 
         self.add_menubar()
 
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        self.load_config(os.path.join(script_dir, "../../config/sim_params.json"))
+        self.load_startup_config()
 
         # Create the tab widget
         self.tabs = QTabWidget()
@@ -176,6 +191,17 @@ class MainWindow(QMainWindow):
         file_menu.addSeparator()
         file_menu.addAction(exit_action)
 
+        # Add "Simulation" menu
+        simulation_menu = menubar.addMenu("Simulation")
+
+        skybox_action = QAction("Skybox...", self)
+        skybox_action.triggered.connect(self.open_skybox_dialog)
+        simulation_menu.addAction(skybox_action)
+
+        unity_action = QAction("Unity...", self)
+        unity_action.triggered.connect(self.open_unity_dialog)
+        simulation_menu.addAction(unity_action)
+
         # Add "View" menu
         view_menu = menubar.addMenu("View")
 
@@ -195,6 +221,85 @@ class MainWindow(QMainWindow):
         help_menu.addAction(source_action)
 
 
+    def open_skybox_dialog(self):
+        """
+        Open the editor that picks the skybox image and marks north and the sun on it.
+
+        The dialog is modeless and previews straight into the 3D scene, so the user can
+        watch the sky turn and the shadow swing while dragging the marks.
+        """
+        scene = getattr(self.tab_home, "vtk_scene_widget", None)
+        if scene is None:
+            return
+
+        if self.skybox_dialog is not None:
+            self.skybox_dialog.raise_()
+            self.skybox_dialog.activateWindow()
+            return
+
+        self.skybox_dialog = SkyboxDialog(scene.skybox_settings, parent=self,
+                                          preview_callback=scene.apply_skybox_settings)
+        self.skybox_dialog.finished.connect(self.on_skybox_dialog_finished)
+        self.skybox_dialog.show()
+
+
+    def on_skybox_dialog_finished(self, result):
+        """Keep the skybox for the next session when the editor was accepted."""
+        dialog = self.skybox_dialog
+        self.skybox_dialog = None
+        if dialog is None:
+            return
+
+        if result == QDialog.Accepted:
+            self.gui_cache.skybox = dialog.settings()
+            self.gui_cache.save()
+        dialog.deleteLater()
+
+
+    def open_unity_dialog(self):
+        """Open the editor that picks the Unity player and whether to launch it."""
+        if self.unity_dialog is not None:
+            self.unity_dialog.raise_()
+            self.unity_dialog.activateWindow()
+            return
+
+        self.unity_dialog = UnityDialog(self.gui_cache.unity, parent=self)
+        self.unity_dialog.finished.connect(self.on_unity_dialog_finished)
+        self.unity_dialog.show()
+
+
+    def on_unity_dialog_finished(self, result):
+        """Keep the Unity player choice for the next session when the editor was accepted."""
+        dialog = self.unity_dialog
+        self.unity_dialog = None
+        if dialog is None:
+            return
+
+        if result == QDialog.Accepted:
+            self.gui_cache.unity = dialog.settings()
+            self.gui_cache.save()
+        dialog.deleteLater()
+
+
+    def on_config_state_changed(self):
+        """
+        React to the loaded parameter file or the unsaved-edit flag having changed.
+
+        This is the single hook utils and the tabs call, so it is also where the parameter
+        file is handed to the cache: open, save and save-as all end up here.
+        """
+        self.update_window_title()
+
+        path = self.shared_data.get("config_file_path")
+        if not path:
+            return
+
+        path = os.path.abspath(path)
+        if path != self.gui_cache.config_file_path:
+            self.gui_cache.config_file_path = path
+            self.gui_cache.save()
+
+
     def update_window_title(self):
         """Show the loaded filename, with '*' if parameters are unsaved."""
         path = self.shared_data.get("config_file_path")
@@ -203,20 +308,48 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(f"Custom Copter Simulator - {name}{dirty}")
 
 
-    def load_config(self, path):
+    def load_startup_config(self):
+        """Reopen the parameter file cached from the previous session, or the bundled default."""
+        cached = self.gui_cache.config_file_path
+        if cached and self.load_config(cached, show_error=False):
+            return
+
+        if cached:
+            QMessageBox.warning(
+                self,
+                "Cached parameters",
+                f"Could not reopen the last parameter file:\n{cached}\n\n"
+                "Opening the default one instead.")
+
+        self.load_config(DEFAULT_CONFIG_PATH)
+
+
+    def load_config(self, path, show_error=True):
+        """
+        Load a simulation parameter JSON file into the shared GUI state.
+
+        Parameters:
+            path (str): File to open.
+            show_error (bool): Pop a dialog when the file cannot be read. Startup uses
+                               False so it can fall back to the default without two dialogs.
+
+        Returns:
+            (bool): True if the file was loaded.
+        """
+        path = os.path.abspath(path)
         try:
-            # Store the path and display it
-            self.shared_data['config_file_path'] = path
-
-            # Load JSON data
             with open(path, "r") as json_file:
-                self.shared_data['config'] = json.load(json_file)
-
-            self.shared_data['config_dirty'] = False
-            self.update_window_title()
-
+                config = json.load(json_file)
         except Exception as e:
-            QMessageBox.critical(self, "Error", f"Failed to load JSON file:\n{str(e)}")
+            if show_error:
+                QMessageBox.critical(self, "Error", f"Failed to load JSON file:\n{str(e)}")
+            return False
+
+        self.shared_data['config_file_path'] = path
+        self.shared_data['config'] = config
+        self.shared_data['config_dirty'] = False
+        self.on_config_state_changed()
+        return True
 
 
     def open_config(self):
@@ -229,7 +362,8 @@ class MainWindow(QMainWindow):
 
         print("Open config")
         options = QFileDialog.Options()
-        path, _ = QFileDialog.getOpenFileName(self, "Open JSON File", "", "JSON Files (*.json);;All Files (*)", options=options)
+        start_path = self.shared_data.get("config_file_path") or DEFAULT_CONFIG_PATH
+        path, _ = QFileDialog.getOpenFileName(self, "Open JSON File", start_path, "JSON Files (*.json);;All Files (*)", options=options)
 
         if path:
             self.load_config(path)

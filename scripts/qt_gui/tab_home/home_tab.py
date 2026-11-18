@@ -85,7 +85,10 @@ class HomeTab(QWidget):
     def init_vtk_scene(self):
         
         # Create our custom VTK widget and add it to the frame's layout
-        self.vtk_scene_widget = VTKMainSceneWidget(parent=self.vtk_frame, config=self.shared_data['config'])
+        gui_cache = self.shared_data.get('gui_cache')
+        self.vtk_scene_widget = VTKMainSceneWidget(parent=self.vtk_frame,
+                                                   config=self.shared_data['config'],
+                                                   skybox_settings=gui_cache.skybox if gui_cache else None)
         self.vtk_frame.layout().addWidget(self.vtk_scene_widget)
         
 
@@ -127,8 +130,13 @@ class HomeTab(QWidget):
                 return
 
             cmd = [os.path.join(script_path, "start_sim.sh"), runtime_path]
+            env = os.environ.copy()
+            gui_cache = self.shared_data.get("gui_cache")
+            if gui_cache is not None:
+                env = gui_cache.unity.simulation_environment(env)
             self.process = subprocess.Popen(
                     cmd,
+                    env=env,
                     stderr=subprocess.STDOUT,   # Redirect stderr to stdout (merged)
                     text=True,                  # Interpret output as text (Python 3.5+)
                 )

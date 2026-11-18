@@ -16,21 +16,28 @@ if [ -z "${px4_path:-}" ]; then
     exit 1
 fi
 
-# SIM4CD_UNITY_BIN wins, otherwise look for the player export in or next to the repo
-for candidate in "${SIM4CD_UNITY_BIN:-}" \
-                 "${SIM4CD_UNITY_DIR:+${SIM4CD_UNITY_DIR}/sim4cdExample.x86_64}" \
-                 "${repo_root}/unity/sim4cdExample.x86_64" \
-                 "${repo_root}/../unity/sim4cdExample.x86_64"; do
-    if [ -n "${candidate}" ] && [ -x "${candidate}" ]; then
-        unity_bin=${candidate}
-        break
-    fi
-done
+# SIM4CD_UNITY_ENABLE=0 skips the player even when an export is on disk. The Qt GUI
+# uses this so the Simulation > Unity dialog can turn visualization off.
+unity_enabled=${SIM4CD_UNITY_ENABLE:-1}
 
-# The Unity visualization is optional, so only warn when it is missing
-if [ -z "${unity_bin:-}" ]; then
-    echo "No Unity player found, skipping the Unity visualization." >&2
-    echo "Set SIM4CD_UNITY_BIN to the sim4cdExample.x86_64 export to enable it." >&2
+# SIM4CD_UNITY_BIN wins, otherwise look for the player export in or next to the repo
+unity_bin=""
+if [ "${unity_enabled}" != "0" ]; then
+    for candidate in "${SIM4CD_UNITY_BIN:-}" \
+                     "${SIM4CD_UNITY_DIR:+${SIM4CD_UNITY_DIR}/sim4cdExample.x86_64}" \
+                     "${repo_root}/unity/sim4cdExample.x86_64" \
+                     "${repo_root}/../unity/sim4cdExample.x86_64"; do
+        if [ -n "${candidate}" ] && [ -x "${candidate}" ]; then
+            unity_bin=${candidate}
+            break
+        fi
+    done
+
+    # The Unity visualization is optional, so only warn when it is missing
+    if [ -z "${unity_bin}" ]; then
+        echo "No Unity player found, skipping the Unity visualization." >&2
+        echo "Set SIM4CD_UNITY_BIN to the sim4cdExample.x86_64 export to enable it." >&2
+    fi
 fi
 
 # PX4 SITL runs in the foreground, so stop everything else once it exits
