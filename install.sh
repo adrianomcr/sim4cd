@@ -282,16 +282,33 @@ install_qgc_icon() {
   rm -rf -- "$dir"
 }
 
+# The only submodules px4_sitl_default compiles in PX4 v1.13. The others are NuttX, drivers SITL
+# leaves out and the other simulators (jMAVSim, Gazebo, FlightGear, ...), which sim4cd replaces.
+px4_sitl_submodules=(src/modules/mavlink/mavlink src/drivers/gps/devices src/lib/events/libevents)
+# Simulators that v1.13's SITL declares as CMake external projects. They are never built, but CMake
+# refuses to configure them from an empty directory.
+px4_sim_projects=(Tools/sitl_gazebo Tools/simulation-ignition Tools/flightgear_bridge Tools/jsbsim_bridge)
+
 build_px4() {
-  local dir=$1 sub requirements gcc_major flags_file
-  if ((px4_cloned)); then
-    step 'Fetching the PX4 submodules'
-    # SITL does not use NuttX, and a shallow NuttX clone has no tags, which breaks PX4's version
-    # header generation. A checkout cloned by someone else is left for the PX4 build to complete.
-    for sub in platforms/nuttx/NuttX/nuttx platforms/nuttx/NuttX/apps; do
-      if [[ ! -e $dir/$sub/.git ]]; then git -C "$dir" config "submodule.$sub.update" none; fi
+  local dir=$1 sub requirements gcc_major flags_file missing=() build_env=()
+  # Other versions are left to PX4's build, which fetches the submodules it refers to.
+  if [[ $(px4_describe "$dir") == v1.13.* ]]; then
+    # Submodules already checked out are left as they are, in case they were changed on purpose.
+    for sub in "${px4_sitl_submodules[@]}"; do
+      [[ -e $dir/$sub/.git ]] || missing+=("$sub")
     done
-    git -C "$dir" submodule update --init --recursive --depth 1 --jobs 8
+    if ((${#missing[@]})); then
+      step 'Fetching the PX4 submodules that SITL needs'
+      git -C "$dir" submodule update --init --recursive --depth 1 --jobs 8 -- "${missing[@]}"
+    fi
+    for sub in "${px4_sim_projects[@]}"; do
+      if [[ -d $dir/$sub && -z "$(ls -A -- "$dir/$sub")" ]]; then
+        : >"$dir/$sub/SIM4CD_PLACEHOLDER"
+        tmp_files+=("$dir/$sub/SIM4CD_PLACEHOLDER")
+      fi
+    done
+    # Otherwise PX4's CMake fetches all the simulators' submodules when it configures.
+    build_env+=(GIT_SUBMODULES_ARE_EVIL=1)
   fi
 
   step 'Installing the PX4 build dependencies'
@@ -314,7 +331,7 @@ build_px4() {
   fi
 
   step "Building PX4 SITL in $dir (this takes a while)"
-  if ! (cd "$dir" && PATH="$px4_venv/bin:$PATH" VIRTUAL_ENV="$px4_venv" make px4_sitl_default); then
+  if ! (cd "$dir" && env PATH="$px4_venv/bin:$PATH" VIRTUAL_ENV="$px4_venv" "${build_env[@]}" make px4_sitl_default); then
     die "The PX4 build failed. If $dir/build/px4_sitl_default is left from an older attempt or another toolchain, delete it and rerun install.sh."
   fi
   px4_ready "$dir" || die "The PX4 build did not produce $dir/build/px4_sitl_default/bin/px4."
