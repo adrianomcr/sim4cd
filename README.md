@@ -50,7 +50,46 @@ docker compose -f docker-compose.yaml run --rm sim4cd bash
 
 
 
-### Clone the repo
+### Installer
+
+Clone the repo and run the installer:
+
+```bash
+mkdir -p ~/sim4cd_ws/src
+cd ~/sim4cd_ws/src
+git clone -b main https://github.com/adrianomcr/sim4cd.git
+cd sim4cd
+./install.sh
+```
+
+It is meant for Ubuntu 22.04 and 24.04. Run it as your own user: it asks for `sudo` only to install
+missing system packages. It
+
+- asks whether to use a PX4 SITL build it finds next to the repo, to clone and build PX4 v1.13.3 (and
+  where), or to use another PX4 checkout;
+- offers to download QGroundControl: the latest release on Ubuntu 24.04, and 5.0.8 on 22.04, whose glibc
+  is too old for anything newer;
+- installs the system packages that are missing;
+- creates a Python environment from `requirements.txt` in `~/.local/share/sim4cd/venv`, plus a separate
+  one for the PX4 build, and checks that the GUI and simulator modules import;
+- adds a `sim4cd` command in `~/.local/bin` and a Sim4CD entry in the applications menu, both set up with
+  the chosen PX4.
+
+Then start Sim4CD from the applications menu, or run `sim4cd`. `sim4cd --headless` runs the simulator and
+PX4 in the terminal, without the GUI. When started from the menu, the output goes to
+`~/.local/state/sim4cd/sim4cd.log`.
+
+Run `./install.sh` again to switch to another PX4 or to update the Python packages, and
+`./install.sh --help` for the options, such as `--px4-dir`, `--build-px4` or `-y` for an unattended
+install. `./uninstall.sh` removes what the installer added. It keeps the repository and the system
+packages, and keeps PX4 and the GUI settings unless asked (`--remove-px4`, `--purge`).
+
+
+### Manual setup
+
+The steps below do by hand what the installer does.
+
+#### Clone the repo
 
 The Qt GUI lives on the `add-python-qt-gui` branch.
 
@@ -62,7 +101,7 @@ git clone -b main https://github.com/adrianomcr/sim4cd.git
 
 
 
-### System packages
+#### System packages
 
 ```bash
 sudo apt update
@@ -77,7 +116,7 @@ sudo apt install -y git build-essential cmake ninja-build \
 On Ubuntu 24.04, install `python3.12-venv` if `python3-venv` is not available. You can skip `libglib2.0-0`
 if apt reports it was renamed to `libglib2.0-0t64`.
 
-### Python dependencies (venv)
+#### Python dependencies (venv)
 
 Ubuntu 23.04 and later block installing pip packages into the system Python (PEP 668). Use a virtualenv:
 
@@ -90,7 +129,7 @@ pip install -r requirements.txt
 
 `vtk` is pinned to 9.4.1 in `requirements.txt` (9.6+ rotates the home-tab skybox).
 
-### Build PX4 SITL
+#### Build PX4 SITL
 
 Clone PX4 next to sim4cd:
 
@@ -142,7 +181,7 @@ export PX4_DIR=/path/to/PX4-Autopilot
 ```
 
 
-### Install QGroundControl
+#### Install QGroundControl
 
 QGroundControl is used as the ground control station.
 
