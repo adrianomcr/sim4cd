@@ -131,6 +131,8 @@ class HomeTab(QWidget):
 
             cmd = [os.path.join(script_path, "start_sim.sh"), runtime_path]
             env = os.environ.copy()
+            # Otherwise start_sim.sh runs whichever python3 comes first on PATH, which may lack pymavlink
+            env.setdefault("SIM4CD_PYTHON", sys.executable)
             gui_cache = self.shared_data.get("gui_cache")
             if gui_cache is not None:
                 env = gui_cache.unity.simulation_environment(env)

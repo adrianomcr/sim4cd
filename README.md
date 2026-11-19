@@ -50,7 +50,47 @@ docker compose -f docker-compose.yaml run --rm sim4cd bash
 
 
 
-### Clone the repo
+### Installer
+
+Clone the repo and run the installer:
+
+```bash
+mkdir -p ~/sim4cd_ws/src
+cd ~/sim4cd_ws/src
+git clone -b main https://github.com/adrianomcr/sim4cd.git
+cd sim4cd
+./install.sh
+```
+
+It is meant for Ubuntu 22.04 and 24.04. Run it as your own user: it asks for `sudo` only to install
+missing system packages. It
+
+- asks whether to use a PX4 SITL build it finds next to the repo, to clone and build PX4 v1.13.3 (and
+  where), or to use another PX4 checkout. It fetches only the PX4 submodules that SITL compiles, so
+  not jMAVSim, Gazebo and the other simulators sim4cd replaces;
+- offers to download QGroundControl: the latest release on Ubuntu 24.04, and 5.0.8 on 22.04, whose glibc
+  is too old for anything newer;
+- installs the system packages that are missing;
+- creates a Python environment from `requirements.txt` in `~/.local/share/sim4cd/venv`, plus a separate
+  one for the PX4 build, and checks that the GUI and simulator modules import;
+- adds a `sim4cd` command in `~/.local/bin` and a Sim4CD entry in the applications menu, both set up with
+  the chosen PX4.
+
+Then start Sim4CD from the applications menu, or run `sim4cd`. `sim4cd --headless` runs the simulator and
+PX4 in the terminal, without the GUI. When started from the menu, the output goes to
+`~/.local/state/sim4cd/sim4cd.log`.
+
+Run `./install.sh` again to switch to another PX4 or to update the Python packages, and
+`./install.sh --help` for the options, such as `--px4-dir`, `--build-px4` or `-y` for an unattended
+install. `./uninstall.sh` removes what the installer added. It keeps the repository and the system
+packages, and keeps PX4 and the GUI settings unless asked (`--remove-px4`, `--purge`).
+
+
+### Manual setup
+
+The steps below do by hand what the installer does.
+
+#### Clone the repo
 
 The Qt GUI lives on the `add-python-qt-gui` branch.
 
@@ -62,7 +102,7 @@ git clone -b main https://github.com/adrianomcr/sim4cd.git
 
 
 
-### System packages
+#### System packages
 
 ```bash
 sudo apt update
@@ -77,7 +117,7 @@ sudo apt install -y git build-essential cmake ninja-build \
 On Ubuntu 24.04, install `python3.12-venv` if `python3-venv` is not available. You can skip `libglib2.0-0`
 if apt reports it was renamed to `libglib2.0-0t64`.
 
-### Python dependencies (venv)
+#### Python dependencies (venv)
 
 Ubuntu 23.04 and later block installing pip packages into the system Python (PEP 668). Use a virtualenv:
 
@@ -90,17 +130,20 @@ pip install -r requirements.txt
 
 `vtk` is pinned to 9.4.1 in `requirements.txt` (9.6+ rotates the home-tab skybox).
 
-### Build PX4 SITL
+#### Build PX4 SITL
 
 Clone PX4 next to sim4cd:
 
 ```bash
 cd ~/sim4cd_ws/src
 git clone --depth 1 --branch v1.13.3 https://github.com/PX4/PX4-Autopilot.git PX4
-git -C PX4 submodule update --depth 1 --init --recursive
 cd PX4
-make distclean
+git submodule update --depth 1 --init --recursive -- \
+  src/modules/mavlink/mavlink src/drivers/gps/devices src/lib/events/libevents
 ```
+
+These are the only submodules SITL compiles. The others are NuttX, drivers SITL leaves out and the
+other simulators (jMAVSim, Gazebo, ...): fetching all of them takes about 10 minutes and 660 MB.
 
 Install the build-time Python dependencies from PX4's own requirements file. One line in it uses a version specifier that pip 24+ rejects (`matplotlib>=3.0.*`), so patch it first:
 
@@ -121,18 +164,26 @@ add `--user --break-system-packages`, which installs into `~/.local` without tou
 
 The second `empy` command is required on every distro. v1.13.3 asks for `empy>=3.3`, which now resolves to 4.x, and 4.x breaks the PX4 uORB code generation with `module 'em' has no attribute 'RAW_OPT'`.
 
-Build SITL
-
-```bash
-DONT_RUN=1 make px4_sitl none_iris
-```
-
-On GCC 12 and newer (Ubuntu 22.04 ships GCC 11, 24.04 ships GCC 13), this fails in `src/lib/matrix` with `error: array subscript 1 is above array bounds of 'float [1][1]' [-Werror=array-bounds]`. It is a false positive in an unreachable branch of `matrix::inv()`, fixed in later PX4 releases. Stop v1.13.3 from treating warnings as errors and rebuild:
+On GCC 12 and newer (Ubuntu 22.04 ships GCC 11, 24.04 ships GCC 13), the build fails in `src/lib/matrix` with `error: array subscript 1 is above array bounds of 'float [1][1]' [-Werror=array-bounds]`. It is a false positive in an unreachable branch of `matrix::inv()`, fixed in later PX4 releases. Stop v1.13.3 from treating warnings as errors:
 
 ```bash
 sed -i 's|^\(\s*\)-Werror$|\1-Wno-error|' cmake/px4_add_common_flags.cmake
-DONT_RUN=1 make px4_sitl none_iris
 ```
+
+Build SITL
+
+```bash
+for dir in Tools/sitl_gazebo Tools/simulation-ignition Tools/flightgear_bridge Tools/jsbsim_bridge; do
+  touch "$dir/SIM4CD_PLACEHOLDER"
+done
+GIT_SUBMODULES_ARE_EVIL=1 make px4_sitl_default
+rm Tools/*/SIM4CD_PLACEHOLDER
+```
+
+`GIT_SUBMODULES_ARE_EVIL=1` stops the PX4 build from fetching the submodules of every simulator.
+Four of those are declared as CMake external projects, which are never built but do not configure
+from an empty directory, hence the placeholders. Plain `make px4_sitl_default` works too, after
+fetching those simulators.
 
 `scripts/sim4cd/start_sim.sh` finds PX4 by looking for a `PX4` or `PX4-Autopilot` directory next to the
 repo. If you cloned it somewhere else, point `PX4_DIR` at it:
@@ -142,7 +193,7 @@ export PX4_DIR=/path/to/PX4-Autopilot
 ```
 
 
-### Install QGroundControl
+#### Install QGroundControl
 
 QGroundControl is used as the ground control station.
 
@@ -150,11 +201,13 @@ QGroundControl is used as the ground control station.
 sudo usermod -a -G dialout $USER # Needs to log out and log in
 sudo apt-get remove modemmanager -y
 sudo apt install gstreamer1.0-plugins-bad gstreamer1.0-libav gstreamer1.0-gl -y
-sudo apt install libqt5gui5 -y
-sudo apt install libfuse2 -y
+sudo apt install libqt5gui5 libopengl0 -y
+sudo apt install libfuse2 -y   # libfuse2t64 on Ubuntu 24.04
 ```
 
 Download the AppImage from [https://docs.qgroundcontrol.com/master/en/qgc-user-guide/getting_started/download_and_install.html](https://docs.qgroundcontrol.com/master/en/qgc-user-guide/getting_started/download_and_install.html).
+The current release needs Ubuntu 24.04 (glibc 2.38) and fails on 22.04 with `GLIBC_2.38 not found`.
+On 22.04, use [5.0.8](https://github.com/mavlink/qgroundcontrol/releases/download/v5.0.8/QGroundControl-x86_64.AppImage) instead.
 
 ```bash
 cd ~/Downloads
@@ -166,6 +219,8 @@ chmod +x ./QGroundControl.AppImage
 ## Qt GUI
 
 The Qt GUI is the main way to load a vehicle config and start the simulator (`Start Simulator` runs `scripts/sim4cd/start_sim.sh`).
+When the GUI was started from a terminal, PX4's `pxh>` shell runs in that terminal. Without one, as from
+the applications menu, PX4 runs as a daemon (`px4 -d`), since its shell would exit on the empty input.
 
 ### Run
 
@@ -206,6 +261,19 @@ image with the east/north and sun marks picked on it, and the Unity player path 
 whether to launch it with the simulation. The cache lives in the per-user config
 directory (`~/.config/sim4cd/` on Linux). A missing or unreadable cached file
 falls back to the bundled defaults instead of blocking startup.
+
+### Data from past runs
+
+PX4 and QGroundControl keep data between runs, which builds up over time. With the simulator stopped:
+
+```bash
+px4_build=~/sim4cd_ws/src/PX4/build/px4_sitl_default
+rm -rf "$px4_build"/log/*                       # PX4 flight logs (.ulg)
+rm -rf ~/Documents/QGroundControl/Telemetry/*   # QGroundControl telemetry logs
+rm -f "$px4_build"/eeprom/parameters_* "$px4_build"/dataman   # parameters changed in QGroundControl, missions, geofence
+```
+
+The last line resets PX4 to its default parameters, and forgets the missions and geofence it stored.
 
 ### Screenshots
 

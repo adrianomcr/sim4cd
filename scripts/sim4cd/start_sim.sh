@@ -2,6 +2,8 @@
 script_dir=$(cd "$(dirname "$0")" && pwd)
 repo_root=$(cd "${script_dir}/../.." && pwd)
 sim_config_file=$1
+# The Qt GUI passes its own interpreter, so the simulator gets the same packages
+python_bin=${SIM4CD_PYTHON:-python3}
 
 # PX4_DIR wins, otherwise look for a PX4 checkout next to the repo
 for candidate in "${PX4_DIR:-}" "${repo_root}/../PX4" "${repo_root}/../PX4-Autopilot"; do
@@ -50,18 +52,24 @@ cleanup() {
 trap cleanup EXIT
 
 echo "Running simulator with configuration file "$sim_config_file
-python3 "${script_dir}/sim4cd_main.py" "${sim_config_file}" &
+"${python_bin}" "${script_dir}/sim4cd_main.py" "${sim_config_file}" &
 background_pids+=($!)
 
 if [ -n "${unity_bin:-}" ]; then
     echo "Running the Unity visualization from ${unity_bin}"
     "${unity_bin}" &
     background_pids+=($!)
-    python3 "${repo_root}/scripts/unity/update_unity_cam_pose.py" &
+    "${python_bin}" "${repo_root}/scripts/unity/update_unity_cam_pose.py" &
     background_pids+=($!)
 fi
 
 echo "Running PX4 SITL from ${px4_path}"
 export PX4_SIM_MODEL=iris
-cd ${px4_path}/build/px4_sitl_default
-./bin/px4 -s etc/init.d-posix/rcS
+cd "${px4_path}/build/px4_sitl_default"
+# Without a terminal (e.g. the GUI started from the applications menu) stdin is /dev/null,
+# and the pxh shell would read EOF and shut PX4 down right after startup
+if [ -t 0 ]; then
+    ./bin/px4 -s etc/init.d-posix/rcS
+else
+    ./bin/px4 -d -s etc/init.d-posix/rcS
+fi
